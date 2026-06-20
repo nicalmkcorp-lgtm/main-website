@@ -126,6 +126,15 @@
   .reveal.d1{transition-delay:.1s}.reveal.d2{transition-delay:.2s}.reveal.d3{transition-delay:.3s}.reveal.d4{transition-delay:.4s}.reveal.d5{transition-delay:.5s}
   .reveal-x{opacity:0;transform:translateX(-40px);transition:opacity 1s ease,transform 1s ease}
   .reveal-x.in{opacity:1;transform:none}
+  .host{position:absolute;bottom:0;height:78%;max-height:560px;width:auto;pointer-events:none;z-index:1;filter:drop-shadow(0 30px 40px rgba(0,0,0,.18))}
+  .host-left{left:0;transform:translateX(-120%) rotate(-6deg);transition:transform 1.4s cubic-bezier(.2,.7,.2,1),opacity 1.2s ease;opacity:0}
+  .host-right{right:0;transform:translateX(120%) rotate(6deg);transition:transform 1.4s cubic-bezier(.2,.7,.2,1),opacity 1.2s ease;opacity:0}
+  .host-left.in{transform:translateX(0) rotate(0);opacity:1;animation:hostFloatL 6s ease-in-out 1.6s infinite}
+  .host-right.in{transform:translateX(0) rotate(0);opacity:1;animation:hostFloatR 6s ease-in-out 1.6s infinite}
+  @keyframes hostFloatL{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(-1.5deg)}}
+  @keyframes hostFloatR{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(1.5deg)}}
+  @media (max-width:900px){.host{height:42%;max-height:300px;opacity:.55!important}}
+  @media (max-width:600px){.host{height:34%;max-height:230px;opacity:.4!important}}
 </style>
 </head>
 <body>
@@ -280,9 +289,13 @@
 </section>
 <section id="contact" class="final">
   <div class="container">
+<section id="contact" class="final" style="position:relative;overflow:hidden">
+  <img class="host host-left reveal" src="host-man.png" alt="Concierge welcoming you" />
+  <img class="host host-right reveal" src="host-woman.png" alt="Hostess welcoming you" />
+  <div class="container" style="position:relative;z-index:2">
     <div class="eyebrow reveal">Become a member</div>
     <h2 class="reveal d1" style="margin-top:22px">Three pleasures, <em>one quiet address.</em></h2>
-    <p class="reveal d2">Rent, borrow and shop dress with Nica Lmk Corp — and receive early access to seasonal Cars, private rates, and atelier releases.</p>
+    <p class="reveal d2">Drive, borrow and dress with Nica Lmk Corp — and receive early access to seasonal automobiles, private rates, and atelier releases.</p>
     <div class="reveal d3" style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap">
       <button class="btn-primary">Request invitation</button>
       <button class="btn-ghost">Speak to a admin</button>
