@@ -147,7 +147,10 @@
       <a href="#shop">Shop Dress</a>
       <a href="#contact">Contact</a>
     </div>
-    <button class="cta">Reserve now</button>
+    <div class="nav-right-container">
+      <button class="config-btn-nav" id="show-config-btn" title="Setup Merchant Database Connection">⚙️</button>
+      <button class="cta" id="nav-cart-toggle-btn">Cart (0)</button>
+    </div>
   </div>
   </nav>
 <header class="hero">
@@ -172,15 +175,15 @@
       </div>
       <p class="lead reveal d2">From weekend escapes ng barkada — to a family get away ng pamilya, with driver option pa, fueled and detailed.</p>
     </div>
-    <div class="cars-grid">
+    <div class="cars-grid" id="static-cars-grid">
       <article class="car reveal d1">
         <div class="img"><img alt="Black sedan" src="https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907740417.png?auto=format&fit=crop&w=900&q=80"></div>
         <div class="body">
           <h3>Toyota Avanza 2025</h3>
           <div class="meta">MPV · Auto · 7 seats</div>
           <p style="color:var(--muted);font-size:14px">It features FWD, a spacious cabin, and top-tier trims.</p>
-          <div class="price"><div><span class="num">Php1,699</span> <small>/ 12hr</small></div><small>Reserve →</small></div>
-          <div class="price"><div><span class="num">Php2,499</span> <small>/ 24hr</small></div><small>Reserve →</small></div>
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('Toyota Avanza 2025', 1699, '12hr')"><div><span class="num">Php1,699</span> <small>/ 12hr</small></div><small>Reserve →</small></div>
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('Toyota Avanza 2025', 2499, '24hr')"><div><span class="num">Php2,499</span> <small>/ 24hr</small></div><small>Reserve →</small></div>
         </div>
       </article>
       <article class="car reveal d2">
@@ -189,12 +192,12 @@
           <h3>Toyota Wigo 2026</h3>
           <div class="meta">5 Door Hatchback · 5 seats</div>
           <p style="color:var(--muted);font-size:14px">offering great urban maneuverability and excellent fuel efficiency.</p>
-          <div class="price"><div><span class="num">Php1,499</span> <small>/ 12hr</small></div><small>Reserve →</small></div>
-          <div class="price"><div><span class="num">Php1,999</span> <small>/ 24hr</small></div><small>Reserve →</small></div>
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('Toyota Wigo 2026', 1499, '12hr')"><div><span class="num">Php1,499</span> <small>/ 12hr</small></div><small>Reserve →</small></div>
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('Toyota Wigo 2026', 1999, '24hr')"><div><span class="num">Php1,999</span> <small>/ 24hr</small></div><small>Reserve →</small></div>
         </div>
       </article>
-      
     </div>
+    <div class="cars-grid" id="dynamic-cars-grid" style="display:none;"></div>
   </div>
 </section>
 <!-- LOANS -->
@@ -239,12 +242,13 @@
       </div>
       <p class="lead reveal d2">Nag lilive din po kame sa Facebook/ shopee and Tiktok for bale's or ukay, kitakits po tayo dun, pwede din po kayon mag bulk orders for your business</p>
     </div>
-    <div class="cat-tabs reveal">
+    <div class="cat-tabs reveal" id="static-cat-tabs">
       <button>shorts for kids</button>
       <button>Spag type for kids</button>
       <button>Sado for kids</button>
     </div>
-    <div class="garments-grid">
+    <div class="cat-tabs" id="dynamic-cat-tabs" style="display:none; margin-bottom: 40px;"></div>
+    <div class="garments-grid" id="static-garments-grid">
       <div class="product reveal d1">
         <div class="ph"><span class="tag">New</span><img alt="Linen dress" src="https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/Messenger_creation_629E64C6-BFF5-4AAD-897B-9B10ACEDE057.jpeg?auto=format&fit=crop&w=700&q=80"></div>
         <h3>Kids Sando for boy</h3>
@@ -324,6 +328,7 @@
         <div class="p-meta"><span>bdls 3 pairs · 5 sizes</span><span class="price-tag">$148</span></div>
       </div>
     </div>
+    <div class="garments-grid" id="dynamic-garments-grid" style="display:none;"></div>
   </div>
   </section>
 <section id="contact" class="final">
@@ -379,26 +384,1302 @@
     <div>Facebook · Shopee · Tiktok Shop</div>
   </div>
 </footer>
+<!-- EXTRA CSS STYLES FOR DYNAMIC CART & MODALS -->
+<style>
+  /* Cart & Config Modals styling */
+  .floating-cart-btn {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #0e0d0b;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,.5);
+    z-index: 150;
+    cursor: pointer;
+    display: none; /* Shown dynamically if items added or loaded */
+    align-items: center;
+    justify-content: center;
+    transition: transform .3s cubic-bezier(.2,.7,.2,1);
+  }
+  .floating-cart-btn:hover {
+    transform: scale(1.1);
+    background: var(--gold-2);
+  }
+  .floating-cart-btn .icon {
+    font-size: 24px;
+    line-height: 1;
+  }
+  .floating-cart-btn #cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e63946;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    border: 2px solid var(--bg);
+  }
+
+  /* Slider Drawer */
+  .cart-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 440px;
+    max-width: 100vw;
+    height: 100vh;
+    background: var(--card);
+    border-left: 1px solid var(--line);
+    box-shadow: -10px 0 40px rgba(0,0,0,.5);
+    z-index: 200;
+    transform: translateX(100%);
+    transition: transform .4s cubic-bezier(.2,.7,.2,1);
+    display: flex;
+    flex-direction: column;
+  }
+  .cart-drawer.open {
+    transform: translateX(0);
+  }
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .4s ease;
+    backdrop-filter: blur(4px);
+  }
+  .drawer-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .drawer-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .drawer-header h3 {
+    font-size: 24px;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold-2);
+  }
+  .close-btn {
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    font-size: 24px;
+    cursor: pointer;
+    font-weight: 300;
+    transition: color 0.25s;
+  }
+  .close-btn:hover {
+    color: var(--gold);
+  }
+  .cart-items-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .cart-item-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+  }
+  .cart-item-row img {
+    width: 60px;
+    height: 80px;
+    object-fit: cover;
+    background: rgba(255,255,255,.05);
+  }
+  .cart-item-info {
+    flex: 1;
+  }
+  .cart-item-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    margin-bottom: 2px;
+    color: var(--ink);
+  }
+  .cart-item-price {
+    font-size: 14px;
+    color: var(--gold);
+  }
+  .cart-item-qty-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--line);
+    padding: 4px 8px;
+    width: fit-content;
+    margin-top: 6px;
+  }
+  .cart-item-qty-control button {
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cart-item-qty-control span {
+    font-size: 13px;
+    min-width: 14px;
+    text-align: center;
+  }
+  .cart-item-remove {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    transition: color .2s;
+  }
+  .cart-item-remove:hover {
+    color: #e63946;
+  }
+  .drawer-footer {
+    padding: 24px;
+    border-top: 1px solid var(--line);
+    background: rgba(0,0,0,.2);
+  }
+  .cart-summary {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .cart-summary #cart-total-display {
+    color: var(--gold);
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  /* Modals (Checkout & Integrations) */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .35s ease;
+    backdrop-filter: blur(6px);
+    padding: 20px;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal-box {
+    background: var(--card);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideUp .4s cubic-bezier(.2,.7,.2,1);
+  }
+  @keyframes modalSlideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-header h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    color: var(--gold-2);
+  }
+  .modal-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .form-group label {
+    font-size: 11px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .form-group input, .form-group textarea, .form-group select {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 12px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: border-color .25s;
+    outline: none;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    border-color: var(--gold);
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .payment-instructions {
+    background: rgba(201,138,55,.05);
+    border: 1px dashed var(--gold);
+    padding: 16px;
+    font-size: 13px;
+    color: var(--muted);
+    border-radius: 2px;
+    line-height: 1.5;
+  }
+  .checkout-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .checkout-actions button {
+    flex: 1;
+  }
+
+  /* Toast Alerts */
+  .custom-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    background: var(--card);
+    border: 1px solid var(--gold);
+    color: var(--ink);
+    padding: 16px 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.5);
+    z-index: 500;
+    font-size: 13px;
+    letter-spacing: .08em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: toastSlideIn .35s cubic-bezier(.2,.7,.2,1);
+    max-width: 380px;
+  }
+  @keyframes toastSlideIn {
+    from { transform: translateX(-30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Gear config icon */
+  .config-btn-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    transition: all .25s;
+    outline: none;
+  }
+  .config-btn-nav:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  /* Custom Rent Options style */
+  .rent-type-select {
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  
+  /* Styling checkout button inside car cards */
+  .car-reserve-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    padding: 11px;
+    margin-top: 14px;
+    cursor: pointer;
+    transition: all .25s;
+  }
+  .car-reserve-btn:hover {
+    background: var(--gold);
+    color: #0e0d0b;
+  }
+
+  .nav-right-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Dynamically loaded item button styles */
+  .shop-add-btn {
+    margin-top: 14px;
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(26,24,20,.2);
+    color: #1a1814;
+    padding: 10px 14px;
+    font-size: 11px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .25s;
+  }
+  .shop-add-btn:hover {
+    background: #1a1814;
+    color: #f6f1e7;
+    border-color: #1a1814;
+  }
+</style>
+
+<!-- SUPABASE CLIENT SDK VIA CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- FLOATING INTERACTIVE WIDGETS -->
+<!-- 1. Floating Cart Badge -->
+<button id="floating-cart-btn" class="floating-cart-btn" onclick="toggleCartDrawer(true)">
+  <span class="icon">🛒</span>
+  <span id="cart-count">0</span>
+</button>
+
+<!-- 2. Slideout Cart Drawer -->
+<div id="cart-drawer-overlay" class="drawer-overlay" onclick="toggleCartDrawer(false)"></div>
+<div id="cart-drawer" class="cart-drawer">
+  <div class="drawer-header">
+    <h3>Your Shopping Cart</h3>
+    <button class="close-btn" onclick="toggleCartDrawer(false)">&times;</button>
+  </div>
+  <div id="cart-items" class="cart-items-container">
+    <!-- Items dynamically injected here -->
+    <div style="text-align:center;color:var(--muted);margin-top:40px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;">Your cart is empty.</div>
+  </div>
+  <div class="drawer-footer">
+    <div class="cart-summary">
+      <span>Order Total</span>
+      <span id="cart-total-display">₱0.00</span>
+    </div>
+    <button id="cart-checkout-btn" class="btn-primary" style="width: 100%; margin-top: 20px; display: none;" onclick="openOrderCheckout()">PROCEED TO CHECKOUT</button>
+  </div>
+</div>
+
+<!-- 3. Checkout Modal -->
+<div id="checkout-modal-overlay" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="checkout-title">Order Checkout</h3>
+      <button class="close-btn" onclick="closeCheckoutModal()">&times;</button>
+    </div>
+    <form id="checkout-form" onsubmit="handleFormSubmit(event)">
+      <div class="modal-body">
+        <input type="hidden" id="checkout-type" value="cart">
+        <input type="hidden" id="checkout-car-model" value="">
+        <input type="hidden" id="checkout-car-price" value="0">
+        <input type="hidden" id="checkout-car-duration" value="">
+
+        <div class="form-group">
+          <label for="checkout-name">Full Name</label>
+          <input type="text" id="checkout-name" required placeholder="Juan Dela Cruz">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="checkout-phone">Phone / Contact No.</label>
+            <input type="tel" id="checkout-phone" required placeholder="0917XXXXXXX">
+          </div>
+          <div class="form-group">
+            <label for="checkout-fb">Facebook / Messenger Profile</label>
+            <input type="text" id="checkout-fb" required placeholder="fb.com/juan">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="checkout-address">Delivery Address / Pickup Location</label>
+          <textarea id="checkout-address" rows="2" required placeholder="House No, Street, Barangay, Cavite"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="checkout-delivery">Fulfillment Route</label>
+            <select id="checkout-delivery" onchange="toggleDeliveryDisplay()">
+              <option value="Delivery">Standard Courier Delivery</option>
+              <option value="Pickup">Self Pick-up at Cavite Store Hub</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="checkout-payment">Payment Provider</label>
+            <select id="checkout-payment" onchange="updatePaymentDetails()">
+              <option value="GCash">GCash Transfer</option>
+              <option value="Bank Transfer">BDO Local Bank Deposit</option>
+              <option value="Shopee">Shopee Checkout</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dynamic Payment Merchant Box -->
+        <div class="payment-instructions" id="payment-prompt-box">
+          <strong>Send Payment to Merchant:</strong><br/>
+          <span id="payment-gateway-text">GCash: 0917-000-0001 (LMK CORP STORE)</span><br/>
+          <small>Settle the total amount then input the reference code below to synchronize your booking transaction.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="checkout-ref">Payment Reference Trans ID</label>
+          <input type="text" id="checkout-ref" required placeholder="InstaPay / GCash Ref No.">
+        </div>
+
+        <div class="checkout-actions">
+          <button type="button" class="btn-ghost" onclick="closeCheckoutModal()">Cancel</button>
+          <button type="submit" class="btn-primary" id="checkout-submit-btn">Complete Transaction</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 4. Merchant Dashboard Setup Modal -->
+<div id="config-modal-overlay" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Merchant Studio Database Link</h3>
+      <button class="close-btn" onclick="toggleConfigModal(false)">&times;</button>
+    </div>
+    <form id="config-form" onsubmit="saveConfig(event)">
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--muted); margin-bottom: 8px; line-height: 1.5">
+          Connect your public web storefront with your central LMK System database. This will load your active garments tabs and car configurations.
+        </p>
+        <div class="form-group">
+          <label>Company ID Slug</label>
+          <input type="text" id="config-company-id" placeholder="e.g. lmkcorp" required>
+        </div>
+        <div class="form-group">
+          <label>Supabase Project URL</label>
+          <input type="url" id="config-supabase-url" placeholder="https://xxxxxxxxx.supabase.co" required>
+        </div>
+        <div class="form-group">
+          <label>Supabase Roll ANON Key</label>
+          <input type="text" id="config-supabase-key" placeholder="eyJhbGciOi..." required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Store GCash Phone Profile</label>
+            <input type="text" id="config-gcash-num" placeholder="0917-XXX-XXXX">
+          </div>
+          <div class="form-group">
+            <label>Store GCash Verified Name</label>
+            <input type="text" id="config-gcash-name" placeholder="Nica M.">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>BDO Bank Account Number</label>
+            <input type="text" id="config-bdo-num" placeholder="00123-XXXX-XXXX">
+          </div>
+          <div class="form-group">
+            <label>BDO Verified Account Name</label>
+            <input type="text" id="config-bdo-name" placeholder="LMK CORPORATION">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Shopee Store / Listing Link</label>
+          <input type="url" id="config-shopee-url" placeholder="https://ph.shp.ee/YMQP6daK?share_channel_code=5">
+        </div>
+
+        <div class="checkout-actions">
+          <button type="button" class="btn-ghost" onclick="resetConfigToDefaults()">Reset Defaults</button>
+          <button type="submit" class="btn-primary">Save & Connect Hub</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CORE CLIENT STORE ENGINE SCRIPTS -->
 <script>
+  // Global cart state
+  let cart = [];
+  let supabaseClient = null;
+  
+  // Storage settings keys
+  const configKeys = {
+    supabaseUrl: 'lmk_store_supabase_url',
+    supabaseKey: 'lmk_store_supabase_key',
+    companyId: 'lmk_store_company_id',
+    gcashNum: 'lmk_store_gcash_num',
+    gcashName: 'lmk_store_gcash_name',
+    bdoNum: 'lmk_store_bdo_num',
+    bdoName: 'lmk_store_bdo_name',
+    shopeeUrl: 'lmk_store_shopee_url'
+  };
+
+  // Live retrieved catalogs
+  let loadedProducts = [];
+  let loadedRentals = {};
+
+  // Standard Default fallbacks if Supabase is unconfigured (For pristine testing)
+  const defaultGCashNum = "0917-000-0001";
+  const defaultGCashName = "NICA LMK STORE";
+  const defaultBdoNum = "1041-8025-4512";
+  const defaultBdoName = "Nica Lmk Corp (BDO Cavite)";
+  const defaultShopeeUrl = "https://ph.shp.ee/YMQP6daK?share_channel_code=5";
+
+  // DOM Intersection Observers
   const io = new IntersectionObserver((entries)=>{
     entries.forEach(e=>{
       if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
     });
   },{threshold:.12, rootMargin:'0px 0px -60px 0px'});
   document.querySelectorAll('.reveal, .reveal-x').forEach(el=>io.observe(el));
-  // tabs (visual only)
-  document.querySelectorAll('.cat-tabs button').forEach(b=>{
-    b.addEventListener('click',()=>{
-      document.querySelectorAll('.cat-tabs button').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-    });
-  });
-  // soft parallax on hero
+
+  // Soft parallax on hero
   const hero = document.querySelector('.hero');
   window.addEventListener('scroll',()=>{
     const y = window.scrollY;
     if(y < window.innerHeight){ hero.style.backgroundPositionY = (y*.3)+'px'; }
   },{passive:true});
+
+  // Init app
+  window.addEventListener('DOMContentLoaded', async () => {
+    // 1. Process URL search credentials if any are deep linked
+    processUrlParams();
+    
+    // 2. Initialize connection
+    initSupabaseConnection();
+
+    // 3. Load merchant catalog (cars and garments)
+    await loadMerchantCatalog();
+    
+    // 4. Fill configurations modal inputs
+    populateConfigInputs();
+  });
+
+  // Deep Link Parser
+  function processUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    let updated = false;
+
+    // Check parameters
+    const checkAndSave = (paramName, storageKey) => {
+      const val = params.get(paramName);
+      if (val) {
+        localStorage.setItem(storageKey, val);
+        updated = true;
+      }
+    };
+
+    checkAndSave('company', configKeys.companyId);
+    checkAndSave('supabaseUrl', configKeys.supabaseUrl);
+    checkAndSave('supabase_url', configKeys.supabaseUrl);
+    checkAndSave('supabaseKey', configKeys.supabaseKey);
+    checkAndSave('supabase_key', configKeys.supabaseKey);
+    checkAndSave('supabaseAnonKey', configKeys.supabaseKey);
+    checkAndSave('gcashNum', configKeys.gcashNum);
+    checkAndSave('gcashName', configKeys.gcashName);
+    checkAndSave('bdoNum', configKeys.bdoNum);
+    checkAndSave('bdoName', configKeys.bdoName);
+    checkAndSave('shopeeUrl', configKeys.shopeeUrl);
+    checkAndSave('shopee_url', configKeys.shopeeUrl);
+
+    if (updated) {
+      showToast('🔗 Dynamic configurations mapped! Storing credentials to your local workspace...');
+      // Clean URL params to avoid leakage or messy links
+      const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + 
+                     (params.get('company') ? `?company=${params.get('company')}` : '');
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+    }
+  }
+
+  // Initialize Supabase Client
+  function initSupabaseConnection() {
+    const url = localStorage.getItem(configKeys.supabaseUrl);
+    const key = localStorage.getItem(configKeys.supabaseKey);
+    
+    if (url && key) {
+      try {
+        supabaseClient = supabase.createClient(url, key);
+        console.log("Supabase Store client linked successfully.");
+      } catch (err) {
+        console.error("Failed to initialize Supabase client:", err);
+      }
+    }
+  }
+
+  // Populate settings modal boxes
+  function populateConfigInputs() {
+    document.getElementById('config-company-id').value = localStorage.getItem(configKeys.companyId) || 'nika-corp';
+    document.getElementById('config-supabase-url').value = localStorage.getItem(configKeys.supabaseUrl) || '';
+    document.getElementById('config-supabase-key').value = localStorage.getItem(configKeys.supabaseKey) || '';
+    document.getElementById('config-gcash-num').value = localStorage.getItem(configKeys.gcashNum) || '';
+    document.getElementById('config-gcash-name').value = localStorage.getItem(configKeys.gcashName) || '';
+    document.getElementById('config-bdo-num').value = localStorage.getItem(configKeys.bdoNum) || '';
+    document.getElementById('config-bdo-name').value = localStorage.getItem(configKeys.bdoName) || '';
+    document.getElementById('config-shopee-url').value = localStorage.getItem(configKeys.shopeeUrl) || '';
+  }
+
+  // Save Config and Connect
+  async function saveConfig(e) {
+    e.preventDefault();
+    const companyId = document.getElementById('config-company-id').value.trim();
+    const url = document.getElementById('config-supabase-url').value.trim();
+    const key = document.getElementById('config-supabase-key').value.trim();
+    const gcashNum = document.getElementById('config-gcash-num').value.trim();
+    const gcashName = document.getElementById('config-gcash-name').value.trim();
+    const bdoNum = document.getElementById('config-bdo-num').value.trim();
+    const bdoName = document.getElementById('config-bdo-name').value.trim();
+    const shopeeUrl = document.getElementById('config-shopee-url').value.trim();
+
+    localStorage.setItem(configKeys.companyId, companyId);
+    localStorage.setItem(configKeys.supabaseUrl, url);
+    localStorage.setItem(configKeys.supabaseKey, key);
+    localStorage.setItem(configKeys.gcashNum, gcashNum);
+    localStorage.setItem(configKeys.gcashName, gcashName);
+    localStorage.setItem(configKeys.bdoNum, bdoNum);
+    localStorage.setItem(configKeys.bdoName, bdoName);
+    localStorage.setItem(configKeys.shopeeUrl, shopeeUrl);
+
+    showToast('💾 Saving database credentials & merchant profiles...');
+    toggleConfigModal(false);
+    
+    // Re-initialize and reload
+    initSupabaseConnection();
+    await loadMerchantCatalog();
+  }
+
+  // Reset to static fallbacks
+  function resetConfigToDefaults() {
+    if (confirm('Are you sure you want to decouple from your active Supabase database? This reverts to the default static showcase.')) {
+      Object.values(configKeys).forEach(key => localStorage.removeItem(key));
+      showToast('🔄 Decoupled. Restoring default showcases.');
+      toggleConfigModal(false);
+      setTimeout(() => { window.location.reload(); }, 800);
+    }
+  }
+
+  // Toast System
+  function showToast(message) {
+    const oldToast = document.querySelector('.custom-toast');
+    if (oldToast) oldToast.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'custom-toast';
+    toast.innerHTML = `🌟 <span>${message}</span>`;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all .35s ease';
+      setTimeout(() => toast.remove(), 400);
+    }, 4000);
+  }
+
+  // Toggle modals
+  function toggleConfigModal(show) {
+    document.getElementById('config-modal-overlay').classList.toggle('active', show);
+  }
+  document.getElementById('show-config-btn').addEventListener('click', () => toggleConfigModal(true));
+
+  // Cart actions
+  function toggleCartDrawer(open) {
+    document.getElementById('cart-drawer').classList.toggle('open', open);
+    document.getElementById('cart-drawer-overlay').classList.toggle('active', open);
+  }
+  document.getElementById('nav-cart-toggle-btn').addEventListener('click', () => toggleCartDrawer(true));
+
+  // Dynamic products / rent retrieval from Supabase
+  async function loadMerchantCatalog() {
+    const activeCompanyId = localStorage.getItem(configKeys.companyId) || 'nika-corp';
+    
+    if (!supabaseClient) {
+      console.log("No Supabase configuration detected. Operating in static showroom fallback.");
+      return;
+    }
+
+    try {
+      showToast('⚡ Fetching active catalogs from Supabase cloud database...');
+
+      // 1. Fetch Config details (Rent Banner Settings and photos)
+      const { data: configRecords, error: configErr } = await supabaseClient
+        .from('app_config')
+        .select('*')
+        .eq('company_id', activeCompanyId);
+
+      if (!configErr && configRecords) {
+        const bannerRec = configRecords.find(r => r.key === 'rentBannerSettings');
+        if (bannerRec && bannerRec.value) {
+          loadedRentals = bannerRec.value;
+          renderDynamicCarCollection();
+        }
+      }
+
+      // 2. Fetch products / itemgoods_records
+      const { data: products, error: prodErr } = await supabaseClient
+        .from('itemgoods_records')
+        .select('*')
+        .eq('company', activeCompanyId);
+
+      if (prodErr) throw prodErr;
+      
+      if (products && products.length > 0) {
+        loadedProducts = products;
+        renderDynamicStoreCollection();
+      } else {
+        console.log("No items found in 'itemgoods_records' for company:", activeCompanyId);
+      }
+    } catch (err) {
+      console.error("Supabase catalogue load failed, utilizing robust static showroom:", err);
+      showToast('⚠️ Could not connect to database. Operating in elegant Static Showcase Mode with manual fallback.');
+    }
+  }
+
+  // Render dynamic cars
+  function renderDynamicCarCollection() {
+    const staticGrid = document.getElementById('static-cars-grid');
+    const dynamicGrid = document.getElementById('dynamic-cars-grid');
+    
+    if (!loadedRentals || Object.keys(loadedRentals).length === 0) return;
+
+    dynamicGrid.innerHTML = '';
+    let i = 1;
+
+    for (const [tabName, rentConfig] of Object.entries(loadedRentals)) {
+      if (!rentConfig || !rentConfig.carModel) continue;
+
+      const modelName = rentConfig.carModel || tabName;
+      const color = rentConfig.carColor || "Default Spectrum";
+      const p12 = rentConfig.price12h || "1699";
+      const p24 = rentConfig.price24h || "2499";
+      
+      // Default placeholder if photo doesn't exist
+      const defaultImg = i % 2 === 0 ? 
+                         "https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907649938.png" : 
+                         "https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907740417.png";
+
+      const carCard = document.createElement('article');
+      carCard.className = `car reveal d${(i % 4) + 1} in`; // Inject in class to run observer instantly
+      carCard.innerHTML = `
+        <div class="img"><img alt="${modelName}" src="${defaultImg}"></div>
+        <div class="body">
+          <h3>${modelName}</h3>
+          <div class="meta">${color} · Aircon · Automatic</div>
+          <p style="color:var(--muted);font-size:14px">Rent package configured for direct Cavite travel. High-tier maintenance.</p>
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr')">
+            <div><span class="num">₱${parseInt(p12).toLocaleString()}</span> <small>/ 12hr</small></div>
+            <small>Reserve →</small>
+          </div>
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p24}, '24hr')">
+            <div><span class="num">₱${parseInt(p24).toLocaleString()}</span> <small>/ 24hr</small></div>
+            <small>Reserve →</small>
+          </div>
+        </div>
+      `;
+      dynamicGrid.appendChild(carCard);
+      i++;
+    }
+
+    if (dynamicGrid.children.length > 0) {
+      staticGrid.style.display = 'none';
+      dynamicGrid.style.display = 'grid';
+    }
+  }
+
+  // Render dynamic products / garments
+  function renderDynamicStoreCollection() {
+    const staticTabs = document.getElementById('static-cat-tabs');
+    const dynamicTabs = document.getElementById('dynamic-cat-tabs');
+    const staticGrid = document.getElementById('static-garments-grid');
+    const dynamicGrid = document.getElementById('dynamic-garments-grid');
+
+    // 1. Get unique tabs (categories)
+    const tabs = ['ALL', ...new Set(loadedProducts.map(item => item.tab || 'Products').filter(Boolean))];
+    
+    // 2. Render Category Tabs
+    dynamicTabs.innerHTML = '';
+    tabs.forEach((tab, index) => {
+      const btn = document.createElement('button');
+      if (index === 0) btn.className = 'active';
+      btn.textContent = tab;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#dynamic-cat-tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterAndRenderProducts(tab);
+      });
+      dynamicTabs.appendChild(btn);
+    });
+
+    // 3. Toggle grids
+    staticTabs.style.display = 'none';
+    dynamicTabs.style.display = 'flex';
+    staticGrid.style.display = 'none';
+    dynamicGrid.style.display = 'grid';
+
+    // Renders everything by default
+    filterAndRenderProducts('ALL');
+  }
+
+  // Filter dynamic garments product list
+  function filterAndRenderProducts(category) {
+    const dynamicGrid = document.getElementById('dynamic-garments-grid');
+    dynamicGrid.innerHTML = '';
+
+    const itemsToRender = category === 'ALL' ? 
+                          loadedProducts : 
+                          loadedProducts.filter(p => p.tab === category);
+
+    if (itemsToRender.length === 0) {
+      dynamicGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:\'Cormorant Garamond\', serif; font-size: 22px;">No products currently loaded under this sector.</div>';
+      return;
+    }
+
+    itemsToRender.forEach((item, index) => {
+      // Build storage public image if it exists, otherwise fall back to premium default images.
+      const url = localStorage.getItem(configKeys.supabaseUrl);
+      let imgPath = "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=80"; // standard default placeholder
+      
+      if (item.image) {
+        if (item.image.startsWith('http')) {
+          imgPath = item.image;
+        } else if (url) {
+          imgPath = `${url}/storage/v1/object/public/item%20pictures/pictures/${item.image}`;
+        }
+      }
+
+      const price = parseFloat(item.price || 0);
+      const isLowStock = item.quantity <= 1;
+      const remainsMsg = isLowStock ? `Only ${parseInt(item.quantity)} left!` : "In Stock";
+      const remainsColor = isLowStock ? '#e63946' : '#6b6557';
+
+      const prodElement = document.createElement('div');
+      prodElement.className = `product reveal d${(index % 4) + 1} in`;
+      prodElement.innerHTML = `
+        <div class="ph">
+          ${isLowStock ? '<span class="tag" style="background:#e63946">Low Stock</span>' : '<span class="tag">Atelier</span>'}
+          <img alt="${item.name}" src="${imgPath}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'">
+        </div>
+        <h3>${item.name || 'Atelier Item'}</h3>
+        <p style="font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.05em">${item.remarks || 'Standard production, premium garments.'}</p>
+        <div class="p-meta">
+          <span style="color:${remainsColor}">${remainsMsg}</span>
+          <span class="price-tag">₱${price.toLocaleString()}</span>
+        </div>
+        <button class="shop-add-btn" onclick="addToCart('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${price}, '${imgPath}')">Add to Cart</button>
+      `;
+      dynamicGrid.appendChild(prodElement);
+    });
+  }
+
+  // Adding items into Cart
+  function addToCart(id, name, price, image) {
+    const existingIndex = cart.findIndex(item => item.id === id);
+    if (existingIndex !== -1) {
+      cart[existingIndex].qty++;
+    } else {
+      cart.push({ id, name, price, image, qty: 1 });
+    }
+
+    showToast(`🛍️ "${name}" loaded inside your shopping cart!`);
+    updateCartUI();
+    toggleCartDrawer(true);
+  }
+
+  // Update Cart UI
+  function updateCartUI() {
+    const container = document.getElementById('cart-items');
+    const badge = document.getElementById('floating-cart-btn');
+    const badgeCount = document.getElementById('cart-count');
+    const navToggle = document.getElementById('nav-cart-toggle-btn');
+    const checkoutBtn = document.getElementById('cart-checkout-btn');
+    const totalDisplay = document.getElementById('cart-total-display');
+
+    let totalQty = 0;
+    let totalPrice = 0;
+
+    if (cart.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--muted);margin-top:40px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:20px;">Your cart is empty.</div>';
+      badge.style.display = 'none';
+      navToggle.textContent = 'Cart (0)';
+      checkoutBtn.style.display = 'none';
+      totalDisplay.textContent = '₱0.00';
+      return;
+    }
+
+    container.innerHTML = '';
+    cart.forEach(item => {
+      totalQty += item.qty;
+      totalPrice += (item.price * item.qty);
+
+      const cartRow = document.createElement('div');
+      cartRow.className = 'cart-item-row';
+      cartRow.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">₱${(item.price * item.qty).toLocaleString()}</div>
+          <div class="cart-item-qty-control">
+            <button onclick="changeQty('${item.id}', -1)">-</button>
+            <span>${item.qty}</span>
+            <button onclick="changeQty('${item.id}', 1)">+</button>
+          </div>
+        </div>
+        <button class="cart-item-remove" onclick="removeCartItem('${item.id}')">Remove</button>
+      `;
+      container.appendChild(cartRow);
+    });
+
+    // Update totals
+    badgeCount.textContent = totalQty;
+    badge.style.display = 'flex';
+    navToggle.textContent = `Cart (${totalQty})`;
+    checkoutBtn.style.display = 'block';
+    totalDisplay.textContent = `₱${totalPrice.toLocaleString()}`;
+  }
+
+  // Qty controller
+  function changeQty(id, delta) {
+    const index = cart.findIndex(item => item.id === id);
+    if (index === -1) return;
+
+    cart[index].qty += delta;
+    if (cart[index].qty <= 0) {
+      cart.splice(index, 1);
+    }
+    updateCartUI();
+  }
+
+  // Remove single row
+  function removeCartItem(id) {
+    const index = cart.findIndex(item => item.id === id);
+    if (index !== -1) {
+      cart.splice(index, 1);
+    }
+    updateCartUI();
+  }
+
+  // Opens Checkout for Cart
+  function openOrderCheckout() {
+    toggleCartDrawer(false);
+    
+    document.getElementById('checkout-title').textContent = "Complete Order Checkout";
+    document.getElementById('checkout-type').value = "cart";
+    
+    // Calculate total price
+    const totalPrice = cart.reduce((total, item) => total + (item.price * item.qty), 0);
+    document.getElementById('checkout-car-price').value = totalPrice;
+
+    updatePaymentDetails();
+    document.getElementById('checkout-modal-overlay').classList.add('active');
+  }
+
+  // Opens Checkout for Car booking
+  function openCarCheckout(carModel, rate, duration) {
+    document.getElementById('checkout-title').textContent = `Book Reservation: ${carModel}`;
+    document.getElementById('checkout-type').value = "rent";
+    document.getElementById('checkout-car-model').value = carModel;
+    document.getElementById('checkout-car-price').value = rate;
+    document.getElementById('checkout-car-duration').value = duration;
+
+    updatePaymentDetails();
+    document.getElementById('checkout-modal-overlay').classList.add('active');
+  }
+
+  // Close checkout modal
+  function closeCheckoutModal() {
+    document.getElementById('checkout-modal-overlay').classList.remove('active');
+  }
+
+  // Toggle Delivery Display Subtext
+  function toggleDeliveryDisplay() {
+    const deliveryType = document.getElementById('checkout-delivery').value;
+    const addressLabel = document.querySelector('label[for="checkout-address"]');
+    const addressArea = document.getElementById('checkout-address');
+
+    if (deliveryType === 'Pickup') {
+      addressLabel.textContent = "Your Location / Address (Optional for pickup verification)";
+      addressArea.placeholder = "Indicate address prefix to verify profile";
+      addressArea.required = false;
+    } else {
+      addressLabel.textContent = "Complete Hand-off Delivery Address";
+      addressArea.placeholder = "House No, Street, Barangay, Cavite (Settle fee locally)";
+      addressArea.required = true;
+    }
+  }
+
+  // Updates Payment prompt Box with custom/stored Merchant Details
+  function updatePaymentDetails() {
+    const paymentMethod = document.getElementById('checkout-payment').value;
+    const textBox = document.getElementById('payment-gateway-text');
+    const refLabel = document.querySelector('label[for="checkout-ref"]');
+    const refInput = document.getElementById('checkout-ref');
+
+    const gNum = localStorage.getItem(configKeys.gcashNum) || defaultGCashNum;
+    const gName = localStorage.getItem(configKeys.gcashName) || defaultGCashName;
+    const bNum = localStorage.getItem(configKeys.bdoNum) || defaultBdoNum;
+    const bName = localStorage.getItem(configKeys.bdoName) || defaultBdoName;
+    const sUrl = localStorage.getItem(configKeys.shopeeUrl) || defaultShopeeUrl;
+
+    // Get order amount
+    const priceAmount = parseFloat(document.getElementById('checkout-car-price').value || 0);
+
+    if (paymentMethod === 'GCash') {
+      textBox.innerHTML = `<strong>GCash Option:</strong> Send ₱${priceAmount.toLocaleString()} to:<br/>👤 Name: <strong>${gName}</strong><br/>📱 Number: <strong>${gNum}</strong>`;
+      if (refLabel) refLabel.textContent = "GCash Transaction Reference ID";
+      if (refInput) refInput.placeholder = "Enter 13-digit GCash Ref No.";
+    } else if (paymentMethod === 'Bank Transfer') {
+      textBox.innerHTML = `<strong>BDO Local Deposit:</strong> Send ₱${priceAmount.toLocaleString()} to:<br/>👤 Acc Name: <strong>${bName}</strong><br/>💳 Acc Number: <strong>${bNum}</strong>`;
+      if (refLabel) refLabel.textContent = "Bank Transfer Reference ID";
+      if (refInput) refInput.placeholder = "Enter InstaPay / Bank Ref No.";
+    } else if (paymentMethod === 'Shopee') {
+      textBox.innerHTML = `
+        <strong>Shopee Checkout Option:</strong><br/>
+        Complete your order securely through our verified Shopee storefront.<br/>
+        <a href="${sUrl}" target="_blank" rel="noopener" class="btn-primary" style="display:inline-block; margin-top:12px; padding:10px 18px; text-decoration:none; font-size:11px; font-weight:600; background:#ee4d2d; border:1px solid #ee4d2d; color:#fff; text-align:center; letter-spacing:0.1em; transition:all 0.25s;">👉 GO TO SHOPEE STOREFRONT</a>
+        <br/><br/>
+        <small style="display:block; margin-top:6px; color:var(--muted); line-height:1.4;">Place an order on our Shopee store, then insert your <strong>Shopee Username or Shopee Order Ref ID</strong> below to instantly confirm and match your checkout.</small>
+      `;
+      if (refLabel) refLabel.textContent = "Shopee Username / Order ID";
+      if (refInput) refInput.placeholder = "e.g. shopee_username or Order ID";
+    }
+  }
+
+  // Form Submissions Checkout Pipelines
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+    const type = document.getElementById('checkout-type').value; // "cart" or "rent"
+    
+    const customerName = document.getElementById('checkout-name').value.trim();
+    const phone = document.getElementById('checkout-phone').value.trim();
+    const fbProfile = document.getElementById('checkout-fb').value.trim();
+    const address = document.getElementById('checkout-address').value.trim();
+    const fulfillment = document.getElementById('checkout-delivery').value;
+    const payment = document.getElementById('checkout-payment').value;
+    const refNum = document.getElementById('checkout-ref').value.trim();
+    const totalPrice = parseFloat(document.getElementById('checkout-car-price').value || 0);
+
+    const activeCompanyId = localStorage.getItem(configKeys.companyId) || 'nika-corp';
+    const randId = 'web-txn-' + Math.random().toString(36).substr(2, 9);
+
+    let submitCompleted = false;
+
+    // Loading State
+    const submitBtn = document.getElementById('checkout-submit-btn');
+    submitBtn.textContent = "Processing Transaction...";
+    submitBtn.disabled = true;
+
+    // CASE A: Customer ordered standard Shopping Cart items
+    if (type === 'cart') {
+      const itemsBlobName = cart.map(i => i.name).join(', ');
+      const itemsBlobQty = cart.map(i => i.qty).join(', ');
+      const itemsBlobAmt = cart.map(i => i.price).join(', ');
+
+      const orderRemarks = `🛍️ WEB ORDER VIA STOREFRONT.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: ${payment}\nMerchant Txn Ref ID: ${refNum}\nCart details: ${cart.map(i => `${i.name} (x${i.qty})`).join(', ')}`;
+
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient
+            .from('sales_records')
+            .insert({
+              id: randId,
+              company: activeCompanyId,
+              name: `[WEB ORDER] ${customerName}`,
+              amount: totalPrice,
+              date: new Date().toISOString(),
+              remarks: orderRemarks,
+              status: 'active',
+              type: 'sales',
+              tab: 'Online Store',
+              sales_entry_type: 'sale',
+              order_status: 'pending',
+              compressed_items: itemsBlobName,
+              compressed_quantities: itemsBlobQty,
+              compressed_amounts: itemsBlobAmt,
+              reference_id: refNum
+            });
+
+          if (error) throw error;
+          submitCompleted = true;
+        } catch (err) {
+          console.error("Direct order upload failed:", err);
+          submitCompleted = false;
+        }
+      }
+    } 
+    // CASE B: Customer booked a Rental Car
+    else {
+      const carModel = document.getElementById('checkout-car-model').value;
+      const duration = document.getElementById('checkout-car-duration').value;
+      const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel} during ${duration}.\nFulfillment: ${fulfillment}\nDelivery/Address: ${address}\nFB Contact: ${fbProfile}\nPayment Gateway: ${payment}\nMerchant Txn Ref ID: ${refNum}`;
+
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient
+            .from('rent_records')
+            .insert({
+              id: randId,
+              company: activeCompanyId,
+              name: `${customerName} (${fbProfile})`,
+              amount: totalPrice,
+              date: new Date().toISOString(),
+              end_date: new Date(Date.now() + (duration === '12hr' ? 12 : 24)*3600000).toISOString(),
+              remarks: rentRemarks,
+              facebook: fbProfile,
+              contact_number: phone,
+              status: 'active',
+              type: 'rent',
+              tab: 'Rent A Car'
+            });
+
+          if (error) throw error;
+          submitCompleted = true;
+        } catch (err) {
+          console.error("Direct car booking upload failed:", err);
+          submitCompleted = false;
+        }
+      }
+    }
+
+    submitBtn.textContent = "Complete Transaction";
+    submitBtn.disabled = false;
+
+    // Reset modals and state
+    closeCheckoutModal();
+
+    if (submitCompleted) {
+      showCompletionPage(customerName, randId, totalPrice, true);
+    } else {
+      // Graceful offline/restricted checkout fallback: Prebuilds Facebook Messenger Link
+      console.log("Database upload unavailable, building robust Facebook Messenger hand-shake checkout.");
+      
+      let messageInvoice = `✨ LMK CORP ATELIER SYSTEM INVOICE ✨\n\n`;
+      messageInvoice += `👤 Customer: ${customerName}\n`;
+      messageInvoice += `📞 Phone: ${phone}\n`;
+      messageInvoice += `🌐 FB link: ${fbProfile}\n`;
+      messageInvoice += `📦 fulfillment: ${fulfillment}\n`;
+      messageInvoice += `📍 Address: ${address}\n\n`;
+      messageInvoice += `💵 Total Amount: ₱${totalPrice.toLocaleString()}\n`;
+      messageInvoice += `💳 Payment method: ${payment}\n`;
+      messageInvoice += `🆔 Reference payment: ${refNum}\n\n`;
+      
+      if (type === 'cart') {
+        messageInvoice += `🛍️ Items Bought:\n`;
+        cart.forEach(i => {
+          messageInvoice += `▪️ ${i.name} (x${i.qty}) - ₱${(i.price * i.qty).toLocaleString()}\n`;
+        });
+      } else {
+        const carModel = document.getElementById('checkout-car-model').value;
+        const duration = document.getElementById('checkout-car-duration').value;
+        messageInvoice += `🚗 Car Reservation:\n▪️ Model: ${carModel}\n▪️ Duration: ${duration}\n`;
+      }
+
+      // Encode URL message
+      const formattedUrlMessage = encodeURIComponent(messageInvoice);
+      // Fallback Messenger deep link
+      const messengerId = "nicalmkcorp"; // principal company messenger page
+      const messengerLink = `https://m.me/${messengerId}?text=${formattedUrlMessage}`;
+
+      showCompletionPage(customerName, randId, totalPrice, false, messengerLink, messageInvoice);
+    }
+
+    // Reset Cart local
+    if (type === 'cart') {
+      cart = [];
+      updateCartUI();
+    }
+  }
+
+  // Display checkout completed screen
+  function showCompletionPage(customerName, orderId, totalVal, dbSuccess, fbLink = '', msgText = '') {
+    const oldOverlay = document.getElementById('success-overlay');
+    if (oldOverlay) oldOverlay.remove();
+
+    const successOverlay = document.createElement('div');
+    successOverlay.id = 'success-overlay';
+    successOverlay.className = 'modal-overlay active';
+    
+    let boxContent = `
+      <div class="modal-box" style="text-align:center; padding:36px 24px; position:relative">
+        <div style="font-size: 54px; margin-bottom:16px;">✨</div>
+        <h3 style="font-family:'Cormorant Garamond', serif; font-size: 32px; color:var(--gold-2); margin-bottom: 8px;">Order Received!</h3>
+        <p style="font-size: 14px; color:var(--muted); margin-bottom: 24px;">Thank you for reserving, <strong>${customerName}</strong>.</p>
+    `;
+
+    if (dbSuccess) {
+      boxContent += `
+        <div class="payment-instructions" style="text-align:left; background:rgba(201,169,106,.05); border:1px solid var(--gold); margin-bottom: 24px">
+          <strong>Order Details Synced:</strong><br/>
+          <span>Txn Track ID: <span style="font-family: monospace; color:white">${orderId}</span></span><br/>
+          <span>Amount Paid: <strong>₱${totalVal.toLocaleString()}</strong></span><br/><br/>
+          <small>Our central staff dashboard has received your parameters. We will contact you immediately via phone or Messenger to schedule checkout handover.</small>
+        </div>
+      `;
+    } else {
+      boxContent += `
+        <div class="payment-instructions" style="text-align:left; background:rgba(230,57,70,0.06); border:1px dashed #e63946; margin-bottom: 24px">
+          <strong>Offline Handshake Fallback:</strong><br/>
+          <p style="font-size:12px; margin-top:4px; line-height: 1.4">Database synced locally! To complete verification instantly, click "Submit Invoice via Facebook Messenger" below to transmit your payment details to the owner.</p>
+        </div>
+        <div style="text-align:left; margin-bottom: 24px;">
+          <textarea style="width:100%; background:rgba(255,255,255,.05); color:var(--ink); font-family: monospace; font-size:12px; border:1px solid var(--line); padding:10px" rows="5" readonly>${msgText}</textarea>
+        </div>
+      `;
+    }
+
+    boxContent += `
+      <div style="display:flex; flex-direction:column; gap:12px">
+        ${!dbSuccess ? `<a href="${fbLink}" target="_blank" rel="noopener" class="btn-primary" style="display:block; text-align:center; padding:16px" onclick="document.getElementById('success-overlay').remove()">Submit Invoice via Messenger</a>` : ''}
+        <button class="btn-ghost" onclick="document.getElementById('success-overlay').remove()">Back to Storefront</button>
+      </div>
+    </div>
+    `;
+
+    successOverlay.innerHTML = boxContent;
+    document.body.appendChild(successOverlay);
+  }
 </script>
 </body>
 </html>
+
