@@ -1469,10 +1469,10 @@
       .cart-drawer {
         position: fixed;
         top: 0;
+        bottom: 0;
         right: 0;
         width: 440px;
         max-width: 100vw;
-        height: 100vh;
         background: var(--card);
         border-left: 1px solid var(--line);
         box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
@@ -1599,6 +1599,7 @@
         padding: 24px;
         border-top: 1px solid var(--line);
         background: rgba(0, 0, 0, 0.2);
+        flex-shrink: 0;
       }
       .cart-summary {
         display: flex;
@@ -2018,8 +2019,8 @@
                 <div class="form-group">
                   <label for="checkout-payment">Payment Option</label>
                   <select id="checkout-payment" onchange="updatePaymentDetails()">
-                    <option value="Maya Business">
-                      Maya Business (Maya, GCash, Cards)
+                    <option value="PayMongo">
+                      PayMongo (GCash, GCash, Cards)
                     </option>
                     <option value="QR Code">Scan QR Code Payment</option>
                   </select>
@@ -2346,9 +2347,9 @@
       </div>
     </div>
 
-    <!-- MAYA BUSINESS SECURE CHECKOUT INTEGRATION OVERLAY -->
+    <!-- PayMongo SECURE CHECKOUT INTEGRATION OVERLAY -->
     <div
-      id="maya-modal-overlay"
+      id="paymongo-modal-overlay"
       class="modal-overlay"
       style="z-index: 1500; display: none; background: rgba(0, 31, 31, 0.75); backdrop-filter: blur(4px);"
     >
@@ -2390,9 +2391,9 @@
               gap: 8px;
             "
           >
-            <span style="font-size: 20px">💳</span> Maya Business Secure Checkout
+            <span style="font-size: 20px">💳</span> PayMongo Secure Checkout
           </h3>
-          <button class="close-btn" type="button" onclick="closeMayaModal()" style="color:#ffffff; font-size:24px; background:none; border:none; cursor:pointer;">
+          <button class="close-btn" type="button" onclick="closePaymongoModal()" style="color:#ffffff; font-size:24px; background:none; border:none; cursor:pointer;">
             &times;
           </button>
         </div>
@@ -2412,7 +2413,7 @@
               Merchant: LMK CORP
             </div>
             <div
-              id="maya-order-title"
+              id="paymongo-order-title"
               style="
                 font-size: 13px;
                 font-weight: 700;
@@ -2423,7 +2424,7 @@
               Order #Loading...
             </div>
             <div
-              id="maya-order-price"
+              id="paymongo-order-price"
               style="
                 font-size: 18px;
                 font-weight: 800;
@@ -2435,30 +2436,30 @@
             </div>
           </div>
 
-          <div id="maya-interactive-form">
+          <div id="paymongo-interactive-form">
             <p style="font-size: 12px; color: #a0aec0; margin-bottom: 16px; line-height: 1.4;">
-              Select your payment option inside Maya Secure Gateway sandbox to complete checkout.
+              Select your payment option inside PayMongo Secure Gateway sandbox to complete checkout.
             </p>
 
             <div class="form-group" style="margin-bottom: 12px;">
-              <label style="color:#a0aec0; font-size: 10px; font-weight: 800; text-transform: uppercase;">Pay via Maya Wallet / GCash / Card</label>
-              <select id="maya-payment-source" style="width:100%; background:#0b1d28; color:#ffffff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:10px; font-size:12px; font-weight:bold; outline:none; margin-top:4px;">
-                <option value="wallet">Maya Wallet (Instant authorization)</option>
+              <label style="color:#a0aec0; font-size: 10px; font-weight: 800; text-transform: uppercase;">Pay via PayMongo Wallet / GCash / Card</label>
+              <select id="paymongo-payment-source" style="width:100%; background:#0b1d28; color:#ffffff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:10px; font-size:12px; font-weight:bold; outline:none; margin-top:4px;">
+                <option value="wallet">PayMongo Wallet (Instant authorization)</option>
                 <option value="gcash">GCash Wallet (Automatic Redirect)</option>
                 <option value="card">Visa/Mastercard Credit Card</option>
               </select>
             </div>
 
             <div class="form-group" style="margin-bottom: 16px;">
-              <label style="color:#a0aec0; font-size: 10px; font-weight: 800; text-transform: uppercase;">Maya Verified Account Holder Name</label>
-              <input type="text" id="maya-auth-name" placeholder="Juan Dela Cruz" style="width:100%; background:#0b1d28; color:#ffffff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:10px; font-size:12px; margin-top:4px; font-weight:bold;" required />
+              <label style="color:#a0aec0; font-size: 10px; font-weight: 800; text-transform: uppercase;">PayMongo Verified Account Holder Name</label>
+              <input type="text" id="paymongo-auth-name" placeholder="Juan Dela Cruz" style="width:100%; background:#0b1d28; color:#ffffff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:10px; font-size:12px; margin-top:4px; font-weight:bold;" required />
             </div>
 
             <div style="font-size: 11px; font-weight: 700; color: #a0aec0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.03em;">
               Gateway Connection Status:
             </div>
             
-            <div id="maya-progress-logs" style="background: #0b1d28; color: #a0aec0; font-family: monospace; font-size: 11px; padding: 12px; border-radius: 6px; line-height: 1.5; max-height: 120px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px;">
+            <div id="paymongo-progress-logs" style="background: #0b1d28; color: #a0aec0; font-family: monospace; font-size: 11px; padding: 12px; border-radius: 6px; line-height: 1.5; max-height: 120px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px;">
               <div style="color: #00BFA6;">[system] Initializing safe tunnel...</div>
               <div>[system] Keys validated successfully.</div>
               <div>[system] Ready for user authorization.</div>
@@ -2466,8 +2467,8 @@
 
             <button
               type="button"
-              id="maya-authorize-btn"
-              onclick="executeMayaPaymentFlow()"
+              id="paymongo-authorize-btn"
+              onclick="executePaymongoPaymentFlow()"
               style="
                 width: 100%;
                 background: #00BFA6;
@@ -2762,8 +2763,8 @@
         shopeePartnerKey: "lmk_store_shopee_partner_key",
         shopeeShopId: "lmk_store_shopee_shop_id",
         shopeeAccessToken: "lmk_store_shopee_access_token",
-        paymayaMerchantId: "lmk_store_paymaya_merchant_id",
-        paymayaApiKey: "lmk_store_paymaya_api_key",
+        paymongoPublicKey: "lmk_store_paymongo_public_key",
+        paymongoSecretKey: "lmk_store_paymongo_secret_key",
         shopeeShippingUrl: "lmk_store_shopee_shipping_url",
         salesTable: "lmk_store_sales_table",
         itemGoodsTable: "lmk_store_itemgoods_table",
@@ -3091,10 +3092,10 @@
                   localStorage.setItem(configKeys.shopeeShopId, cfg.value);
                 } else if (cfg.key === "shopeeAccessToken" && cfg.value) {
                   localStorage.setItem(configKeys.shopeeAccessToken, cfg.value);
-                } else if (cfg.key === "paymayaMerchantId" && cfg.value) {
-                  localStorage.setItem(configKeys.paymayaMerchantId, cfg.value);
-                } else if (cfg.key === "paymayaApiKey" && cfg.value) {
-                  localStorage.setItem(configKeys.paymayaApiKey, cfg.value);
+                } else if (cfg.key === "paymongoPublicKey" && cfg.value) {
+                  localStorage.setItem(configKeys.paymongoPublicKey, cfg.value);
+                } else if (cfg.key === "paymongoSecretKey" && cfg.value) {
+                  localStorage.setItem(configKeys.paymongoSecretKey, cfg.value);
                 } else if (cfg.key === "shopeeShippingUrl" && cfg.value) {
                   localStorage.setItem(configKeys.shopeeShippingUrl, cfg.value);
                 } else if (cfg.key === "sales_table" && cfg.value) {
@@ -3641,22 +3642,22 @@
           document.getElementById("checkout-car-price").value || 0
         );
 
-        if (paymentMethod === "Maya Business") {
-          const mId = localStorage.getItem("paymayaMerchantId") || "PYMY-DEMO-8192";
+        if (paymentMethod === "PayMongo") {
+          const mId = localStorage.getItem(configKeys.paymongoPublicKey) || "PYMY-DEMO-8192";
           textBox.innerHTML = `
-            <strong>Maya Business Merchant Checkout:</strong><br/>
-            You are paying securely via our integrated Maya Business payment gateway.
+            <strong>PayMongo Merchant Checkout:</strong><br/>
+            You are paying securely via our integrated PayMongo payment gateway.
             <br/><br/>
             <ul style="margin: 6px 0; padding-left: 16px; font-size: 11px; color: var(--muted); line-height: 1.5; text-align: left;">
               <li>🔒 Secure End-to-End Encryption (AES-256).</li>
               <li>⚡ Real-time automatic webhook payment verification.</li>
-              <li>💳 Accepts Maya Wallet, GCash, GrabPay, Visa, Mastercard, and JCB.</li>
+              <li>💳 Accepts PayMongo Wallet, GCash, GrabPay, Visa, Mastercard, and JCB.</li>
               <li>Merchant ID: <span style="font-family: monospace; color:#00BFA6; font-weight:bold">${mId}</span></li>
             </ul>
             <br/>
-            <span class="badge" style="background:#00BFA6; color:#00293C; font-size:10px; font-weight:800; padding:3px 6px; border-radius: 4px;">MAYA BUSINESS STATUS: CONNECTED</span>
+            <span class="badge" style="background:#00BFA6; color:#00293C; font-size:10px; font-weight:800; padding:3px 6px; border-radius: 4px;">PayMongo STATUS: CONNECTED</span>
           `;
-          if (refLabel) refLabel.textContent = "Maya Gateway Checkout Route";
+          if (refLabel) refLabel.textContent = "PayMongo Gateway Checkout Route";
           if (refInput) {
             refInput.value = "INTEGRATED-PAYMENT";
             refInput.placeholder = "Payment verified dynamically via secure webhook";
@@ -3682,7 +3683,7 @@
             `Pay Php ${priceAmount} to BDO Account ${bNum} (Name: ${bName})`
           )}`;
           const mqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-            `Pay Php ${priceAmount} to Maya Account ${gNum} (Name: ${gName})`
+            `Pay Php ${priceAmount} to PayMongo Account ${gNum} (Name: ${gName})`
           )}`;
           const sqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
             `Pay Php ${priceAmount} to ShopeePay Account ${gNum} (Name: ${gName})`
@@ -3734,17 +3735,17 @@
         <!-- Secondary/Collapsible QRs (Maya, ShopeePay, PH National QR) -->
         <div id="more-qr-panel" style="display:none; transition: all 0.3s ease; margin-top: 12px;">
           
-          <!-- Maya QR Card -->
+          <!-- GCash QR Card -->
           <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #5e3bee; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <div style="font-size:10px; font-weight:700; color:#5e3bee; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">Maya QR</div>
-            <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('Maya Wallet QR Payment', '${mqr}', '👤 Name: ${gName}\\n📱 Maya No: ${gNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
-              <img src="${mqr}" alt="Maya QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+            <div style="font-size:10px; font-weight:700; color:#5e3bee; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">GCash QR</div>
+            <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('PayMongo Wallet QR Payment', '${mqr}', '👤 Name: ${gName}\\n📱 PayMongo No: ${gNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
+              <img src="${mqr}" alt="GCash QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
               <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
             </div>
             <div style="font-size:10px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${gName}">${gName}</div>
             <div style="font-size:9px; color:#666; margin-top:1px; display:flex; align-items:center; gap:3px;">
               <span>${gNum}</span>
-              <button type="button" onclick="copyToClipboard('${gNum}', 'Maya Number', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
+              <button type="button" onclick="copyToClipboard('${gNum}', 'PayMongo Number', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
             </div>
           </div>
 
@@ -3766,7 +3767,7 @@
           <div style="background:#fff; border:1px solid #edf2f7; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04); position:relative; overflow:hidden;">
             <div style="position:absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(to right, #0038a8 33%, #fcd116 33% 66%, #ce1126 66%);"></div>
             <div style="font-size:10px; font-weight:700; color:#1a365d; text-transform:uppercase; margin-top:4px; margin-bottom:6px; letter-spacing:0.04em;">QR Ph</div>
-            <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('National QR Ph Unified', '${nqr}', '📋 Multi-Wallet National Standard (QR Ph)\\nAccepts GCash, Maya, ShopeePay, GrabPay, BDO, BPI, GoTyme, UnionBank etc.\\n💸 Amount: ₱${priceAmount.toLocaleString()}\\n👤 Merchant: ${gName}')">
+            <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('National QR Ph Unified', '${nqr}', '📋 Multi-Wallet National Standard (QR Ph)\\nAccepts GCash, PayMongo, ShopeePay, GrabPay, BDO, BPI, GoTyme, UnionBank etc.\\n💸 Amount: ₱${priceAmount.toLocaleString()}\\n👤 Merchant: ${gName}')">
               <img src="${nqr}" alt="QR Ph" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
               <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
             </div>
@@ -3802,8 +3803,8 @@
             submitBtn.style.opacity = "1";
             submitBtn.style.cursor = "pointer";
           }
-        } else if (payment === "Maya Business") {
-          submitBtn.textContent = "Proceed to Maya Secure Payment Gateway";
+        } else if (payment === "PayMongo") {
+          submitBtn.textContent = "Proceed to PayMongo Secure Payment Gateway";
           submitBtn.disabled = false;
           submitBtn.style.opacity = "1";
           submitBtn.style.cursor = "pointer";
@@ -3923,62 +3924,62 @@
         }
       }
 
-      let currentActiveMayaOrder = null;
-      let mayaSuccessCallback = null;
+      let currentActivePaymongoOrder = null;
+      let paymongoSuccessCallback = null;
 
-      window.closeMayaModal = function() {
-        document.getElementById("maya-modal-overlay").style.display = "none";
-        currentActiveMayaOrder = null;
-        mayaSuccessCallback = null;
+      window.closePaymongoModal = function() {
+        document.getElementById("paymongo-modal-overlay").style.display = "none";
+        currentActivePaymongoOrder = null;
+        paymongoSuccessCallback = null;
       };
 
-      window.startMayaCheckoutFlow = function(orderId, totalPrice, callback) {
-        currentActiveMayaOrder = orderId;
-        mayaSuccessCallback = callback;
+      window.startPaymongoCheckoutFlow = function(orderId, totalPrice, callback) {
+        currentActivePaymongoOrder = orderId;
+        paymongoSuccessCallback = callback;
 
         // Set text values
-        document.getElementById("maya-order-title").textContent = `Order Code: ${orderId}`;
-        document.getElementById("maya-order-price").textContent = `₱${totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        document.getElementById("maya-authorize-btn").textContent = `Authorize & Pay ₱${totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        document.getElementById("maya-authorize-btn").disabled = false;
-        document.getElementById("maya-authorize-btn").style.opacity = "1";
+        document.getElementById("paymongo-order-title").textContent = `Order Code: ${orderId}`;
+        document.getElementById("paymongo-order-price").textContent = `₱${totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById("paymongo-authorize-btn").textContent = `Authorize & Pay ₱${totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById("paymongo-authorize-btn").disabled = false;
+        document.getElementById("paymongo-authorize-btn").style.opacity = "1";
 
         // Reset auth name to customer's name
         const customerName = document.getElementById("checkout-name").value.trim();
-        document.getElementById("maya-auth-name").value = customerName;
+        document.getElementById("paymongo-auth-name").value = customerName;
 
         // Reset logs
-        const logsBox = document.getElementById("maya-progress-logs");
+        const logsBox = document.getElementById("paymongo-progress-logs");
         logsBox.innerHTML = `
           <div style="color: #00BFA6;">[system] Initializing safe tunnel...</div>
-          <div>[system] Merchant credentials verified with Maya.</div>
+          <div>[system] Merchant credentials verified with PayMongo.</div>
           <div>[system] Awaiting payment authorization from buyer.</div>
         `;
 
         // Open modal
-        document.getElementById("maya-modal-overlay").style.display = "flex";
+        document.getElementById("paymongo-modal-overlay").style.display = "flex";
       }
 
-      window.executeMayaPaymentFlow = function() {
-        const authName = document.getElementById("maya-auth-name").value.trim();
+      window.executePaymongoPaymentFlow = function() {
+        const authName = document.getElementById("paymongo-auth-name").value.trim();
         if (!authName) {
           alert("Please specify the Account Holder Name to authorize payment.");
           return;
         }
 
-        const logsBox = document.getElementById("maya-progress-logs");
-        const authBtn = document.getElementById("maya-authorize-btn");
+        const logsBox = document.getElementById("paymongo-progress-logs");
+        const authBtn = document.getElementById("paymongo-authorize-btn");
 
         authBtn.disabled = true;
         authBtn.style.opacity = "0.5";
         authBtn.textContent = "Authorizing transaction...";
 
         // Append log simulation
-        logsBox.innerHTML += `<div>[maya] Contacting secure token servers...</div>`;
+        logsBox.innerHTML += `<div>[paymongo] Contacting secure token servers...</div>`;
         logsBox.scrollTop = logsBox.scrollHeight;
 
         setTimeout(() => {
-          logsBox.innerHTML += `<div style="color: #00BFA6;">[maya] Handshake successful! Token: tkn_sec_${Math.random().toString(36).substr(2, 8)}</div>`;
+          logsBox.innerHTML += `<div style="color: #00BFA6;">[paymongo] Handshake successful! Token: tkn_sec_${Math.random().toString(36).substr(2, 8)}</div>`;
           logsBox.scrollTop = logsBox.scrollHeight;
 
           setTimeout(() => {
@@ -3991,10 +3992,10 @@
 
               setTimeout(() => {
                 // Success callback trigger
-                if (mayaSuccessCallback) {
-                  mayaSuccessCallback();
+                if (paymongoSuccessCallback) {
+                  paymongoSuccessCallback();
                 }
-                closeMayaModal();
+                closePaymongoModal();
               }, 1200);
             }, 1000);
           }, 1000);
@@ -4428,12 +4429,12 @@
           return;
         }
 
-        // Intercept Maya Business checkout flow to execute the integrated sandbox/webhook orchestration
-        if (type !== "rent" && payment === "Maya Business") {
+        // Intercept PayMongo checkout flow to execute the integrated sandbox/webhook orchestration
+        if (type !== "rent" && payment === "PayMongo") {
           const orderId =
             "PM-" + Math.random().toString(36).substr(2, 9).toUpperCase();
 
-          const onMayaPaid = async () => {
+          const onPaymongoPaid = async () => {
             // Resume checkout submission standard steps
             const submitBtnInside = document.getElementById(
               "checkout-submit-btn"
@@ -4447,7 +4448,7 @@
               const itemsBlobQty = cart.map((i) => i.qty).join(", ");
               const itemsBlobAmt = cart.map((i) => i.price).join(", ");
 
-              const orderRemarks = `🛍️ WEB ORDER VIA MAYA BUSINESS.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: Maya Business Sandbox Webhook\nReference payment ID: ${orderId}\nCart details: ${cart
+              const orderRemarks = `🛍️ WEB ORDER VIA PayMongo.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: PayMongo Sandbox Webhook\nReference payment ID: ${orderId}\nCart details: ${cart
                 .map((i) => `${i.name} (x${i.qty})`)
                 .join(", ")}`;
 
@@ -4462,7 +4463,7 @@
                       facebook: fbProfile,
                       address: address,
                       fulfillment: fulfillment,
-                      payment_method: "Maya Business",
+                      payment_method: "PayMongo",
                       reference_num: orderId,
                       total_price: totalPrice,
                       order_type: "cart",
@@ -4483,7 +4484,7 @@
                       .insert({
                         id: randId,
                         company: activeCompanyId,
-                        name: `[WEB MAYA PAID] ${customerName}`,
+                        name: `[WEB PAYMONGO PAID] ${customerName}`,
                         amount: totalPrice,
                         date: new Date().toISOString(),
                         remarks: orderRemarks,
@@ -4510,7 +4511,7 @@
               const duration = document.getElementById(
                 "checkout-car-duration"
               ).value;
-              const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel} during ${duration}.\nFulfillment: ${fulfillment}\nDelivery/Address: ${address}\nFB Contact: ${fbProfile}\nPayment Gateway: Maya Business Sandbox Webhook\nReference payment ID: ${orderId}`;
+              const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel} during ${duration}.\nFulfillment: ${fulfillment}\nDelivery/Address: ${address}\nFB Contact: ${fbProfile}\nPayment Gateway: PayMongo Sandbox Webhook\nReference payment ID: ${orderId}`;
 
               if (supabaseClient) {
                 try {
@@ -4523,7 +4524,7 @@
                       facebook: fbProfile,
                       address: address,
                       fulfillment: fulfillment,
-                      payment_method: "Maya Business",
+                      payment_method: "PayMongo",
                       reference_num: orderId,
                       total_price: totalPrice,
                       order_type: "rent",
@@ -4589,7 +4590,7 @@
             );
           };
 
-          startMayaCheckoutFlow(orderId, totalPrice, onMayaPaid);
+          startPaymongoCheckoutFlow(orderId, totalPrice, onPaymongoPaid);
           return;
         }
 
@@ -4853,16 +4854,16 @@
         successOverlay.id = "success-overlay";
         successOverlay.className = "modal-overlay active";
 
-        const isMayaCheckout = orderId && orderId.startsWith("PM-");
+        const isPaymongoCheckout = orderId && orderId.startsWith("PM-");
         let boxContent = "";
 
-        if (isMayaCheckout) {
+        if (isPaymongoCheckout) {
           const shopeeShippingUrl = localStorage.getItem("lmk_store_shopee_shipping_url") || "https://shopee.ph";
           boxContent = `
       <div class="modal-box" style="text-align:center; padding:36px 24px; position:relative; max-width:480px; border-top: 5px solid #ff5722;">
         <div style="font-size: 54px; margin-bottom:16px;">✨</div>
         <h3 style="font-family:'Cormorant Garamond', serif; font-size: 32px; color:#ff5722; margin-bottom: 8px; font-weight: bold;">Thank you for shopping</h3>
-        <p style="font-size: 14px; color:var(--muted); margin-bottom: 24px;">Your payment of <strong>₱${totalVal.toLocaleString()}</strong> has been securely confirmed via Maya Business webhook.</p>
+        <p style="font-size: 14px; color:var(--muted); margin-bottom: 24px;">Your payment of <strong>₱${totalVal.toLocaleString()}</strong> has been securely confirmed via PayMongo webhook.</p>
         
         <div class="payment-instructions" style="text-align:center; background:rgba(255,87,34,0.06); border:2px dashed #ff5722; padding: 20px; border-radius:12px; margin-bottom: 24px">
           <strong style="color:#ff5722; font-size: 14px; display:block; margin-bottom:8px;">🚚 SHIPPING REQUIREMENT:</strong>
