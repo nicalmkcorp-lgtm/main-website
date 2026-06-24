@@ -1708,6 +1708,11 @@
         grid-template-columns: 1fr 1fr;
         gap: 16px;
       }
+      @media (max-width: 600px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
       .payment-instructions {
         background: rgba(201, 138, 55, 0.05);
         border: 1px dashed var(--gold);
@@ -1927,7 +1932,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="checkout-fb">Facebook / Messenger Profile</label>
+                <label for="checkout-fb" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;" title="Facebook / Messenger Profile">FB / Messenger Profile</label>
                 <input
                   type="text"
                   id="checkout-fb"
