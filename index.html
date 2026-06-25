@@ -3618,7 +3618,17 @@
         const rate = parseFloat(document.getElementById("checkout-car-price").value || 0);
         const duration = document.getElementById("checkout-car-duration").value || "24hr";
         const sDateVal = document.getElementById("checkout-rent-start-date").value;
-        const eDateVal = document.getElementById("checkout-rent-end-date").value;
+        let eDateVal = document.getElementById("checkout-rent-end-date").value;
+        
+        if (duration === "12hr" && sDateVal) {
+          const start = new Date(sDateVal);
+          if (!isNaN(start.getTime())) {
+            const end = new Date(start.getTime() + 12 * 60 * 60 * 1000);
+            const tzOffset = end.getTimezoneOffset() * 60000;
+            eDateVal = new Date(end - tzOffset).toISOString().slice(0, 16);
+            document.getElementById("checkout-rent-end-date").value = eDateVal;
+          }
+        }
         
         const hourlyPrice = rate / (duration === "12hr" ? 12 : 24);
         
@@ -3647,6 +3657,11 @@
 
       // Opens Checkout for Car booking
       function openCarCheckout(carModel, rate, duration) {
+        if (duration === "12hr") {
+          const proceed = window.confirm("Notice:\nThis section is for the 12 hour renting duration.\nIf you are renting more than 12 hours or days,\nplease select the 24 hour price.");
+          if (!proceed) return;
+        }
+
         document.getElementById(
           "checkout-title"
         ).textContent = `Book Reservation: ${carModel}`;
@@ -3674,6 +3689,16 @@
         document.getElementById("checkout-ref").required = false;
         document.getElementById("checkout-rent-start-date").required = true;
         document.getElementById("checkout-rent-end-date").required = true;
+        
+        if (duration === "12hr") {
+          document.getElementById("checkout-rent-end-date").readOnly = true;
+          document.getElementById("checkout-rent-end-date").style.opacity = "0.6";
+          document.getElementById("checkout-rent-end-date").style.pointerEvents = "none";
+        } else {
+          document.getElementById("checkout-rent-end-date").readOnly = false;
+          document.getElementById("checkout-rent-end-date").style.opacity = "1";
+          document.getElementById("checkout-rent-end-date").style.pointerEvents = "auto";
+        }
 
         document.getElementById("checkout-submit-btn").textContent = "Reserve Car (No Payment Required)";
 
