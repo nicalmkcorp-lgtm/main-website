@@ -4412,17 +4412,17 @@
 
         const title = details.type === "rent" ? "Confirm Reservation Details" : "Confirm Order Details";
 
-        overlay.innerHTML = \`
+        overlay.innerHTML = `
           <div class="modal-box" style="text-align:center; padding:32px 24px; position:relative; max-width:400px; z-index:1001;">
-            <h3 style="font-family:'Cormorant Garamond', serif; font-size: 24px; color:var(--gold-2); margin-bottom: 16px;">\${title}</h3>
+            <h3 style="font-family:'Cormorant Garamond', serif; font-size: 24px; color:var(--gold-2); margin-bottom: 16px;">${title}</h3>
             <p style="font-size: 14px; color:var(--muted); margin-bottom: 16px;">Please review the details you inputted before proceeding.</p>
-            \${detailsHtml}
+            ${detailsHtml}
             <div style="display: flex; gap: 12px;">
               <button class="btn-primary" style="flex:1; background: transparent; border: 1px solid var(--line); color: var(--ink);" onclick="document.getElementById('confirmation-overlay').remove()">Edit</button>
               <button class="btn-primary" style="flex:1;" id="confirm-proceed-btn">Proceed</button>
             </div>
           </div>
-        \`;
+        `;
 
         document.body.appendChild(overlay);
         
