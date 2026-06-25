@@ -5004,16 +5004,16 @@
           boxContent = `
       <div class="modal-box" style="text-align:center; padding:36px 24px; position:relative">
         <div style="font-size: 54px; margin-bottom:16px;">✨</div>
-        <h3 style="font-family:'Cormorant Garamond', serif; font-size: 32px; color:var(--gold-2); margin-bottom: 8px;">Order Received!</h3>
+        <h3 style="font-family:'Cormorant Garamond', serif; font-size: 32px; color:var(--gold-2); margin-bottom: 8px;">Reservation Received!</h3>
         <p style="font-size: 14px; color:var(--muted); margin-bottom: 24px;">Thank you for reserving, <strong>${customerName}</strong>.</p>
           `;
 
           if (dbSuccess) {
             boxContent += `
         <div class="payment-instructions" style="text-align:left; background:rgba(201,169,106,.05); border:1px solid var(--gold); margin-bottom: 24px">
-          <strong>Order Details Synced:</strong><br/>
+          <strong>Reservation Details Synced:</strong><br/>
           <span>Txn Track ID: <span style="font-family: monospace; color:white">${orderId}</span></span><br/>
-          <span>Amount Paid: <strong>₱${totalVal.toLocaleString()}</strong></span><br/><br/>
+          <span>Amount To Be Paid: <strong>₱${totalVal.toLocaleString()}</strong></span><br/><br/>
           <small>Our central staff dashboard has received your parameters. We will contact you immediately via phone or Messenger to schedule checkout handover.</small>
         </div>
             `;
