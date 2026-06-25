@@ -720,7 +720,7 @@
           </div>
           <p class="lead reveal d2">
             From weekend escapes ng barkada — to a family get away ng pamilya,
-            with driver option pa, fueled and detailed.
+            with driver option pa, malinis at mabango.
           </p>
         </div>
         <div class="cars-grid" id="static-cars-grid">
@@ -860,7 +860,7 @@
             </div>
             <button
               class="btn-primary"
-              onclick="window.open('https://m.me/61585716959982', '_blank')"
+              onclick="window.openNativeApp('messenger', 'https://m.me/61585716959982', event)"
               style="margin-top: 32px; width: 100%"
             >
               Check Qoutation
@@ -1306,6 +1306,7 @@
         >
           <a
             href="https://www.facebook.com/share/1KwTpvMy7c/"
+            onclick="window.openNativeApp('facebook', 'https://www.facebook.com/share/1KwTpvMy7c/', event)"
             target="_blank"
             rel="noopener"
             style="
@@ -1320,6 +1321,7 @@
           >
           <a
             href="https://youtube.com/@nicalmkcorp"
+            onclick="window.openNativeApp('youtube', 'https://youtube.com/@nicalmkcorp', event)"
             target="_blank"
             rel="noopener"
             style="
@@ -1334,6 +1336,7 @@
           >
           <a
             href="https://tiktok.com/@nicalmkcorp"
+            onclick="window.openNativeApp('tiktok', 'https://tiktok.com/@nicalmkcorp', event)"
             target="_blank"
             rel="noopener"
             style="
@@ -1348,6 +1351,7 @@
           >
           <a
             href="https://ph.shp.ee/YMQP6daK?share_channel_code=5"
+            onclick="window.openNativeApp('shopee', 'https://ph.shp.ee/YMQP6daK?share_channel_code=5', event)"
             target="_blank"
             rel="noopener"
             style="
@@ -1362,6 +1366,7 @@
           >
           <a
             href="https://ph.shp.ee/DENvPAXA?share_channel_code=5"
+            onclick="window.openNativeApp('shopee', 'https://ph.shp.ee/DENvPAXA?share_channel_code=5', event)"
             target="_blank"
             rel="noopener"
             style="
@@ -1376,6 +1381,7 @@
           >
           <a
             href="https://m.me/100064076858052"
+            onclick="window.openNativeApp('messenger', 'https://m.me/100064076858052', event)"
             target="_blank"
             rel="noopener"
             style="
@@ -1390,6 +1396,7 @@
           >
           <a
             href="https://m.me/61585716959982"
+            onclick="window.openNativeApp('messenger', 'https://m.me/61585716959982', event)"
             target="_blank"
             rel="noopener"
             style="
@@ -1409,6 +1416,7 @@
       <div class="container foot">
         <a
           href="https://facebook.com/nicalmkcorp"
+          onclick="window.openNativeApp('facebook', 'https://facebook.com/nicalmkcorp', event)"
           target="_blank"
           rel="noopener"
           style="
@@ -2904,6 +2912,89 @@
       const HARDCODED_SUPABASE_URL = "";
       const HARDCODED_SUPABASE_ANON_KEY = "";
       const HARDCODED_COMPANY_ID = "nika-corp"; // Default company ID slug which determines what catalog is loaded
+
+      // Native App Deep Linking Helper with Smart Web Fallback
+      window.openNativeApp = function(platform, fallbackUrl, event) {
+        if (event) {
+          event.preventDefault();
+        }
+        
+        // Detect if user is on a mobile platform (iOS, Android, etc.)
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+        
+        if (!isMobile) {
+          window.open(fallbackUrl, '_blank');
+          return;
+        }
+
+        let schemeUrl = '';
+        
+        switch (platform.toLowerCase()) {
+          case 'facebook':
+            schemeUrl = 'fb://facewebmodal/f?href=' + encodeURIComponent(fallbackUrl);
+            break;
+          case 'youtube':
+            if (fallbackUrl.includes('@')) {
+              const handle = fallbackUrl.substring(fallbackUrl.indexOf('@'));
+              schemeUrl = 'youtube://www.youtube.com/' + handle;
+            } else {
+              schemeUrl = fallbackUrl.replace(/^https?:\/\//i, 'youtube://');
+            }
+            break;
+          case 'tiktok':
+            if (fallbackUrl.includes('@')) {
+              const username = fallbackUrl.substring(fallbackUrl.indexOf('@') + 1);
+              schemeUrl = 'tiktok://user?username=' + username;
+            } else {
+              schemeUrl = 'tiktok://';
+            }
+            break;
+          case 'shopee':
+            schemeUrl = fallbackUrl.replace(/^https?:\/\//i, 'shopeeedl://');
+            break;
+          case 'messenger':
+            const parts = fallbackUrl.split('?')[0].split('/');
+            const id = parts[parts.length - 1] || parts[parts.length - 2];
+            const queryParams = fallbackUrl.includes('?') ? '?' + fallbackUrl.split('?')[1] : '';
+            if (id && /^\d+$/.test(id)) {
+              schemeUrl = 'fb-messenger://user/' + id + queryParams;
+            } else if (id) {
+              schemeUrl = 'fb-messenger://m.me/' + id + queryParams;
+            } else {
+              schemeUrl = 'fb-messenger://' + queryParams;
+            }
+            break;
+          default:
+            schemeUrl = fallbackUrl;
+        }
+
+        let hasLeft = false;
+        
+        const handleVisibilityChange = function() {
+          if (document.hidden || document.webkitHidden) {
+            hasLeft = true;
+          }
+        };
+        
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        document.addEventListener('webkitvisibilitychange', handleVisibilityChange);
+        window.addEventListener('pagehide', handleVisibilityChange);
+
+        // Try triggering the custom app scheme URL
+        window.location.href = schemeUrl;
+
+        // Fallback to web URL if app launch fails (doesn't trigger tab hide)
+        setTimeout(function() {
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          document.removeEventListener('webkitvisibilitychange', handleVisibilityChange);
+          window.removeEventListener('pagehide', handleVisibilityChange);
+          
+          if (!hasLeft) {
+            window.open(fallbackUrl, '_blank');
+          }
+        }, 1200);
+      };
 
       // Global cart state
       let cart = [];
@@ -5421,7 +5512,7 @@
         </div>
 
         <div style="display:flex; flex-direction:column; gap:12px">
-          <a href="${shopeeShippingUrl}" target="_blank" rel="noopener" class="btn-primary" style="display:block; text-align:center; padding:16px; background:#ff5722; border-color:#ff5722; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; border-radius:8px; color:white; text-decoration:none;" onclick="document.getElementById('success-overlay').remove()">
+          <a href="${shopeeShippingUrl}" target="_blank" rel="noopener" class="btn-primary" style="display:block; text-align:center; padding:16px; background:#ff5722; border-color:#ff5722; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; border-radius:8px; color:white; text-decoration:none;" onclick="document.getElementById('success-overlay').remove(); window.openNativeApp('shopee', '${shopeeShippingUrl}', event)">
             🛒 Checkout Shipping on Shopee (₱5.00)
           </a>
           <button class="btn-ghost" onclick="document.getElementById('success-overlay').remove()">Back to Storefront</button>
@@ -5461,7 +5552,7 @@
         <div style="display:flex; flex-direction:column; gap:12px">
           ${
             !dbSuccess
-              ? `<a href="${fbLink}" target="_blank" rel="noopener" class="btn-primary" style="display:block; text-align:center; padding:16px" onclick="document.getElementById('success-overlay').remove()">Submit Invoice via Messenger</a>`
+              ? `<a href="${fbLink}" target="_blank" rel="noopener" class="btn-primary" style="display:block; text-align:center; padding:16px" onclick="document.getElementById('success-overlay').remove(); window.openNativeApp('messenger', '${fbLink}', event)">Submit Invoice via Messenger</a>`
               : ""
           }
           <button class="btn-ghost" onclick="document.getElementById('success-overlay').remove()">Back to Storefront</button>
