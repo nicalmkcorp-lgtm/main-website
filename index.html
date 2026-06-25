@@ -1152,6 +1152,10 @@
           id="dynamic-garments-grid"
           style="display: none"
         ></div>
+        <div
+          id="dynamic-garments-pagination"
+          style="display: none; justify-content: center; align-items: center; gap: 16px; margin-top: 40px; font-family: 'Space Grotesk', sans-serif; flex-wrap: wrap;"
+        ></div>
       </div>
     </section>
     <section
@@ -3026,6 +3030,9 @@
       // Live retrieved catalogs (loaded from cache on startup if available)
       let loadedProducts = [];
       let loadedRentals = {};
+      let currentProductPage = 1;
+      const PRODUCTS_PER_PAGE = 12;
+      let currentProductCategory = "ALL";
 
       try {
         const cachedProducts = localStorage.getItem("lmk_cached_products");
@@ -3460,6 +3467,7 @@
               .querySelectorAll("#dynamic-cat-tabs button")
               .forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
+            currentProductPage = 1;
             filterAndRenderProducts(tab);
           });
           dynamicTabs.appendChild(btn);
@@ -3472,24 +3480,46 @@
         dynamicGrid.style.display = "grid";
 
         // Renders everything by default
+        currentProductPage = 1;
         filterAndRenderProducts("ALL");
       }
 
       // Filter dynamic garments product list
       function filterAndRenderProducts(category) {
+        currentProductCategory = category;
         const dynamicGrid = document.getElementById("dynamic-garments-grid");
         dynamicGrid.innerHTML = "";
 
-        const itemsToRender =
+        const allFilteredItems =
           category === "ALL"
             ? loadedProducts
             : loadedProducts.filter((p) => p.tab === category);
 
-        if (itemsToRender.length === 0) {
+        const totalItems = allFilteredItems.length;
+        const totalPages = Math.ceil(totalItems / PRODUCTS_PER_PAGE);
+
+        const pagContainer = document.getElementById("dynamic-garments-pagination");
+
+        if (totalItems === 0) {
           dynamicGrid.innerHTML =
             "<div style=\"grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:'Cormorant Garamond', serif; font-size: 22px;\">No products currently loaded under this sector.</div>";
+          if (pagContainer) {
+            pagContainer.style.display = "none";
+          }
           return;
         }
+
+        // Clamp page index
+        if (currentProductPage > totalPages) {
+          currentProductPage = totalPages;
+        }
+        if (currentProductPage < 1) {
+          currentProductPage = 1;
+        }
+
+        const startIndex = (currentProductPage - 1) * PRODUCTS_PER_PAGE;
+        const endIndex = Math.min(startIndex + PRODUCTS_PER_PAGE, totalItems);
+        const itemsToRender = allFilteredItems.slice(startIndex, endIndex);
 
         itemsToRender.forEach((item, index) => {
           // Build storage public image if it exists, otherwise fall back to premium default images.
@@ -3562,7 +3592,53 @@
       `;
           dynamicGrid.appendChild(prodElement);
         });
+
+        // Render Pagination Controls
+        if (pagContainer) {
+          if (totalPages > 1) {
+            pagContainer.style.display = "flex";
+
+            let pagesHtml = "";
+            for (let p = 1; p <= totalPages; p++) {
+              if (p === currentProductPage) {
+                pagesHtml += `<button class="btn-primary" style="padding: 8px 16px; min-width: 36px; font-size: 10px; margin: 0 4px;" disabled>${p}</button>`;
+              } else {
+                pagesHtml += `<button class="btn-ghost" style="padding: 8px 16px; min-width: 36px; font-size: 10px; margin: 0 4px;" onclick="goToProductPage(${p})">${p}</button>`;
+              }
+            }
+
+            const prevButtonHtml = currentProductPage > 1
+              ? `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px;" onclick="goToProductPage(${currentProductPage - 1})">PREV</button>`
+              : `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px; opacity: 0.4; cursor: not-allowed; pointer-events: none;" disabled>PREV</button>`;
+
+            const nextButtonHtml = currentProductPage < totalPages
+              ? `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px;" onclick="goToProductPage(${currentProductPage + 1})">NEXT</button>`
+              : `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px; opacity: 0.4; cursor: not-allowed; pointer-events: none;" disabled>NEXT</button>`;
+
+            pagContainer.innerHTML = `
+              <div style="font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-right: 12px; font-family: 'Space Grotesk', sans-serif;">
+                Page ${currentProductPage} of ${totalPages}
+              </div>
+              ${prevButtonHtml}
+              <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px;">
+                ${pagesHtml}
+              </div>
+              ${nextButtonHtml}
+            `;
+          } else {
+            pagContainer.style.display = "none";
+          }
+        }
       }
+
+      window.goToProductPage = function(page) {
+        currentProductPage = page;
+        filterAndRenderProducts(currentProductCategory);
+        const shopSection = document.getElementById("shop");
+        if (shopSection) {
+          shopSection.scrollIntoView({ behavior: "smooth" });
+        }
+      };
 
       // Adding items into Cart
       function addToCart(id, name, price, image, resellerAmount) {
