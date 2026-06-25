@@ -1689,6 +1689,8 @@
       .form-group input,
       .form-group textarea,
       .form-group select {
+        width: 100%;
+        box-sizing: border-box;
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid var(--line);
         color: var(--ink);
@@ -1958,7 +1960,6 @@
                 <input
                   type="text"
                   id="checkout-fb"
-                  required
                   placeholder="fb.com/juan"
                 />
               </div>
@@ -3914,7 +3915,8 @@
 
         if (payment === "QR Code") {
           const refVal = refInput.value.trim();
-          submitBtn.textContent = "Proceed to Shopee Shipping Checkout";
+          submitBtn.textContent = "PROCEED TO SHOPEE SHIPPING CHECKOUT";
+          submitBtn.style.color = "#ffffff";
           if (!refVal) {
             submitBtn.disabled = true;
             submitBtn.style.opacity = "0.5";
@@ -3925,7 +3927,8 @@
             submitBtn.style.cursor = "pointer";
           }
         } else {
-          submitBtn.textContent = "Complete Transaction";
+          submitBtn.textContent = "COMPLETE TRANSACTION";
+          submitBtn.style.color = "";
           submitBtn.disabled = false;
           submitBtn.style.opacity = "1";
           submitBtn.style.cursor = "pointer";
