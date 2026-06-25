@@ -4,6 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Nica Lmk Corp — Drive · Borrow · Wear</title>
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+      async
+      defer
+    ></script>
     <meta
       name="description"
       content="An elegant boutique for premium car rentals, smart loans, and curated fashion."
@@ -681,13 +686,6 @@
           <a href="#contact">Contact</a>
         </div>
         <div class="nav-right-container">
-          <button
-            class="config-btn-nav"
-            id="show-config-btn"
-            title="Setup Merchant Database Connection"
-          >
-            ⚙️
-          </button>
           <button class="cta" id="nav-cart-toggle-btn">Cart (0)</button>
         </div>
       </div>
@@ -860,7 +858,11 @@
                 <div class="t-rate">from 10%</div>
               </div>
             </div>
-            <button class="btn-primary" onclick="window.open('https://m.me/nicalmkcorp', '_blank')" style="margin-top: 32px; width: 100%">
+            <button
+              class="btn-primary"
+              onclick="window.open('https://m.me/nicalmkcorp', '_blank')"
+              style="margin-top: 32px; width: 100%"
+            >
               Check Qoutation
             </button>
             <p
@@ -1839,9 +1841,15 @@
     </style>
 
     <!-- SUPABASE CLIENT SDK VIA CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+      crossorigin="anonymous"
+    ></script>
     <!-- CRYPTO-JS FOR SHOPEE SECURITY HMAC ENCRYPTION -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" crossorigin="anonymous"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
+      crossorigin="anonymous"
+    ></script>
 
     <!-- FLOATING INTERACTIVE WIDGETS -->
     <!-- 1. Floating Cart Badge -->
@@ -1899,22 +1907,80 @@
     </div>
 
     <!-- Checkout Instructions Modal -->
-    <div id="checkout-instruction-overlay" class="modal-overlay" style="z-index: 1000">
-      <div class="modal-box" style="max-width: 440px; padding: 24px; position: relative; border-top: 4px solid var(--gold);">
-        <div class="modal-header" style="border-bottom: none; padding: 0; min-height: 0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3 style="color: var(--gold); margin: 0; font-size: 18px;">Checkout Instructions</h3>
-          <button class="close-btn" onclick="closeCheckoutInstruction()" style="top: 10px; right: 10px; position: absolute;">&times;</button>
+    <div
+      id="checkout-instruction-overlay"
+      class="modal-overlay"
+      style="z-index: 1000"
+    >
+      <div
+        class="modal-box"
+        style="
+          max-width: 440px;
+          padding: 24px;
+          position: relative;
+          border-top: 4px solid var(--gold);
+        "
+      >
+        <div
+          class="modal-header"
+          style="
+            border-bottom: none;
+            padding: 0;
+            min-height: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+          "
+        >
+          <h3 style="color: var(--gold); margin: 0; font-size: 18px">
+            Checkout Instructions
+          </h3>
+          <button
+            class="close-btn"
+            onclick="closeCheckoutInstruction()"
+            style="top: 10px; right: 10px; position: absolute"
+          >
+            &times;
+          </button>
         </div>
-        <div class="modal-body" style="padding: 0;">
-          <ul style="color: var(--muted); font-size: 13px; line-height: 1.8; text-align: left; padding-left: 18px; margin: 0 0 24px 0;">
-            <li style="margin-bottom: 8px;">please send the total amount to the selected qr payment,</li>
-            <li style="margin-bottom: 8px;">after paying, please provide the payment reference number,</li>
-            <li style="margin-bottom: 8px;">continue checkout in shoppe, for shipping purposes,</li>
-            <li style="margin-bottom: 8px;">for shipping you will charge 5 peso plus the shipping fee,</li>
-            <li style="margin-bottom: 8px;">send us the shopee shipping screenshot together with your name in fb messenger for confirmation,</li>
+        <div class="modal-body" style="padding: 0">
+          <ul
+            style="
+              color: var(--muted);
+              font-size: 13px;
+              line-height: 1.8;
+              text-align: left;
+              padding-left: 18px;
+              margin: 0 0 24px 0;
+            "
+          >
+            <li style="margin-bottom: 8px">
+              please send the total amount to the selected qr payment,
+            </li>
+            <li style="margin-bottom: 8px">
+              after paying, please provide the payment reference number,
+            </li>
+            <li style="margin-bottom: 8px">
+              continue checkout in shoppe, for shipping purposes,
+            </li>
+            <li style="margin-bottom: 8px">
+              for shipping you will charge 5 peso plus the shipping fee,
+            </li>
+            <li style="margin-bottom: 8px">
+              send us the shopee shipping screenshot together with your name in
+              fb messenger for confirmation,
+            </li>
           </ul>
-          <div class="checkout-actions" style="margin-top: 0;">
-            <button type="button" class="btn-primary" style="width: 100%;" onclick="proceedFromInstructions()">I Understand, Proceed</button>
+          <div class="checkout-actions" style="margin-top: 0">
+            <button
+              type="button"
+              class="btn-primary"
+              style="width: 100%"
+              onclick="proceedFromInstructions()"
+            >
+              I Understand, Proceed
+            </button>
           </div>
         </div>
       </div>
@@ -1937,7 +2003,9 @@
             <input type="hidden" id="checkout-car-duration" value="" />
 
             <div class="form-group" id="checkout-name-group">
-              <label for="checkout-name" id="checkout-name-label">Full Name</label>
+              <label for="checkout-name" id="checkout-name-label"
+                >Full Name</label
+              >
               <input
                 type="text"
                 id="checkout-name"
@@ -1957,12 +2025,18 @@
                 />
               </div>
               <div class="form-group">
-                <label for="checkout-fb" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;" title="Facebook / Messenger Profile">FB / Messenger Profile</label>
-                <input
-                  type="text"
-                  id="checkout-fb"
-                  placeholder="fb.com/juan"
-                />
+                <label
+                  for="checkout-fb"
+                  style="
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    display: block;
+                  "
+                  title="Facebook / Messenger Profile"
+                  >FB / Messenger Profile</label
+                >
+                <input type="text" id="checkout-fb" placeholder="fb.com/juan" />
               </div>
             </div>
 
@@ -1978,52 +2052,156 @@
             </div>
 
             <!-- Rent Agreement reservation fields -->
-            <div id="rent-details-container" style="display: none; border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 15px;">
-              <h4 style="font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Rent Agreement Details</h4>
-              
+            <div
+              id="rent-details-container"
+              style="
+                display: none;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 15px;
+                margin-top: 15px;
+              "
+            >
+              <h4
+                style="
+                  font-size: 13px;
+                  font-weight: 700;
+                  color: var(--gold);
+                  margin-bottom: 12px;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                "
+              >
+                Rent Agreement Details
+              </h4>
+
               <div class="form-row">
                 <div class="form-group">
-                  <label for="checkout-rent-start-date">Start Date / Time</label>
-                  <input type="datetime-local" id="checkout-rent-start-date" onchange="updateRentPriceCalculation()" style="color-scheme: dark;" />
+                  <label for="checkout-rent-start-date"
+                    >Start Date / Time</label
+                  >
+                  <input
+                    type="datetime-local"
+                    id="checkout-rent-start-date"
+                    onchange="updateRentPriceCalculation()"
+                    style="color-scheme: dark"
+                  />
                 </div>
                 <div class="form-group">
                   <label for="checkout-rent-end-date">End Date / Time</label>
-                  <input type="datetime-local" id="checkout-rent-end-date" onchange="updateRentPriceCalculation()" style="color-scheme: dark;" />
+                  <input
+                    type="datetime-local"
+                    id="checkout-rent-end-date"
+                    onchange="updateRentPriceCalculation()"
+                    style="color-scheme: dark"
+                  />
                 </div>
               </div>
 
               <div class="form-group">
                 <label for="checkout-rent-driver-option">Driver Option</label>
-                <select id="checkout-rent-driver-option" onchange="updateRentPriceCalculation()">
+                <select
+                  id="checkout-rent-driver-option"
+                  onchange="updateRentPriceCalculation()"
+                >
                   <option value="self">Self Drive (No Driver)</option>
                   <option value="with_driver">With Driver</option>
                 </select>
               </div>
 
               <!-- Hidden defaults to satisfy database models without cluttering the UI -->
-              <div style="display: none;">
-                <input type="text" id="checkout-rent-plate-number" value="TBD" />
-                <input type="number" id="checkout-rent-distance-limit" value="300" />
-                <input type="text" id="checkout-rent-operator-name" value="Nica Lmk Corp" />
-                <input type="text" id="checkout-rent-operator-address" value="Cavite City" />
+              <div style="display: none">
+                <input
+                  type="text"
+                  id="checkout-rent-plate-number"
+                  value="TBD"
+                />
+                <input
+                  type="number"
+                  id="checkout-rent-distance-limit"
+                  value="300"
+                />
+                <input
+                  type="text"
+                  id="checkout-rent-operator-name"
+                  value="Nica Lmk Corp"
+                />
+                <input
+                  type="text"
+                  id="checkout-rent-operator-address"
+                  value="Cavite City"
+                />
               </div>
 
               <!-- Price Calculation Summary Box -->
-              <div style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid var(--line); border-radius: 4px; padding: 16px; margin-top: 16px; font-size: 13px; color: var(--muted); line-height: 1.6;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <div
+                style="
+                  background-color: rgba(255, 255, 255, 0.02);
+                  border: 1px solid var(--line);
+                  border-radius: 4px;
+                  padding: 16px;
+                  margin-top: 16px;
+                  font-size: 13px;
+                  color: var(--muted);
+                  line-height: 1.6;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 6px;
+                  "
+                >
                   <span>Base Vehicle Rate:</span>
-                  <span id="rent-calc-base-rate" style="color: var(--ink); font-weight: 600;">₱0</span>
+                  <span
+                    id="rent-calc-base-rate"
+                    style="color: var(--ink); font-weight: 600"
+                    >₱0</span
+                  >
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 6px;
+                  "
+                >
                   <span>Rental Duration:</span>
-                  <span id="rent-calc-days" style="color: var(--ink); font-weight: 600;">0 hours</span>
+                  <span
+                    id="rent-calc-days"
+                    style="color: var(--ink); font-weight: 600"
+                    >0 hours</span
+                  >
                 </div>
-                <div style="display: flex; justify-content: space-between; font-weight: 700; border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 10px; color: var(--gold); font-size: 15px; letter-spacing: 0.05em;">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    font-weight: 700;
+                    border-top: 1px dashed var(--line);
+                    padding-top: 10px;
+                    margin-top: 10px;
+                    color: var(--gold);
+                    font-size: 15px;
+                    letter-spacing: 0.05em;
+                  "
+                >
                   <span>ESTIMATED LEASE VALUE:</span>
                   <span id="rent-calc-total">₱0</span>
                 </div>
-                <div style="font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.4; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px;">
-                  ⚠️ No payment required now. Your reservation details will be sent for confirmation. Once confirmed, staff will generate and send your signable Rent Agreement drafts.
+                <div
+                  style="
+                    font-size: 11px;
+                    color: var(--muted);
+                    margin-top: 10px;
+                    line-height: 1.4;
+                    border-top: 1px solid rgba(255, 255, 255, 0.05);
+                    padding-top: 8px;
+                  "
+                >
+                  ⚠️ No payment required now. Your reservation details will be
+                  sent for confirmation. Once confirmed, staff will generate and
+                  send your signable Rent Agreement drafts.
                 </div>
               </div>
             </div>
@@ -2043,10 +2221,19 @@
                     </option>
                   </select>
                 </div>
-                <div class="form-row" style="display: none;"><input type="hidden" id="checkout-car-duration-hidden" value="24hr"/></div>
+                <div class="form-row" style="display: none">
+                  <input
+                    type="hidden"
+                    id="checkout-car-duration-hidden"
+                    value="24hr"
+                  />
+                </div>
                 <div class="form-group">
                   <label for="checkout-payment">Payment Option</label>
-                  <select id="checkout-payment" onchange="updatePaymentDetails()">
+                  <select
+                    id="checkout-payment"
+                    onchange="updatePaymentDetails()"
+                  >
                     <option value="QR Code">Scan QR Code Payment</option>
                   </select>
                 </div>
@@ -2059,8 +2246,8 @@
                   >GCash: 0917-000-0001 (LMK CORP STORE)</span
                 ><br />
                 <small
-                  >Settle the total amount then input the reference code below to
-                  synchronize your booking transaction.</small
+                  >Settle the total amount then input the reference code below
+                  to synchronize your booking transaction.</small
                 >
               </div>
 
@@ -2073,6 +2260,30 @@
                   placeholder="InstaPay / GCash Ref No."
                 />
               </div>
+            </div>
+
+            <!-- CLOUDFLARE TURNSTILE ANTI-SPAM WIDGET -->
+            <div
+              class="form-group"
+              style="
+                margin: 20px 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+              "
+            >
+              <div id="turnstile-container"></div>
+              <small
+                style="
+                  font-size: 10px;
+                  color: var(--muted);
+                  margin-top: 6px;
+                  text-align: center;
+                "
+              >
+                Secured by Cloudflare Turnstile anti-spam protection.
+              </small>
             </div>
 
             <div class="checkout-actions">
@@ -2182,7 +2393,7 @@
         <button
           type="button"
           class="btn-primary"
-          style="width: 100%;"
+          style="width: 100%"
           onclick="closeQRZoomModal()"
         >
           Close
@@ -2190,208 +2401,16 @@
       </div>
     </div>
 
-    <!-- 4. Merchant Dashboard Setup Modal -->
-    <div id="config-modal-overlay" class="modal-overlay">
-      <div class="modal-box">
-        <div class="modal-header">
-          <h3>Merchant Studio Database Link</h3>
-          <button class="close-btn" onclick="toggleConfigModal(false)">
-            &times;
-          </button>
-        </div>
-        <form id="config-form" onsubmit="saveConfig(event)">
-          <div class="modal-body">
-            <p
-              style="
-                font-size: 13px;
-                color: var(--muted);
-                margin-bottom: 8px;
-                line-height: 1.5;
-              "
-            >
-              Connect your public web storefront with your central LMK System
-              database. This will load your active garments tabs and car
-              configurations.
-            </p>
-            <div class="form-group">
-              <label>Company ID Slug</label>
-              <input
-                type="text"
-                id="config-company-id"
-                placeholder="e.g. lmkcorp"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>Supabase Project URL</label>
-              <input
-                type="url"
-                id="config-supabase-url"
-                placeholder="https://xxxxxxxxx.supabase.co"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>Supabase Roll ANON Key</label>
-              <input
-                type="text"
-                id="config-supabase-key"
-                placeholder="eyJhbGciOi..."
-                required
-              />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Store GCash Phone Profile</label>
-                <input
-                  type="text"
-                  id="config-gcash-num"
-                  placeholder="0917-XXX-XXXX"
-                />
-              </div>
-              <div class="form-group">
-                <label>Store GCash Verified Name</label>
-                <input
-                  type="text"
-                  id="config-gcash-name"
-                  placeholder="Nica M."
-                />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>BDO Bank Account Number</label>
-                <input
-                  type="text"
-                  id="config-bdo-num"
-                  placeholder="00123-XXXX-XXXX"
-                />
-              </div>
-              <div class="form-group">
-                <label>BDO Verified Account Name</label>
-                <input
-                  type="text"
-                  id="config-bdo-name"
-                  placeholder="LMK CORPORATION"
-                />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Shopee Store / Listing Link (Fallback)</label>
-              <input
-                type="url"
-                id="config-shopee-url"
-                placeholder="https://ph.shp.ee/YMQP6daK?share_channel_code=5"
-              />
-            </div>
-
-            <div
-              style="
-                border-top: 1px dashed var(--border);
-                margin: 15px 0;
-                padding-top: 10px;
-              "
-            >
-              <h4
-                style="
-                  font-size: 11px;
-                  text-transform: uppercase;
-                  letter-spacing: 0.05em;
-                  color: #ee4d2d;
-                  margin-bottom: 8px;
-                "
-              >
-                Shopee Open API Integration (v2.product)
-              </h4>
-              <p
-                style="
-                  font-size: 10px;
-                  color: var(--muted);
-                  margin-bottom: 10px;
-                  line-height: 1.4;
-                "
-              >
-                Provide Shopee Partner developer credentials to enable
-                automated, transient product page creation on checkout.
-              </p>
-              <div
-                class="form-row"
-                style="display: flex; gap: 12px; margin-bottom: 10px"
-              >
-                <div class="form-group" style="flex: 1">
-                  <label
-                    style="font-size: 10px; display: block; margin-bottom: 4px"
-                    >Shopee Partner ID</label
-                  >
-                  <input
-                    type="text"
-                    id="config-shopee-partner-id"
-                    placeholder="e.g. 1002952"
-                  />
-                </div>
-                <div class="form-group" style="flex: 1">
-                  <label
-                    style="font-size: 10px; display: block; margin-bottom: 4px"
-                    >Shopee Partner Key (API Secret)</label
-                  >
-                  <input
-                    type="password"
-                    id="config-shopee-partner-key"
-                    placeholder="••••••••••••••••"
-                  />
-                </div>
-              </div>
-              <div class="form-row" style="display: flex; gap: 12px">
-                <div class="form-group" style="flex: 1">
-                  <label
-                    style="font-size: 10px; display: block; margin-bottom: 4px"
-                    >Shopee Shop ID</label
-                  >
-                  <input
-                    type="text"
-                    id="config-shopee-shop-id"
-                    placeholder="e.g. 84210943"
-                  />
-                </div>
-                <div class="form-group" style="flex: 1">
-                  <label
-                    style="font-size: 10px; display: block; margin-bottom: 4px"
-                    >Shopee v2 Access Token</label
-                  >
-                  <input
-                    type="password"
-                    id="config-shopee-access-token"
-                    placeholder="••••••••••••••••"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div class="checkout-actions">
-              <button
-                type="button"
-                class="btn-ghost"
-                onclick="resetConfigToDefaults()"
-              >
-                Reset Defaults
-              </button>
-              <button type="submit" class="btn-primary">
-                Save & Connect Hub
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
     <!-- PayMongo SECURE CHECKOUT INTEGRATION OVERLAY -->
     <div
       id="paymongo-modal-overlay"
       class="modal-overlay"
-      style="z-index: 1500; display: none; background: rgba(0, 31, 31, 0.75); backdrop-filter: blur(4px);"
+      style="
+        z-index: 1500;
+        display: none;
+        background: rgba(0, 31, 31, 0.75);
+        backdrop-filter: blur(4px);
+      "
     >
       <div
         class="modal-box"
@@ -2400,17 +2419,17 @@
           text-align: left;
           padding: 24px;
           position: relative;
-          border-top: 5px solid #00BFA6;
+          border-top: 5px solid #00bfa6;
           border-radius: 12px;
           background: #00293c;
           color: #ffffff;
-          box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
         "
       >
         <div
           class="modal-header"
           style="
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 12px;
             margin-bottom: 16px;
             display: flex;
@@ -2425,7 +2444,7 @@
               text-transform: uppercase;
               letter-spacing: 0.06em;
               margin: 0;
-              color: #00BFA6;
+              color: #00bfa6;
               display: flex;
               align-items: center;
               gap: 8px;
@@ -2433,7 +2452,18 @@
           >
             <span style="font-size: 20px">💳</span> PayMongo Secure Checkout
           </h3>
-          <button class="close-btn" type="button" onclick="closePaymongoModal()" style="color:#ffffff; font-size:24px; background:none; border:none; cursor:pointer;">
+          <button
+            class="close-btn"
+            type="button"
+            onclick="closePaymongoModal()"
+            style="
+              color: #ffffff;
+              font-size: 24px;
+              background: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
             &times;
           </button>
         </div>
@@ -2446,10 +2476,18 @@
               padding: 14px;
               border-radius: 8px;
               margin-bottom: 18px;
-              border-left: 4px solid #00BFA6;
+              border-left: 4px solid #00bfa6;
             "
           >
-            <div style="font-size: 11px; font-weight: 700; color: #00BFA6; text-transform: uppercase; letter-spacing: 0.05em">
+            <div
+              style="
+                font-size: 11px;
+                font-weight: 700;
+                color: #00bfa6;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+              "
+            >
               Merchant: LMK CORP
             </div>
             <div
@@ -2468,7 +2506,7 @@
               style="
                 font-size: 18px;
                 font-weight: 800;
-                color: #00BFA6;
+                color: #00bfa6;
                 margin-top: 2px;
               "
             >
@@ -2477,30 +2515,112 @@
           </div>
 
           <div id="paymongo-interactive-form">
-            <p style="font-size: 12px; color: #a0aec0; margin-bottom: 16px; line-height: 1.4;">
-              Select your payment option inside PayMongo Secure Gateway sandbox to complete checkout.
+            <p
+              style="
+                font-size: 12px;
+                color: #a0aec0;
+                margin-bottom: 16px;
+                line-height: 1.4;
+              "
+            >
+              Select your payment option inside PayMongo Secure Gateway sandbox
+              to complete checkout.
             </p>
 
-            <div class="form-group" style="margin-bottom: 12px;">
-              <label style="color:#a0aec0; font-size: 10px; font-weight: 800; text-transform: uppercase;">Pay via PayMongo Wallet / GCash / Card</label>
-              <select id="paymongo-payment-source" style="width:100%; background:#0b1d28; color:#ffffff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:10px; font-size:12px; font-weight:bold; outline:none; margin-top:4px;">
-                <option value="wallet">PayMongo Wallet (Instant authorization)</option>
+            <div class="form-group" style="margin-bottom: 12px">
+              <label
+                style="
+                  color: #a0aec0;
+                  font-size: 10px;
+                  font-weight: 800;
+                  text-transform: uppercase;
+                "
+                >Pay via PayMongo Wallet / GCash / Card</label
+              >
+              <select
+                id="paymongo-payment-source"
+                style="
+                  width: 100%;
+                  background: #0b1d28;
+                  color: #ffffff;
+                  border: 1px solid rgba(255, 255, 255, 0.2);
+                  border-radius: 6px;
+                  padding: 10px;
+                  font-size: 12px;
+                  font-weight: bold;
+                  outline: none;
+                  margin-top: 4px;
+                "
+              >
+                <option value="wallet">
+                  PayMongo Wallet (Instant authorization)
+                </option>
                 <option value="gcash">GCash Wallet (Automatic Redirect)</option>
                 <option value="card">Visa/Mastercard Credit Card</option>
               </select>
             </div>
 
-            <div class="form-group" style="margin-bottom: 16px;">
-              <label style="color:#a0aec0; font-size: 10px; font-weight: 800; text-transform: uppercase;">PayMongo Verified Account Holder Name</label>
-              <input type="text" id="paymongo-auth-name" placeholder="Juan Dela Cruz" style="width:100%; background:#0b1d28; color:#ffffff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:10px; font-size:12px; margin-top:4px; font-weight:bold;" required />
+            <div class="form-group" style="margin-bottom: 16px">
+              <label
+                style="
+                  color: #a0aec0;
+                  font-size: 10px;
+                  font-weight: 800;
+                  text-transform: uppercase;
+                "
+                >PayMongo Verified Account Holder Name</label
+              >
+              <input
+                type="text"
+                id="paymongo-auth-name"
+                placeholder="Juan Dela Cruz"
+                style="
+                  width: 100%;
+                  background: #0b1d28;
+                  color: #ffffff;
+                  border: 1px solid rgba(255, 255, 255, 0.2);
+                  border-radius: 6px;
+                  padding: 10px;
+                  font-size: 12px;
+                  margin-top: 4px;
+                  font-weight: bold;
+                "
+                required
+              />
             </div>
 
-            <div style="font-size: 11px; font-weight: 700; color: #a0aec0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.03em;">
+            <div
+              style="
+                font-size: 11px;
+                font-weight: 700;
+                color: #a0aec0;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+              "
+            >
               Gateway Connection Status:
             </div>
-            
-            <div id="paymongo-progress-logs" style="background: #0b1d28; color: #a0aec0; font-family: monospace; font-size: 11px; padding: 12px; border-radius: 6px; line-height: 1.5; max-height: 120px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px;">
-              <div style="color: #00BFA6;">[system] Initializing safe tunnel...</div>
+
+            <div
+              id="paymongo-progress-logs"
+              style="
+                background: #0b1d28;
+                color: #a0aec0;
+                font-family: monospace;
+                font-size: 11px;
+                padding: 12px;
+                border-radius: 6px;
+                line-height: 1.5;
+                max-height: 120px;
+                overflow-y: auto;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                margin-bottom: 16px;
+              "
+            >
+              <div style="color: #00bfa6">
+                [system] Initializing safe tunnel...
+              </div>
               <div>[system] Keys validated successfully.</div>
               <div>[system] Ready for user authorization.</div>
             </div>
@@ -2511,8 +2631,8 @@
               onclick="executePaymongoPaymentFlow()"
               style="
                 width: 100%;
-                background: #00BFA6;
-                color: #00293C;
+                background: #00bfa6;
+                color: #00293c;
                 font-weight: 800;
                 font-size: 12px;
                 text-transform: uppercase;
@@ -2809,6 +2929,7 @@
         salesTable: "lmk_store_sales_table",
         itemGoodsTable: "lmk_store_itemgoods_table",
         checkoutQrs: "lmk_store_checkout_qrs",
+        turnstileSiteKey: "lmk_store_turnstile_site_key",
       };
 
       // Live retrieved catalogs (loaded from cache on startup if available)
@@ -2876,10 +2997,7 @@
         // 3. Load merchant catalog (cars and garments)
         await loadMerchantCatalog();
 
-        // 4. Fill configurations modal inputs
-        populateConfigInputs();
-
-        // 5. Setup dynamic payment submit button validation bindings
+        // 4. Setup dynamic payment submit button validation bindings
         const refInput = document.getElementById("checkout-ref");
         if (refInput) {
           refInput.addEventListener("input", validateRefInput);
@@ -2949,114 +3067,6 @@
         }
       }
 
-      // Populate settings modal boxes
-      function populateConfigInputs() {
-        document.getElementById("config-company-id").value =
-          localStorage.getItem(configKeys.companyId) || "nika-corp";
-        document.getElementById("config-supabase-url").value =
-          localStorage.getItem(configKeys.supabaseUrl) || "";
-        document.getElementById("config-supabase-key").value =
-          localStorage.getItem(configKeys.supabaseKey) || "";
-        document.getElementById("config-gcash-num").value =
-          localStorage.getItem(configKeys.gcashNum) || "";
-        document.getElementById("config-gcash-name").value =
-          localStorage.getItem(configKeys.gcashName) || "";
-        document.getElementById("config-bdo-num").value =
-          localStorage.getItem(configKeys.bdoNum) || "";
-        document.getElementById("config-bdo-name").value =
-          localStorage.getItem(configKeys.bdoName) || "";
-        document.getElementById("config-shopee-url").value =
-          localStorage.getItem(configKeys.shopeeUrl) || "";
-
-        // Shopee partner API config values
-        document.getElementById("config-shopee-partner-id").value =
-          localStorage.getItem(configKeys.shopeePartnerId) || "";
-        document.getElementById("config-shopee-partner-key").value =
-          localStorage.getItem(configKeys.shopeePartnerKey) || "";
-        document.getElementById("config-shopee-shop-id").value =
-          localStorage.getItem(configKeys.shopeeShopId) || "";
-        document.getElementById("config-shopee-access-token").value =
-          localStorage.getItem(configKeys.shopeeAccessToken) || "";
-      }
-
-      // Save Config and Connect
-      async function saveConfig(e) {
-        e.preventDefault();
-        const companyId = document
-          .getElementById("config-company-id")
-          .value.trim();
-        const url = document.getElementById("config-supabase-url").value.trim();
-        const key = document.getElementById("config-supabase-key").value.trim();
-        const gcashNum = document
-          .getElementById("config-gcash-num")
-          .value.trim();
-        const gcashName = document
-          .getElementById("config-gcash-name")
-          .value.trim();
-        const bdoNum = document.getElementById("config-bdo-num").value.trim();
-        const bdoName = document.getElementById("config-bdo-name").value.trim();
-        const shopeeUrl = document
-          .getElementById("config-shopee-url")
-          .value.trim();
-
-        const shopeePartnerId = document
-          .getElementById("config-shopee-partner-id")
-          .value.trim();
-        const shopeePartnerKey = document
-          .getElementById("config-shopee-partner-key")
-          .value.trim();
-        const shopeeShopId = document
-          .getElementById("config-shopee-shop-id")
-          .value.trim();
-        const shopeeAccessToken = document
-          .getElementById("config-shopee-access-token")
-          .value.trim();
-
-        localStorage.setItem(configKeys.companyId, companyId);
-        localStorage.setItem(configKeys.supabaseUrl, url);
-        localStorage.setItem(configKeys.supabaseKey, key);
-        localStorage.setItem(configKeys.gcashNum, gcashNum);
-        localStorage.setItem(configKeys.gcashName, gcashName);
-        localStorage.setItem(configKeys.bdoNum, bdoNum);
-        localStorage.setItem(configKeys.bdoName, bdoName);
-        localStorage.setItem(configKeys.shopeeUrl, shopeeUrl);
-
-        localStorage.setItem(configKeys.shopeePartnerId, shopeePartnerId);
-        localStorage.setItem(configKeys.shopeePartnerKey, shopeePartnerKey);
-        localStorage.setItem(configKeys.shopeeShopId, shopeeShopId);
-        localStorage.setItem(configKeys.shopeeAccessToken, shopeeAccessToken);
-
-        showToast("💾 Saving database credentials & merchant profiles...");
-        toggleConfigModal(false);
-
-        // Re-initialize and reload (passing true for manual refresh)
-        initSupabaseConnection();
-        await loadMerchantCatalog(true);
-      }
-
-      // Reset to static fallbacks
-      function resetConfigToDefaults() {
-        if (
-          confirm(
-            "Are you sure you want to decouple from your active Supabase database? This reverts to the default static showcase."
-          )
-        ) {
-          Object.values(configKeys).forEach((key) =>
-            localStorage.removeItem(key)
-          );
-          // Clear cached catalog keys
-          localStorage.removeItem("lmk_cached_products");
-          localStorage.removeItem("lmk_cached_rentals");
-          localStorage.removeItem("lmk_catalog_cache_timestamp");
-
-          showToast("🔄 Decoupled. Restoring default showcases.");
-          toggleConfigModal(false);
-          setTimeout(() => {
-            window.location.reload();
-          }, 800);
-        }
-      }
-
       // Toast System
       function showToast(message) {
         const oldToast = document.querySelector(".custom-toast");
@@ -3074,16 +3084,6 @@
           setTimeout(() => toast.remove(), 400);
         }, 4000);
       }
-
-      // Toggle modals
-      function toggleConfigModal(show) {
-        document
-          .getElementById("config-modal-overlay")
-          .classList.toggle("active", show);
-      }
-      document
-        .getElementById("show-config-btn")
-        .addEventListener("click", () => toggleConfigModal(true));
 
       // Cart actions
       function toggleCartDrawer(open) {
@@ -3118,25 +3118,34 @@
 
         // Determine if background request is actually necessary
         const now = Date.now();
-        const cacheTimestamp = localStorage.getItem("lmk_catalog_cache_timestamp");
-        const cacheAgeMs = cacheTimestamp ? (now - parseInt(cacheTimestamp)) : Infinity;
+        const cacheTimestamp = localStorage.getItem(
+          "lmk_catalog_cache_timestamp"
+        );
+        const cacheAgeMs = cacheTimestamp
+          ? now - parseInt(cacheTimestamp)
+          : Infinity;
         const fiveMinutesMs = 5 * 60 * 1000;
 
         // If we have cached catalogs, and they are not stale (less than 5 minutes old),
         // and this is NOT a manual save/refresh, we don't need to do any network requests!
-        if (!isManualRefresh && cacheAgeMs < fiveMinutesMs && loadedProducts.length > 0) {
-          console.log("Using fresh catalog cache from local workspace (skipping Supabase fetch).");
+        if (
+          !isManualRefresh &&
+          cacheAgeMs < fiveMinutesMs &&
+          loadedProducts.length > 0
+        ) {
+          console.log(
+            "Using fresh catalog cache from local workspace (skipping Supabase fetch)."
+          );
           return;
         }
 
         // Only show fetching toast if we don't have cached data or if it is a manual refresh
-        const showToastNotification = isManualRefresh || !loadedProducts || loadedProducts.length === 0;
+        const showToastNotification =
+          isManualRefresh || !loadedProducts || loadedProducts.length === 0;
 
         try {
           if (showToastNotification) {
-            showToast(
-              "⚡ Fetching active catalogs from Supabase cloud database..."
-            );
+            showToast("loading data...");
           }
 
           let configsFetched = false;
@@ -3176,7 +3185,10 @@
                 } else if (cfg.key === "itemgoods_table" && cfg.value) {
                   localStorage.setItem(configKeys.itemGoodsTable, cfg.value);
                 } else if (cfg.key === "checkoutQrs" && cfg.value) {
-                  const qrsVal = typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value);
+                  const qrsVal =
+                    typeof cfg.value === "string"
+                      ? cfg.value
+                      : JSON.stringify(cfg.value);
                   localStorage.setItem(configKeys.checkoutQrs, qrsVal);
                 }
               });
@@ -3207,16 +3219,21 @@
           }
 
           if (newRentals) {
-            const rentalsChanged = JSON.stringify(newRentals) !== JSON.stringify(loadedRentals);
+            const rentalsChanged =
+              JSON.stringify(newRentals) !== JSON.stringify(loadedRentals);
             if (rentalsChanged) {
               loadedRentals = newRentals;
               renderDynamicCarCollection();
             }
-            localStorage.setItem("lmk_cached_rentals", JSON.stringify(loadedRentals));
+            localStorage.setItem(
+              "lmk_cached_rentals",
+              JSON.stringify(loadedRentals)
+            );
           }
 
           // 2. Fetch products / itemgoods_records
-          const boundItemGoodsTable = localStorage.getItem(configKeys.itemGoodsTable) || "";
+          const boundItemGoodsTable =
+            localStorage.getItem(configKeys.itemGoodsTable) || "";
           let prodQuery = supabaseClient
             .from("itemgoods_records")
             .select("*")
@@ -3231,12 +3248,16 @@
           if (prodErr) throw prodErr;
 
           if (products && products.length > 0) {
-            const productsChanged = JSON.stringify(products) !== JSON.stringify(loadedProducts);
+            const productsChanged =
+              JSON.stringify(products) !== JSON.stringify(loadedProducts);
             if (productsChanged) {
               loadedProducts = products;
               renderDynamicStoreCollection();
             }
-            localStorage.setItem("lmk_cached_products", JSON.stringify(loadedProducts));
+            localStorage.setItem(
+              "lmk_cached_products",
+              JSON.stringify(loadedProducts)
+            );
           } else {
             console.log(
               "No items found in 'itemgoods_records' for company:",
@@ -3245,7 +3266,10 @@
           }
 
           // Save timestamp to cache
-          localStorage.setItem("lmk_catalog_cache_timestamp", Date.now().toString());
+          localStorage.setItem(
+            "lmk_catalog_cache_timestamp",
+            Date.now().toString()
+          );
 
           if (isManualRefresh) {
             showToast("✨ Catalog successfully synced and cached!");
@@ -3435,7 +3459,10 @@
 
       // Adding items into Cart
       function addToCart(id, name, price, image, resellerAmount) {
-        const finalPrice = resellerAmount !== undefined && resellerAmount !== null ? resellerAmount : price;
+        const finalPrice =
+          resellerAmount !== undefined && resellerAmount !== null
+            ? resellerAmount
+            : price;
         const existingIndex = cart.findIndex((item) => item.id === id);
         if (existingIndex !== -1) {
           cart[existingIndex].qty++;
@@ -3561,10 +3588,13 @@
         document.getElementById("checkout-type").value = "cart";
 
         // Dynamic Label Mapping for Product Buying
-        document.getElementById("checkout-name-label").textContent = "Full Name";
+        document.getElementById("checkout-name-label").textContent =
+          "Full Name";
         document.getElementById("checkout-name").placeholder = "Juan Dela Cruz";
-        document.getElementById("checkout-address-label").textContent = "Delivery Address / Pickup Location";
-        document.getElementById("checkout-address").placeholder = "House No, Street, Barangay, Cavite";
+        document.getElementById("checkout-address-label").textContent =
+          "Delivery Address / Pickup Location";
+        document.getElementById("checkout-address").placeholder =
+          "House No, Street, Barangay, Cavite";
 
         // Show standard fields
         document.getElementById("checkout-contact-row").style.display = "grid";
@@ -3572,15 +3602,18 @@
         document.getElementById("checkout-fb").required = false;
 
         // Show/hide correct containers
-        document.getElementById("rent-details-container").style.display = "none";
-        document.getElementById("payment-details-container").style.display = "block";
+        document.getElementById("rent-details-container").style.display =
+          "none";
+        document.getElementById("payment-details-container").style.display =
+          "block";
 
         // Required field validation adjustments
         document.getElementById("checkout-ref").required = true;
         document.getElementById("checkout-rent-start-date").required = false;
         document.getElementById("checkout-rent-end-date").required = false;
 
-        document.getElementById("checkout-submit-btn").textContent = "Complete Transaction";
+        document.getElementById("checkout-submit-btn").textContent =
+          "Complete Transaction";
 
         // Calculate total price
         const totalPrice = calculateCartTotal(
@@ -3592,34 +3625,48 @@
         if (refInput) refInput.value = "";
 
         updatePaymentDetails();
-        
+
         // Setup deferred execution for instruction modal
-        window._pendingCheckoutProceed = function() {
-          document.getElementById("checkout-modal-overlay").classList.add("active");
+        window._pendingCheckoutProceed = function () {
+          document
+            .getElementById("checkout-modal-overlay")
+            .classList.add("active");
+          triggerTurnstileReset();
         };
-        document.getElementById("checkout-instruction-overlay").classList.add("active");
+        document
+          .getElementById("checkout-instruction-overlay")
+          .classList.add("active");
       }
 
       function proceedFromInstructions() {
-        document.getElementById("checkout-instruction-overlay").classList.remove("active");
-        if (typeof window._pendingCheckoutProceed === 'function') {
+        document
+          .getElementById("checkout-instruction-overlay")
+          .classList.remove("active");
+        if (typeof window._pendingCheckoutProceed === "function") {
           window._pendingCheckoutProceed();
           window._pendingCheckoutProceed = null;
         }
       }
 
       function closeCheckoutInstruction() {
-        document.getElementById("checkout-instruction-overlay").classList.remove("active");
+        document
+          .getElementById("checkout-instruction-overlay")
+          .classList.remove("active");
         window._pendingCheckoutProceed = null;
       }
 
       // Calculates rent reservation total dynamically
       function updateRentPriceCalculation() {
-        const rate = parseFloat(document.getElementById("checkout-car-price").value || 0);
-        const duration = document.getElementById("checkout-car-duration").value || "24hr";
-        const sDateVal = document.getElementById("checkout-rent-start-date").value;
+        const rate = parseFloat(
+          document.getElementById("checkout-car-price").value || 0
+        );
+        const duration =
+          document.getElementById("checkout-car-duration").value || "24hr";
+        const sDateVal = document.getElementById(
+          "checkout-rent-start-date"
+        ).value;
         let eDateVal = document.getElementById("checkout-rent-end-date").value;
-        
+
         if (duration === "12hr" && sDateVal) {
           const start = new Date(sDateVal);
           if (!isNaN(start.getTime())) {
@@ -3629,9 +3676,9 @@
             document.getElementById("checkout-rent-end-date").value = eDateVal;
           }
         }
-        
+
         const hourlyPrice = rate / (duration === "12hr" ? 12 : 24);
-        
+
         let hours = 0;
         if (sDateVal && eDateVal) {
           const start = new Date(sDateVal);
@@ -3642,17 +3689,25 @@
             hours = Math.ceil(hours * 10) / 10; // keep 1 decimal precision
           }
         }
-        
+
         // Show base rate
-        document.getElementById("rent-calc-base-rate").textContent = `₱${rate.toLocaleString()} / ${duration} (₱${hourlyPrice.toFixed(2)}/hr)`;
-        document.getElementById("rent-calc-days").textContent = `${hours} hour${hours !== 1 ? 's' : ''}`;
-        
+        document.getElementById(
+          "rent-calc-base-rate"
+        ).textContent = `₱${rate.toLocaleString()} / ${duration} (₱${hourlyPrice.toFixed(
+          2
+        )}/hr)`;
+        document.getElementById("rent-calc-days").textContent = `${hours} hour${
+          hours !== 1 ? "s" : ""
+        }`;
+
         // Calculate total
         let total = Math.round(hourlyPrice * hours);
         if (isNaN(total) || total < 0) total = 0;
-        
+
         // Show total
-        document.getElementById("rent-calc-total").textContent = `₱${total.toLocaleString()}`;
+        document.getElementById(
+          "rent-calc-total"
+        ).textContent = `₱${total.toLocaleString()}`;
       }
 
       // Opens Checkout for Car booking
@@ -3676,13 +3731,14 @@
               </div>
             </div>
           `;
-          
+
           document.body.appendChild(overlay);
 
-          document.getElementById('duration-notice-proceed-btn').onclick = function() {
-            document.getElementById('duration-notice-overlay').remove();
-            proceedCarCheckout(carModel, rate, duration);
-          };
+          document.getElementById("duration-notice-proceed-btn").onclick =
+            function () {
+              document.getElementById("duration-notice-overlay").remove();
+              proceedCarCheckout(carModel, rate, duration);
+            };
           return;
         }
 
@@ -3699,10 +3755,14 @@
         document.getElementById("checkout-car-duration").value = duration;
 
         // Dynamic Label Mapping for Car Renting
-        document.getElementById("checkout-name-label").textContent = "Renter Name";
-        document.getElementById("checkout-name").placeholder = "Renter's Full Name";
-        document.getElementById("checkout-address-label").textContent = "Renter Address";
-        document.getElementById("checkout-address").placeholder = "Renter's Complete Address";
+        document.getElementById("checkout-name-label").textContent =
+          "Renter Name";
+        document.getElementById("checkout-name").placeholder =
+          "Renter's Full Name";
+        document.getElementById("checkout-address-label").textContent =
+          "Renter Address";
+        document.getElementById("checkout-address").placeholder =
+          "Renter's Complete Address";
 
         // Show contact row and make them required
         document.getElementById("checkout-contact-row").style.display = "grid";
@@ -3710,37 +3770,48 @@
         document.getElementById("checkout-fb").required = false;
 
         // Show/hide correct containers
-        document.getElementById("rent-details-container").style.display = "block";
-        document.getElementById("payment-details-container").style.display = "none";
+        document.getElementById("rent-details-container").style.display =
+          "block";
+        document.getElementById("payment-details-container").style.display =
+          "none";
 
         // Required field validation adjustments
         document.getElementById("checkout-ref").required = false;
         document.getElementById("checkout-rent-start-date").required = true;
         document.getElementById("checkout-rent-end-date").required = true;
-        
+
         if (duration === "12hr") {
           document.getElementById("checkout-rent-end-date").readOnly = true;
-          document.getElementById("checkout-rent-end-date").style.opacity = "0.6";
-          document.getElementById("checkout-rent-end-date").style.pointerEvents = "none";
+          document.getElementById("checkout-rent-end-date").style.opacity =
+            "0.6";
+          document.getElementById(
+            "checkout-rent-end-date"
+          ).style.pointerEvents = "none";
         } else {
           document.getElementById("checkout-rent-end-date").readOnly = false;
           document.getElementById("checkout-rent-end-date").style.opacity = "1";
-          document.getElementById("checkout-rent-end-date").style.pointerEvents = "auto";
+          document.getElementById(
+            "checkout-rent-end-date"
+          ).style.pointerEvents = "auto";
         }
 
-        document.getElementById("checkout-submit-btn").textContent = "Reserve Car (No Payment Required)";
+        document.getElementById("checkout-submit-btn").textContent =
+          "Reserve Car (No Payment Required)";
 
         // Set default datetimes to now and now + 12hr/24hr
         const now = new Date();
         const tzOffset = now.getTimezoneOffset() * 60000;
-        const localISO = (new Date(now - tzOffset)).toISOString().slice(0, 16);
-        
-        const durHours = duration === '12hr' ? 12 : 24;
+        const localISO = new Date(now - tzOffset).toISOString().slice(0, 16);
+
+        const durHours = duration === "12hr" ? 12 : 24;
         const future = new Date(now.getTime() + durHours * 60 * 60 * 1000);
-        const futureLocalISO = (new Date(future - tzOffset)).toISOString().slice(0, 16);
+        const futureLocalISO = new Date(future - tzOffset)
+          .toISOString()
+          .slice(0, 16);
 
         document.getElementById("checkout-rent-start-date").value = localISO;
-        document.getElementById("checkout-rent-end-date").value = futureLocalISO;
+        document.getElementById("checkout-rent-end-date").value =
+          futureLocalISO;
 
         const refInput = document.getElementById("checkout-ref");
         if (refInput) refInput.value = "";
@@ -3749,6 +3820,56 @@
         document
           .getElementById("checkout-modal-overlay")
           .classList.add("active");
+        triggerTurnstileReset();
+      }
+
+      let turnstileWidgetId = null;
+
+      // Trigger/reset Cloudflare Turnstile explicitly
+      function triggerTurnstileReset() {
+        const container = document.getElementById("turnstile-container");
+        if (!container) return;
+
+        if (typeof turnstile === "undefined") {
+          // Wait for script to load if it's not ready yet
+          setTimeout(triggerTurnstileReset, 300);
+          return;
+        }
+
+        try {
+          if (turnstileWidgetId !== null) {
+            turnstile.reset(turnstileWidgetId);
+          } else {
+            const siteKey =
+              localStorage.getItem(configKeys.turnstileSiteKey) ||
+              "1x00000000000000000000AA";
+            turnstileWidgetId = turnstile.render("#turnstile-container", {
+              sitekey: siteKey,
+              theme: "dark",
+              callback: function (token) {
+                console.log("Turnstile solved successfully:", token);
+              },
+            });
+          }
+        } catch (e) {
+          console.warn(
+            "Turnstile reset/render failed, attempting clean fallback:",
+            e
+          );
+          container.innerHTML = "";
+          turnstileWidgetId = null;
+          try {
+            const siteKey =
+              localStorage.getItem(configKeys.turnstileSiteKey) ||
+              "1x00000000000000000000AA";
+            turnstileWidgetId = turnstile.render("#turnstile-container", {
+              sitekey: siteKey,
+              theme: "dark",
+            });
+          } catch (err) {
+            console.error("Critical Turnstile failure:", err);
+          }
+        }
       }
 
       // Close checkout modal
@@ -3756,6 +3877,13 @@
         document
           .getElementById("checkout-modal-overlay")
           .classList.remove("active");
+        if (typeof turnstile !== "undefined" && turnstileWidgetId !== null) {
+          try {
+            turnstile.reset(turnstileWidgetId);
+          } catch (e) {
+            console.warn("Reset during close failed:", e);
+          }
+        }
       }
 
       // Toggle Delivery Display Subtext
@@ -3811,7 +3939,9 @@
         if (paymentMethod === "QR Code") {
           let customQrs = [];
           try {
-            const rawQrs = localStorage.getItem("lmk_store_checkout_qrs") || localStorage.getItem(configKeys.checkoutQrs);
+            const rawQrs =
+              localStorage.getItem("lmk_store_checkout_qrs") ||
+              localStorage.getItem(configKeys.checkoutQrs);
             if (rawQrs) {
               customQrs = JSON.parse(rawQrs);
             }
@@ -3825,12 +3955,22 @@
             customQrs.forEach((item, idx) => {
               qrsHtml += `
                 <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #1e5df6; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-                  <div style="font-size:10px; font-weight:700; color:#1e5df6; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">${item.label}</div>
-                  <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('${item.label} Payment', '${item.qr}', '💸 Settle Total Amount of: ₱${priceAmount.toLocaleString()}\\n👤 Scan the QR code with your app to complete payment.')">
-                    <img src="${item.qr}" alt="${item.label}" style="width:120px; height:120px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                  <div style="font-size:10px; font-weight:700; color:#1e5df6; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">${
+                    item.label
+                  }</div>
+                  <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('${
+                    item.label
+                  } Payment', '${
+                item.qr
+              }', '💸 Settle Total Amount of: ₱${priceAmount.toLocaleString()}\\n👤 Scan the QR code with your app to complete payment.')">
+                    <img src="${item.qr}" alt="${
+                item.label
+              }" style="width:120px; height:120px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
                   </div>
-                  <div style="font-size:11px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${item.label}">${item.label}</div>
+                  <div style="font-size:11px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${
+                    item.label
+                  }">${item.label}</div>
                 </div>
               `;
             });
@@ -4098,25 +4238,43 @@
       let currentActivePaymongoOrder = null;
       let paymongoSuccessCallback = null;
 
-      window.closePaymongoModal = function() {
-        document.getElementById("paymongo-modal-overlay").style.display = "none";
+      window.closePaymongoModal = function () {
+        document.getElementById("paymongo-modal-overlay").style.display =
+          "none";
         currentActivePaymongoOrder = null;
         paymongoSuccessCallback = null;
       };
 
-      window.startPaymongoCheckoutFlow = function(orderId, totalPrice, callback) {
+      window.startPaymongoCheckoutFlow = function (
+        orderId,
+        totalPrice,
+        callback
+      ) {
         currentActivePaymongoOrder = orderId;
         paymongoSuccessCallback = callback;
 
         // Set text values
-        document.getElementById("paymongo-order-title").textContent = `Order Code: ${orderId}`;
-        document.getElementById("paymongo-order-price").textContent = `₱${totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        document.getElementById("paymongo-authorize-btn").textContent = `Authorize & Pay ₱${totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById(
+          "paymongo-order-title"
+        ).textContent = `Order Code: ${orderId}`;
+        document.getElementById(
+          "paymongo-order-price"
+        ).textContent = `₱${totalPrice.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        })}`;
+        document.getElementById(
+          "paymongo-authorize-btn"
+        ).textContent = `Authorize & Pay ₱${totalPrice.toLocaleString(
+          undefined,
+          { minimumFractionDigits: 2 }
+        )}`;
         document.getElementById("paymongo-authorize-btn").disabled = false;
         document.getElementById("paymongo-authorize-btn").style.opacity = "1";
 
         // Reset auth name to customer's name
-        const customerName = document.getElementById("checkout-name").value.trim();
+        const customerName = document
+          .getElementById("checkout-name")
+          .value.trim();
         document.getElementById("paymongo-auth-name").value = customerName;
 
         // Reset logs
@@ -4128,11 +4286,14 @@
         `;
 
         // Open modal
-        document.getElementById("paymongo-modal-overlay").style.display = "flex";
-      }
+        document.getElementById("paymongo-modal-overlay").style.display =
+          "flex";
+      };
 
-      window.executePaymongoPaymentFlow = function() {
-        const authName = document.getElementById("paymongo-auth-name").value.trim();
+      window.executePaymongoPaymentFlow = function () {
+        const authName = document
+          .getElementById("paymongo-auth-name")
+          .value.trim();
         if (!authName) {
           alert("Please specify the Account Holder Name to authorize payment.");
           return;
@@ -4150,7 +4311,9 @@
         logsBox.scrollTop = logsBox.scrollHeight;
 
         setTimeout(() => {
-          logsBox.innerHTML += `<div style="color: #00BFA6;">[paymongo] Handshake successful! Token: tkn_sec_${Math.random().toString(36).substr(2, 8)}</div>`;
+          logsBox.innerHTML += `<div style="color: #00BFA6;">[paymongo] Handshake successful! Token: tkn_sec_${Math.random()
+            .toString(36)
+            .substr(2, 8)}</div>`;
           logsBox.scrollTop = logsBox.scrollHeight;
 
           setTimeout(() => {
@@ -4382,19 +4545,27 @@
         }, 2200);
       };
 
-      async function triggerWebsiteOrderNotification(companyId, customerName, refNum, type) {
+      async function triggerWebsiteOrderNotification(
+        companyId,
+        customerName,
+        refNum,
+        type
+      ) {
         if (!supabaseClient) return;
         try {
-          await supabaseClient.functions.invoke('send-website-order-notification', {
-            body: {
-              record: {
-                company_id: companyId,
-                customer_name: customerName,
-                reference_num: refNum,
-                order_type: type
-              }
+          await supabaseClient.functions.invoke(
+            "send-website-order-notification",
+            {
+              body: {
+                record: {
+                  company_id: companyId,
+                  customer_name: customerName,
+                  reference_num: refNum,
+                  order_type: type,
+                },
+              },
             }
-          });
+          );
         } catch (e) {
           console.error("Failed to invoke notification webhook:", e);
         }
@@ -4412,33 +4583,66 @@
         if (details.type === "rent") {
           detailsHtml = `
             <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 24px; font-size: 14px;">
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${details.customerName}</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${details.phone}</p>
-              ${details.fbProfile ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${details.fbProfile}</p>` : ""}
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${
+                details.customerName
+              }</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${
+                details.phone
+              }</p>
+              ${
+                details.fbProfile
+                  ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${details.fbProfile}</p>`
+                  : ""
+              }
               <div style="border-top: 1px solid var(--line); margin: 12px 0;"></div>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Car Model:</strong> ${document.getElementById("checkout-car-model").value}</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Start Date:</strong> ${document.getElementById("checkout-rent-start-date").value}</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>End Date:</strong> ${document.getElementById("checkout-rent-end-date").value}</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Driver Option:</strong> ${document.getElementById("checkout-rent-driver-option").value}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Car Model:</strong> ${
+                document.getElementById("checkout-car-model").value
+              }</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Start Date:</strong> ${
+                document.getElementById("checkout-rent-start-date").value
+              }</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>End Date:</strong> ${
+                document.getElementById("checkout-rent-end-date").value
+              }</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Driver Option:</strong> ${
+                document.getElementById("checkout-rent-driver-option").value
+              }</p>
               <p style="margin: 0 0 0 0; color: var(--gold); font-weight: bold; font-size: 16px; margin-top: 12px;">Total Estimate: ₱${details.totalPrice.toLocaleString()}</p>
             </div>
           `;
         } else {
           detailsHtml = `
             <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 24px; font-size: 14px;">
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${details.customerName}</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${details.phone}</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Address:</strong> ${details.address}</p>
-              ${details.fbProfile ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${details.fbProfile}</p>` : ""}
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${
+                details.customerName
+              }</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${
+                details.phone
+              }</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Address:</strong> ${
+                details.address
+              }</p>
+              ${
+                details.fbProfile
+                  ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${details.fbProfile}</p>`
+                  : ""
+              }
               <div style="border-top: 1px solid var(--line); margin: 12px 0;"></div>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Fulfillment:</strong> ${details.fulfillment}</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Payment:</strong> ${details.payment}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Fulfillment:</strong> ${
+                details.fulfillment
+              }</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Payment:</strong> ${
+                details.payment
+              }</p>
               <p style="margin: 0 0 0 0; color: var(--gold); font-weight: bold; font-size: 16px; margin-top: 12px;">Total: ₱${details.totalPrice.toLocaleString()}</p>
             </div>
           `;
         }
 
-        const title = details.type === "rent" ? "Confirm Reservation Details" : "Confirm Order Details";
+        const title =
+          details.type === "rent"
+            ? "Confirm Reservation Details"
+            : "Confirm Order Details";
 
         overlay.innerHTML = `
           <div class="modal-box" style="text-align:center; padding:32px 24px; position:relative; max-width:400px; z-index:1001;">
@@ -4453,8 +4657,8 @@
         `;
 
         document.body.appendChild(overlay);
-        
-        document.getElementById("confirm-proceed-btn").onclick = function() {
+
+        document.getElementById("confirm-proceed-btn").onclick = function () {
           overlay.remove();
           onConfirm();
         };
@@ -4479,26 +4683,53 @@
           document.getElementById("checkout-car-price").value || 0
         );
 
+        // Anti-spam protection: 30-second cooldown between final submissions
+        const lastCheckout = localStorage.getItem("__last_checkout_time");
+        const now = Date.now();
+        if (lastCheckout) {
+          const elapsed = (now - parseInt(lastCheckout)) / 1000;
+          if (elapsed < 30) {
+            showToast(
+              `Please wait ${Math.ceil(
+                30 - elapsed
+              )} seconds before placing another order.`
+            );
+            return;
+          }
+        }
+
+        // Anti-spam Turnstile verification check
+        if (typeof turnstile !== "undefined") {
+          const token = turnstile.getResponse(turnstileWidgetId);
+          if (!token) {
+            showToast("⚠️ Please complete the security check.");
+            return;
+          }
+        }
+
         if (!window.__checkoutConfirmed) {
-          showCheckoutConfirmationModal({
-            type,
-            customerName,
-            phone,
-            fbProfile,
-            address,
-            fulfillment,
-            payment,
-            totalPrice
-          }, () => {
-            window.__checkoutConfirmed = true;
-            document.getElementById("checkout-form").requestSubmit();
-          });
+          showCheckoutConfirmationModal(
+            {
+              type,
+              customerName,
+              phone,
+              fbProfile,
+              address,
+              fulfillment,
+              payment,
+              totalPrice,
+            },
+            () => {
+              window.__checkoutConfirmed = true;
+              document.getElementById("checkout-form").requestSubmit();
+            }
+          );
           return;
         }
         window.__checkoutConfirmed = false;
+        localStorage.setItem("__last_checkout_time", Date.now().toString());
 
         const activeCompanyId =
-
           localStorage.getItem(configKeys.companyId) || "nika-corp";
         const randId = "web-txn-" + Math.random().toString(36).substr(2, 9);
 
@@ -4575,7 +4806,9 @@
                         remarks: orderRemarks,
                         status: "active",
                         type: "sales",
-                        tab: localStorage.getItem(configKeys.salesTable) || "Online Store",
+                        tab:
+                          localStorage.getItem(configKeys.salesTable) ||
+                          "Online Store",
                         sales_entry_type: "sale",
                         order_status: "pending",
                         compressed_items: itemsBlobName,
@@ -4740,7 +4973,9 @@
                         remarks: orderRemarks,
                         status: "active",
                         type: "sales",
-                        tab: localStorage.getItem(configKeys.salesTable) || "Online Store",
+                        tab:
+                          localStorage.getItem(configKeys.salesTable) ||
+                          "Online Store",
                         sales_entry_type: "sale",
                         order_status: "payment_confirmed",
                         compressed_items: itemsBlobName,
@@ -4905,7 +5140,9 @@
                     remarks: orderRemarks,
                     status: "active",
                     type: "sales",
-                    tab: localStorage.getItem(configKeys.salesTable) || "Online Store",
+                    tab:
+                      localStorage.getItem(configKeys.salesTable) ||
+                      "Online Store",
                     sales_entry_type: "sale",
                     order_status: "pending",
                     compressed_items: itemsBlobName,
@@ -4916,7 +5153,12 @@
                 if (fallbackErr) throw fallbackErr;
               }
               submitCompleted = true;
-              triggerWebsiteOrderNotification(activeCompanyId, customerName, refNum, type);
+              triggerWebsiteOrderNotification(
+                activeCompanyId,
+                customerName,
+                refNum,
+                type
+              );
             } catch (err) {
               console.error("Order submit failed:", err);
               submitCompleted = false;
@@ -4926,18 +5168,37 @@
         // CASE B: Customer booked a Rental Car
         else {
           const carModel = document.getElementById("checkout-car-model").value;
-          const sDate = document.getElementById("checkout-rent-start-date").value;
+          const sDate = document.getElementById(
+            "checkout-rent-start-date"
+          ).value;
           const eDate = document.getElementById("checkout-rent-end-date").value;
-          const driverOption = document.getElementById("checkout-rent-driver-option").value;
-          const plateNumber = document.getElementById("checkout-rent-plate-number").value || "TBD";
-          const distanceLimit = document.getElementById("checkout-rent-distance-limit").value || "300";
-          const operatorName = document.getElementById("checkout-rent-operator-name").value || "Nica Lmk Corp";
-          const operatorAddress = document.getElementById("checkout-rent-operator-address").value || "Cavite City";
-          
-          const finalRentTotal = parseFloat(document.getElementById("rent-calc-total").textContent.replace(/[^0-9.]/g, '') || totalPrice);
+          const driverOption = document.getElementById(
+            "checkout-rent-driver-option"
+          ).value;
+          const plateNumber =
+            document.getElementById("checkout-rent-plate-number").value ||
+            "TBD";
+          const distanceLimit =
+            document.getElementById("checkout-rent-distance-limit").value ||
+            "300";
+          const operatorName =
+            document.getElementById("checkout-rent-operator-name").value ||
+            "Nica Lmk Corp";
+          const operatorAddress =
+            document.getElementById("checkout-rent-operator-address").value ||
+            "Cavite City";
 
-          const durationText = document.getElementById("rent-calc-days").textContent; // e.g. "2 days"
-          const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel}\nDates: ${sDate} to ${eDate}\nFulfillment: Rental Reservation\nAddress: ${address}\nFB Contact: ${fbProfile}\nDriver Option: ${driverOption === 'with_driver' ? 'With Driver' : 'Self Drive'}\nPreferred Plate: ${plateNumber}\nOperator: ${operatorName}`;
+          const finalRentTotal = parseFloat(
+            document
+              .getElementById("rent-calc-total")
+              .textContent.replace(/[^0-9.]/g, "") || totalPrice
+          );
+
+          const durationText =
+            document.getElementById("rent-calc-days").textContent; // e.g. "2 days"
+          const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel}\nDates: ${sDate} to ${eDate}\nFulfillment: Rental Reservation\nAddress: ${address}\nFB Contact: ${fbProfile}\nDriver Option: ${
+            driverOption === "with_driver" ? "With Driver" : "Self Drive"
+          }\nPreferred Plate: ${plateNumber}\nOperator: ${operatorName}`;
 
           if (supabaseClient) {
             try {
@@ -4969,8 +5230,8 @@
                       distance_limit: distanceLimit,
                       plate_number: plateNumber,
                       operator_name: operatorName,
-                      operator_address: operatorAddress
-                    }
+                      operator_address: operatorAddress,
+                    },
                   ],
                   created_at: new Date().toISOString(),
                 });
@@ -4987,8 +5248,12 @@
                     company: activeCompanyId,
                     name: `${customerName} (${fbProfile})`,
                     amount: finalRentTotal,
-                    date: sDate || new Date().toISOString().split('T')[0],
-                    end_date: eDate || new Date(Date.now() + 24 * 3600000).toISOString().split('T')[0],
+                    date: sDate || new Date().toISOString().split("T")[0],
+                    end_date:
+                      eDate ||
+                      new Date(Date.now() + 24 * 3600000)
+                        .toISOString()
+                        .split("T")[0],
                     remarks: rentRemarks,
                     facebook: fbProfile,
                     contact_number: phone,
@@ -4999,7 +5264,12 @@
                 if (fallbackErr) throw fallbackErr;
               }
               submitCompleted = true;
-              triggerWebsiteOrderNotification(activeCompanyId, customerName, refNum, type);
+              triggerWebsiteOrderNotification(
+                activeCompanyId,
+                customerName,
+                refNum,
+                type
+              );
             } catch (err) {
               console.error("Reservation submit failed:", err);
               submitCompleted = false;
@@ -5007,7 +5277,14 @@
           }
         }
 
-        const actualPrice = (type === "rent") ? parseFloat(document.getElementById("rent-calc-total").textContent.replace(/[^0-9.]/g, '') || totalPrice) : totalPrice;
+        const actualPrice =
+          type === "rent"
+            ? parseFloat(
+                document
+                  .getElementById("rent-calc-total")
+                  .textContent.replace(/[^0-9.]/g, "") || totalPrice
+              )
+            : totalPrice;
 
         submitBtn.textContent = "Complete Transaction";
         submitBtn.disabled = false;
@@ -5030,8 +5307,12 @@
           messageInvoice += `📦 fulfillment: ${fulfillment}\n`;
           messageInvoice += `📍 Address: ${address}\n\n`;
           messageInvoice += `💵 Total Amount: ₱${actualPrice.toLocaleString()}\n`;
-          messageInvoice += `💳 Payment method: ${type === "rent" ? "Deferred Reservation" : payment}\n`;
-          messageInvoice += `🆔 Reference payment: ${type === "rent" ? "PENDING_CONFIRMATION" : refNum}\n\n`;
+          messageInvoice += `💳 Payment method: ${
+            type === "rent" ? "Deferred Reservation" : payment
+          }\n`;
+          messageInvoice += `🆔 Reference payment: ${
+            type === "rent" ? "PENDING_CONFIRMATION" : refNum
+          }\n\n`;
 
           if (type === "cart") {
             messageInvoice += `🛍️ Items Bought:\n`;
@@ -5043,10 +5324,18 @@
           } else {
             const carModel =
               document.getElementById("checkout-car-model").value;
-            const sDate = document.getElementById("checkout-rent-start-date").value;
-            const eDate = document.getElementById("checkout-rent-end-date").value;
-            const driverOption = document.getElementById("checkout-rent-driver-option").value;
-            messageInvoice += `🚗 Car Reservation:\n▪️ Model: ${carModel}\n▪️ Start Date: ${sDate}\n▪️ End Date: ${eDate}\n▪️ Driver: ${driverOption === 'with_driver' ? 'With Driver' : 'Self Drive'}\n`;
+            const sDate = document.getElementById(
+              "checkout-rent-start-date"
+            ).value;
+            const eDate = document.getElementById(
+              "checkout-rent-end-date"
+            ).value;
+            const driverOption = document.getElementById(
+              "checkout-rent-driver-option"
+            ).value;
+            messageInvoice += `🚗 Car Reservation:\n▪️ Model: ${carModel}\n▪️ Start Date: ${sDate}\n▪️ End Date: ${eDate}\n▪️ Driver: ${
+              driverOption === "with_driver" ? "With Driver" : "Self Drive"
+            }\n`;
           }
 
           // Encode URL message
@@ -5083,18 +5372,22 @@
       ) {
         // Trigger notification
         if (dbSuccess && supabaseClient) {
-          const activeCompanyId = localStorage.getItem('__org_company_id') || "nika-corp";
-          const type = document.getElementById("checkout-type")?.value || "Order";
-          supabaseClient.functions.invoke('send-website-order-notification', {
-            body: {
-              record: {
-                company_id: activeCompanyId,
-                customer_name: customerName,
-                reference_num: orderId,
-                order_type: type
-              }
-            }
-          }).catch(e => console.warn("FCM push invoke failed:", e));
+          const activeCompanyId =
+            localStorage.getItem("__org_company_id") || "nika-corp";
+          const type =
+            document.getElementById("checkout-type")?.value || "Order";
+          supabaseClient.functions
+            .invoke("send-website-order-notification", {
+              body: {
+                record: {
+                  company_id: activeCompanyId,
+                  customer_name: customerName,
+                  reference_num: orderId,
+                  order_type: type,
+                },
+              },
+            })
+            .catch((e) => console.warn("FCM push invoke failed:", e));
         }
 
         const oldOverlay = document.getElementById("success-overlay");
@@ -5108,7 +5401,9 @@
         let boxContent = "";
 
         if (isPaymongoCheckout) {
-          const shopeeShippingUrl = localStorage.getItem("lmk_store_shopee_shipping_url") || "https://shopee.ph";
+          const shopeeShippingUrl =
+            localStorage.getItem("lmk_store_shopee_shipping_url") ||
+            "https://shopee.ph";
           boxContent = `
       <div class="modal-box" style="text-align:center; padding:36px 24px; position:relative; max-width:480px; border-top: 5px solid #ff5722;">
         <div style="font-size: 54px; margin-bottom:16px;">✨</div>
