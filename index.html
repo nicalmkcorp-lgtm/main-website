@@ -2099,7 +2099,7 @@
       <div
         class="modal-box"
         style="
-          max-width: 340px;
+          max-width: 500px;
           text-align: center;
           padding: 24px;
           position: relative;
@@ -2115,12 +2115,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
           "
         >
           <h3
+            id="qr-zoom-title"
             style="
-              font-size: 14px;
+              font-size: 16px;
               font-weight: 600;
               text-transform: uppercase;
               letter-spacing: 0.05em;
@@ -2139,9 +2140,12 @@
             background: #f9fafb;
             padding: 16px;
             border-radius: 6px;
-            display: inline-block;
-            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
             border: 1px solid #edf2f7;
+            width: 100%;
           "
         >
           <img
@@ -2149,8 +2153,9 @@
             src=""
             alt="Zoomed QR Code"
             style="
-              width: 200px;
-              height: 200px;
+              width: 100%;
+              max-width: 400px;
+              height: auto;
               display: block;
               border-radius: 4px;
               box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
@@ -2161,15 +2166,25 @@
         <p
           id="qr-zoom-desc"
           style="
-            font-size: 11px;
-            color: var(--muted);
+            font-size: 13px;
+            color: var(--ink);
+            font-weight: 500;
             line-height: 1.5;
             margin: 0;
             padding: 0 8px;
             text-align: center;
             white-space: pre-wrap;
+            margin-bottom: 24px;
           "
         ></p>
+        <button
+          type="button"
+          class="btn-primary"
+          style="width: 100%;"
+          onclick="closeQRZoomModal()"
+        >
+          Close
+        </button>
       </div>
     </div>
 
