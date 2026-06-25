@@ -2024,9 +2024,6 @@
                 <div class="form-group">
                   <label for="checkout-payment">Payment Option</label>
                   <select id="checkout-payment" onchange="updatePaymentDetails()">
-                    <option value="PayMongo">
-                      PayMongo (GCash, GCash, Cards)
-                    </option>
                     <option value="QR Code">Scan QR Code Payment</option>
                   </select>
                 </div>
@@ -2773,11 +2770,25 @@
         shopeeShippingUrl: "lmk_store_shopee_shipping_url",
         salesTable: "lmk_store_sales_table",
         itemGoodsTable: "lmk_store_itemgoods_table",
+        checkoutQrs: "lmk_store_checkout_qrs",
       };
 
-      // Live retrieved catalogs
+      // Live retrieved catalogs (loaded from cache on startup if available)
       let loadedProducts = [];
       let loadedRentals = {};
+
+      try {
+        const cachedProducts = localStorage.getItem("lmk_cached_products");
+        if (cachedProducts) {
+          loadedProducts = JSON.parse(cachedProducts);
+        }
+        const cachedRentals = localStorage.getItem("lmk_cached_rentals");
+        if (cachedRentals) {
+          loadedRentals = JSON.parse(cachedRentals);
+        }
+      } catch (e) {
+        console.warn("Could not load cached catalogs:", e);
+      }
 
       // Standard Default fallbacks if Supabase is unconfigured (For pristine testing)
       const defaultGCashNum = "0917-000-0001";
@@ -2980,9 +2991,9 @@
         showToast("💾 Saving database credentials & merchant profiles...");
         toggleConfigModal(false);
 
-        // Re-initialize and reload
+        // Re-initialize and reload (passing true for manual refresh)
         initSupabaseConnection();
-        await loadMerchantCatalog();
+        await loadMerchantCatalog(true);
       }
 
       // Reset to static fallbacks
@@ -2995,6 +3006,11 @@
           Object.values(configKeys).forEach((key) =>
             localStorage.removeItem(key)
           );
+          // Clear cached catalog keys
+          localStorage.removeItem("lmk_cached_products");
+          localStorage.removeItem("lmk_cached_rentals");
+          localStorage.removeItem("lmk_catalog_cache_timestamp");
+
           showToast("🔄 Decoupled. Restoring default showcases.");
           toggleConfigModal(false);
           setTimeout(() => {
@@ -3043,9 +3059,17 @@
         .addEventListener("click", () => toggleCartDrawer(true));
 
       // Dynamic products / rent retrieval from Supabase
-      async function loadMerchantCatalog() {
+      async function loadMerchantCatalog(isManualRefresh = false) {
         const activeCompanyId =
           localStorage.getItem(configKeys.companyId) || HARDCODED_COMPANY_ID;
+
+        // Render cached data immediately to keep performance blazing-fast with zero layout shift
+        if (loadedRentals && Object.keys(loadedRentals).length > 0) {
+          renderDynamicCarCollection();
+        }
+        if (loadedProducts && loadedProducts.length > 0) {
+          renderDynamicStoreCollection();
+        }
 
         if (!supabaseClient) {
           console.log(
@@ -3054,12 +3078,31 @@
           return;
         }
 
+        // Determine if background request is actually necessary
+        const now = Date.now();
+        const cacheTimestamp = localStorage.getItem("lmk_catalog_cache_timestamp");
+        const cacheAgeMs = cacheTimestamp ? (now - parseInt(cacheTimestamp)) : Infinity;
+        const fiveMinutesMs = 5 * 60 * 1000;
+
+        // If we have cached catalogs, and they are not stale (less than 5 minutes old),
+        // and this is NOT a manual save/refresh, we don't need to do any network requests!
+        if (!isManualRefresh && cacheAgeMs < fiveMinutesMs && loadedProducts.length > 0) {
+          console.log("Using fresh catalog cache from local workspace (skipping Supabase fetch).");
+          return;
+        }
+
+        // Only show fetching toast if we don't have cached data or if it is a manual refresh
+        const showToastNotification = isManualRefresh || !loadedProducts || loadedProducts.length === 0;
+
         try {
-          showToast(
-            "⚡ Fetching active catalogs from Supabase cloud database..."
-          );
+          if (showToastNotification) {
+            showToast(
+              "⚡ Fetching active catalogs from Supabase cloud database..."
+            );
+          }
 
           let configsFetched = false;
+          let newRentals = null;
 
           // 1. Fetch Config details (website_configs)
           try {
@@ -3077,8 +3120,7 @@
               );
               webConfigs.forEach((cfg) => {
                 if (cfg.key === "rentBannerSettings" && cfg.value) {
-                  loadedRentals = cfg.value;
-                  renderDynamicCarCollection();
+                  newRentals = cfg.value;
                 } else if (cfg.key === "gcashNum" && cfg.value) {
                   localStorage.setItem(configKeys.gcashNum, cfg.value);
                 } else if (cfg.key === "gcashName" && cfg.value) {
@@ -3089,24 +3131,15 @@
                   localStorage.setItem(configKeys.bdoName, cfg.value);
                 } else if (cfg.key === "shopeeUrl" && cfg.value) {
                   localStorage.setItem(configKeys.shopeeUrl, cfg.value);
-                } else if (cfg.key === "shopeePartnerId" && cfg.value) {
-                  localStorage.setItem(configKeys.shopeePartnerId, cfg.value);
-                } else if (cfg.key === "shopeePartnerKey" && cfg.value) {
-                  localStorage.setItem(configKeys.shopeePartnerKey, cfg.value);
-                } else if (cfg.key === "shopeeShopId" && cfg.value) {
-                  localStorage.setItem(configKeys.shopeeShopId, cfg.value);
-                } else if (cfg.key === "shopeeAccessToken" && cfg.value) {
-                  localStorage.setItem(configKeys.shopeeAccessToken, cfg.value);
-                } else if (cfg.key === "paymongoPublicKey" && cfg.value) {
-                  localStorage.setItem(configKeys.paymongoPublicKey, cfg.value);
-                } else if (cfg.key === "paymongoSecretKey" && cfg.value) {
-                  localStorage.setItem(configKeys.paymongoSecretKey, cfg.value);
                 } else if (cfg.key === "shopeeShippingUrl" && cfg.value) {
                   localStorage.setItem(configKeys.shopeeShippingUrl, cfg.value);
                 } else if (cfg.key === "sales_table" && cfg.value) {
                   localStorage.setItem(configKeys.salesTable, cfg.value);
                 } else if (cfg.key === "itemgoods_table" && cfg.value) {
                   localStorage.setItem(configKeys.itemGoodsTable, cfg.value);
+                } else if (cfg.key === "checkoutQrs" && cfg.value) {
+                  const qrsVal = typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value);
+                  localStorage.setItem(configKeys.checkoutQrs, qrsVal);
                 }
               });
             }
@@ -3130,10 +3163,18 @@
                 (r) => r.key === "rentBannerSettings"
               );
               if (bannerRec && bannerRec.value) {
-                loadedRentals = bannerRec.value;
-                renderDynamicCarCollection();
+                newRentals = bannerRec.value;
               }
             }
+          }
+
+          if (newRentals) {
+            const rentalsChanged = JSON.stringify(newRentals) !== JSON.stringify(loadedRentals);
+            if (rentalsChanged) {
+              loadedRentals = newRentals;
+              renderDynamicCarCollection();
+            }
+            localStorage.setItem("lmk_cached_rentals", JSON.stringify(loadedRentals));
           }
 
           // 2. Fetch products / itemgoods_records
@@ -3152,22 +3193,35 @@
           if (prodErr) throw prodErr;
 
           if (products && products.length > 0) {
-            loadedProducts = products;
-            renderDynamicStoreCollection();
+            const productsChanged = JSON.stringify(products) !== JSON.stringify(loadedProducts);
+            if (productsChanged) {
+              loadedProducts = products;
+              renderDynamicStoreCollection();
+            }
+            localStorage.setItem("lmk_cached_products", JSON.stringify(loadedProducts));
           } else {
             console.log(
               "No items found in 'itemgoods_records' for company:",
               activeCompanyId
             );
           }
+
+          // Save timestamp to cache
+          localStorage.setItem("lmk_catalog_cache_timestamp", Date.now().toString());
+
+          if (isManualRefresh) {
+            showToast("✨ Catalog successfully synced and cached!");
+          }
         } catch (err) {
           console.error(
             "Supabase catalogue load failed, utilizing robust static showroom:",
             err
           );
-          showToast(
-            "⚠️ Could not connect to database. Operating in elegant Static Showcase Mode with manual fallback."
-          );
+          if (showToastNotification) {
+            showToast(
+              "⚠️ Could not connect to database. Operating in elegant Static Showcase Mode with manual fallback."
+            );
+          }
         }
       }
 
@@ -3647,144 +3701,154 @@
           document.getElementById("checkout-car-price").value || 0
         );
 
-        if (paymentMethod === "PayMongo") {
-          const mId = localStorage.getItem(configKeys.paymongoPublicKey) || "PYMY-DEMO-8192";
-          textBox.innerHTML = `
-            <strong>PayMongo Merchant Checkout:</strong><br/>
-            You are paying securely via our integrated PayMongo payment gateway.
-            <br/><br/>
-            <ul style="margin: 6px 0; padding-left: 16px; font-size: 11px; color: var(--muted); line-height: 1.5; text-align: left;">
-              <li>🔒 Secure End-to-End Encryption (AES-256).</li>
-              <li>⚡ Real-time automatic webhook payment verification.</li>
-              <li>💳 Accepts PayMongo Wallet, GCash, GrabPay, Visa, Mastercard, and JCB.</li>
-              <li>Merchant ID: <span style="font-family: monospace; color:#00BFA6; font-weight:bold">${mId}</span></li>
-            </ul>
-            <br/>
-            <span class="badge" style="background:#00BFA6; color:#00293C; font-size:10px; font-weight:800; padding:3px 6px; border-radius: 4px;">PayMongo STATUS: CONNECTED</span>
-          `;
-          if (refLabel) refLabel.textContent = "PayMongo Gateway Checkout Route";
-          if (refInput) {
-            refInput.value = "INTEGRATED-PAYMENT";
-            refInput.placeholder = "Payment verified dynamically via secure webhook";
-            refInput.readOnly = true;
-            refInput.style.opacity = "0.7";
+        if (paymentMethod === "QR Code") {
+          let customQrs = [];
+          try {
+            const rawQrs = localStorage.getItem("lmk_store_checkout_qrs") || localStorage.getItem(configKeys.checkoutQrs);
+            if (rawQrs) {
+              customQrs = JSON.parse(rawQrs);
+            }
+          } catch (e) {
+            console.warn("Failed to parse custom QRs:", e);
           }
-        } else {
+
+          if (Array.isArray(customQrs) && customQrs.length > 0) {
+            // Render custom QR codes!
+            let qrsHtml = "";
+            customQrs.forEach((item, idx) => {
+              qrsHtml += `
+                <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #1e5df6; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                  <div style="font-size:10px; font-weight:700; color:#1e5df6; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">${item.label}</div>
+                  <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('${item.label} Payment', '${item.qr}', '💸 Settle Total Amount of: ₱${priceAmount.toLocaleString()}\\n👤 Scan the QR code with your app to complete payment.')">
+                    <img src="${item.qr}" alt="${item.label}" style="width:120px; height:120px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
+                  </div>
+                  <div style="font-size:11px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${item.label}">${item.label}</div>
+                </div>
+              `;
+            });
+
+            textBox.innerHTML = `
+              <div style="font-weight: 600; color: var(--ink); margin-bottom: 6px;">Scan QR Code to Pay: ₱${priceAmount.toLocaleString()}</div>
+              <div style="font-size:11px; color:var(--muted); margin-bottom:12px; line-height:1.4;">Select an uploaded QR option below to pay. Click any QR code to zoom. Settle the amount and input the completed payment's Reference Transaction ID below.</div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 8px;">
+                ${qrsHtml}
+              </div>
+            `;
+          } else {
+            // Standard fallback QR codes
+            const gqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+              `gpay://to?phone=${gNum.replace(
+                /[^0-9]/g,
+                ""
+              )}&amount=${priceAmount}`
+            )}`;
+            const bqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+              `Pay Php ${priceAmount} to BDO Account ${bNum} (Name: ${bName})`
+            )}`;
+            const mqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+              `Pay Php ${priceAmount} to GCash Account ${gNum} (Name: ${gName})`
+            )}`;
+            const sqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+              `Pay Php ${priceAmount} to ShopeePay Account ${gNum} (Name: ${gName})`
+            )}`;
+            const nqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+              `Unified QR Ph to Merchant: ${gName} for Amount Php ${priceAmount}`
+            )}`;
+
+            textBox.innerHTML = `
+              <div style="font-weight: 600; color: var(--ink); margin-bottom: 6px;">Scan QR Code to Pay: ₱${priceAmount.toLocaleString()}</div>
+              <div style="font-size:11px; color:var(--muted); margin-bottom:12px; line-height:1.4;">Select a QR option to pay. Click any QR code to zoom. Settle the amount and input the completed payment's Reference Transaction ID below.</div>
+              
+              <!-- Primary QR Codes (GCash & BDO) -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 8px;">
+                <!-- GCash QR Card -->
+                <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #1e5df6; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                  <div style="font-size:10px; font-weight:700; color:#1e5df6; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">GCash QR</div>
+                  <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('GCash QR Payment', '${gqr}', '👤 Name: ${gName}\\n📱 GCash No: ${gNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
+                    <img src="${gqr}" alt="GCash QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
+                  </div>
+                  <div style="font-size:11px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${gName}">${gName}</div>
+                  <div style="font-size:10px; color:#666; margin-top:1px; display:flex; align-items:center; gap:3px;">
+                    <span>${gNum}</span>
+                    <button type="button" onclick="copyToClipboard('${gNum}', 'GCash Number', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
+                  </div>
+                </div>
+
+                <!-- BDO Account QR Card -->
+                <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #1c355e; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                  <div style="font-size:10px; font-weight:700; color:#1c355e; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">BDO Bank QR</div>
+                  <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('BDO Bank QR Payment', '${bqr}', '👤 Acc Name: ${bName}\\n💳 Acc Num: ${bNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
+                    <img src="${bqr}" alt="BDO QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
+                  </div>
+                  <div style="font-size:11px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${bName}">${bName}</div>
+                  <div style="font-size:10px; color:#666; margin-top:1px; display:flex; align-items:center; gap:3px;">
+                    <span>${bNum}</span>
+                    <button type="button" onclick="copyToClipboard('${bNum}', 'BDO Account', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Toggle Button for Show More -->
+              <div style="text-align:center; margin-top:12px;">
+                <button id="toggle-more-qr-btn" type="button" onclick="toggleMoreQRCodes(event)" class="btn-ghost" style="padding:4px 10px; font-size:11px; display:inline-flex; align-items:center; gap:6px; text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">Show More QR Codes ▾</button>
+              </div>
+
+              <!-- Secondary/Collapsible QRs (Maya, ShopeePay, PH National QR) -->
+              <div id="more-qr-panel" style="display:none; transition: all 0.3s ease; margin-top: 12px;">
+                
+                <!-- GCash QR Card -->
+                <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #5e3bee; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                  <div style="font-size:10px; font-weight:700; color:#5e3bee; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">Maya QR</div>
+                  <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('Maya Wallet QR Payment', '${mqr}', '👤 Name: ${gName}\\n📱 GCash/Maya No: ${gNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
+                    <img src="${mqr}" alt="Maya QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
+                  </div>
+                  <div style="font-size:10px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${gName}">${gName}</div>
+                  <div style="font-size:9px; color:#666; margin-top:1px; display:flex; align-items:center; gap:3px;">
+                    <span>${gNum}</span>
+                    <button type="button" onclick="copyToClipboard('${gNum}', 'Maya Number', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
+                  </div>
+                </div>
+
+                <!-- ShopeePay QR Card -->
+                <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #ee4d2d; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                  <div style="font-size:10px; font-weight:700; color:#ee4d2d; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">ShopeePay</div>
+                  <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('ShopeePay QR Payment', '${sqr}', '👤 Name: ${gName}\\n📱 Mobile No: ${gNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
+                    <img src="${sqr}" alt="ShopeePay QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
+                  </div>
+                  <div style="font-size:10px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${gName}">${gName}</div>
+                  <div style="font-size:9px; color:#666; margin-top:1px; display:flex; align-items:center; gap:3px;">
+                    <span>${gNum}</span>
+                    <button type="button" onclick="copyToClipboard('${gNum}', 'ShopeePay Number', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
+                  </div>
+                </div>
+
+                <!-- National QR Ph Card -->
+                <div style="background:#fff; border:1px solid #edf2f7; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04); position:relative; overflow:hidden;">
+                  <div style="position:absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(to right, #0038a8 33%, #fcd116 33% 66%, #ce1126 66%);"></div>
+                  <div style="font-size:10px; font-weight:700; color:#1a365d; text-transform:uppercase; margin-top:4px; margin-bottom:6px; letter-spacing:0.04em;">QR Ph</div>
+                  <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('National QR Ph Unified', '${nqr}', '📋 Multi-Wallet National Standard (QR Ph)\\nAccepts GCash, Maya, ShopeePay, GrabPay, BDO, BPI, GoTyme, UnionBank etc.\\n💸 Amount: ₱${priceAmount.toLocaleString()}\\n👤 Merchant: ${gName}')">
+                    <img src="${nqr}" alt="QR Ph" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
+                  </div>
+                  <div style="font-size:10px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${gName}">${gName}</div>
+                  <div style="font-size:8px; color:#1a365d; font-weight:700; margin-top:3px; letter-spacing:0.02em;">PHILIPPINES NATIONAL QR</div>
+                </div>
+              </div>
+            `;
+          }
+
+          if (refLabel) refLabel.textContent = "Payment Reference Trans ID";
           if (refInput) {
             if (refInput.value === "INTEGRATED-PAYMENT") refInput.value = "";
             refInput.readOnly = false;
             refInput.style.opacity = "1";
-          }
-        }
-
-        if (paymentMethod === "QR Code") {
-          const gqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-            `gpay://to?phone=${gNum.replace(
-              /[^0-9]/g,
-              ""
-            )}&amount=${priceAmount}`
-          )}`;
-          const bqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-            `Pay Php ${priceAmount} to BDO Account ${bNum} (Name: ${bName})`
-          )}`;
-          const mqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-            `Pay Php ${priceAmount} to PayMongo Account ${gNum} (Name: ${gName})`
-          )}`;
-          const sqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-            `Pay Php ${priceAmount} to ShopeePay Account ${gNum} (Name: ${gName})`
-          )}`;
-          const nqr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-            `Unified QR Ph to Merchant: ${gName} for Amount Php ${priceAmount}`
-          )}`;
-
-          textBox.innerHTML = `
-        <div style="font-weight: 600; color: var(--ink); margin-bottom: 6px;">Scan QR Code to Pay: ₱${priceAmount.toLocaleString()}</div>
-        <div style="font-size:11px; color:var(--muted); margin-bottom:12px; line-height:1.4;">Select a QR option to pay. Click any QR code to zoom. Settle the amount and input the completed payment's Reference Transaction ID below.</div>
-        
-        <!-- Primary QR Codes (GCash & BDO) -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 8px;">
-          <!-- GCash QR Card -->
-          <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #1e5df6; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <div style="font-size:10px; font-weight:700; color:#1e5df6; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">GCash QR</div>
-            <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('GCash QR Payment', '${gqr}', '👤 Name: ${gName}\\n📱 GCash No: ${gNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
-              <img src="${gqr}" alt="GCash QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-              <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
-            </div>
-            <div style="font-size:11px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${gName}">${gName}</div>
-            <div style="font-size:10px; color:#666; margin-top:1px; display:flex; align-items:center; gap:3px;">
-              <span>${gNum}</span>
-              <button type="button" onclick="copyToClipboard('${gNum}', 'GCash Number', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
-            </div>
-          </div>
-
-          <!-- BDO Account QR Card -->
-          <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #1c355e; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <div style="font-size:10px; font-weight:700; color:#1c355e; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">BDO Bank QR</div>
-            <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('BDO Bank QR Payment', '${bqr}', '👤 Acc Name: ${bName}\\n💳 Acc Num: ${bNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
-              <img src="${bqr}" alt="BDO QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-              <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
-            </div>
-            <div style="font-size:11px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${bName}">${bName}</div>
-            <div style="font-size:10px; color:#666; margin-top:1px; display:flex; align-items:center; gap:3px;">
-              <span>${bNum}</span>
-              <button type="button" onclick="copyToClipboard('${bNum}', 'BDO Account', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Toggle Button for Show More -->
-        <div style="text-align:center; margin-top:12px;">
-          <button id="toggle-more-qr-btn" type="button" onclick="toggleMoreQRCodes(event)" class="btn-ghost" style="padding:4px 10px; font-size:11px; display:inline-flex; align-items:center; gap:6px; text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">Show More QR Codes ▾</button>
-        </div>
-
-        <!-- Secondary/Collapsible QRs (Maya, ShopeePay, PH National QR) -->
-        <div id="more-qr-panel" style="display:none; transition: all 0.3s ease; margin-top: 12px;">
-          
-          <!-- GCash QR Card -->
-          <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #5e3bee; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <div style="font-size:10px; font-weight:700; color:#5e3bee; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">GCash QR</div>
-            <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('PayMongo Wallet QR Payment', '${mqr}', '👤 Name: ${gName}\\n📱 PayMongo No: ${gNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
-              <img src="${mqr}" alt="GCash QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-              <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
-            </div>
-            <div style="font-size:10px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${gName}">${gName}</div>
-            <div style="font-size:9px; color:#666; margin-top:1px; display:flex; align-items:center; gap:3px;">
-              <span>${gNum}</span>
-              <button type="button" onclick="copyToClipboard('${gNum}', 'PayMongo Number', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
-            </div>
-          </div>
-
-          <!-- ShopeePay QR Card -->
-          <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #ee4d2d; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <div style="font-size:10px; font-weight:700; color:#ee4d2d; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">ShopeePay</div>
-            <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('ShopeePay QR Payment', '${sqr}', '👤 Name: ${gName}\\n📱 Mobile No: ${gNum}\\n💸 Total: ₱${priceAmount.toLocaleString()}')">
-              <img src="${sqr}" alt="ShopeePay QR" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-              <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
-            </div>
-            <div style="font-size:10px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${gName}">${gName}</div>
-            <div style="font-size:9px; color:#666; margin-top:1px; display:flex; align-items:center; gap:3px;">
-              <span>${gNum}</span>
-              <button type="button" onclick="copyToClipboard('${gNum}', 'ShopeePay Number', this)" style="background:none; border:none; cursor:pointer; color:var(--gold); padding:0; font-size:10px; font-weight:bold;">📋</button>
-            </div>
-          </div>
-
-          <!-- National QR Ph Card -->
-          <div style="background:#fff; border:1px solid #edf2f7; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04); position:relative; overflow:hidden;">
-            <div style="position:absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(to right, #0038a8 33%, #fcd116 33% 66%, #ce1126 66%);"></div>
-            <div style="font-size:10px; font-weight:700; color:#1a365d; text-transform:uppercase; margin-top:4px; margin-bottom:6px; letter-spacing:0.04em;">QR Ph</div>
-            <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('National QR Ph Unified', '${nqr}', '📋 Multi-Wallet National Standard (QR Ph)\\nAccepts GCash, PayMongo, ShopeePay, GrabPay, BDO, BPI, GoTyme, UnionBank etc.\\n💸 Amount: ₱${priceAmount.toLocaleString()}\\n👤 Merchant: ${gName}')">
-              <img src="${nqr}" alt="QR Ph" style="width:100px; height:100px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-              <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
-            </div>
-            <div style="font-size:10px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${gName}">${gName}</div>
-            <div style="font-size:8px; color:#1a365d; font-weight:700; margin-top:3px; letter-spacing:0.02em;">PHILIPPINES NATIONAL QR</div>
-          </div>
-
-        </div>
-      `;
-          if (refLabel) refLabel.textContent = "Payment Reference Trans ID";
-          if (refInput)
             refInput.placeholder = "Enter Scan To Pay Reference ID / Trans ID";
+          }
         }
 
         validateRefInput();
@@ -3808,11 +3872,6 @@
             submitBtn.style.opacity = "1";
             submitBtn.style.cursor = "pointer";
           }
-        } else if (payment === "PayMongo") {
-          submitBtn.textContent = "Proceed to PayMongo Secure Payment Gateway";
-          submitBtn.disabled = false;
-          submitBtn.style.opacity = "1";
-          submitBtn.style.cursor = "pointer";
         } else {
           submitBtn.textContent = "Complete Transaction";
           submitBtn.disabled = false;
