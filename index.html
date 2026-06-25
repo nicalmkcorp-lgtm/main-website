@@ -4347,6 +4347,66 @@
         }
       }
 
+      function showCheckoutConfirmationModal(details, onConfirm) {
+        const oldOverlay = document.getElementById("confirmation-overlay");
+        if (oldOverlay) oldOverlay.remove();
+
+        const overlay = document.createElement("div");
+        overlay.id = "confirmation-overlay";
+        overlay.className = "modal-overlay active";
+
+        let detailsHtml = "";
+        if (details.type === "rent") {
+          detailsHtml = `
+            <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 24px; font-size: 14px;">
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${details.customerName}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${details.phone}</p>
+              ${details.fbProfile ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${details.fbProfile}</p>` : ""}
+              <div style="border-top: 1px solid var(--line); margin: 12px 0;"></div>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Car Model:</strong> ${document.getElementById("checkout-car-model").value}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Start Date:</strong> ${document.getElementById("checkout-rent-start-date").value}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>End Date:</strong> ${document.getElementById("checkout-rent-end-date").value}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Driver Option:</strong> ${document.getElementById("checkout-rent-driver-option").value}</p>
+              <p style="margin: 0 0 0 0; color: var(--gold); font-weight: bold; font-size: 16px; margin-top: 12px;">Total Estimate: ₱${details.totalPrice.toLocaleString()}</p>
+            </div>
+          `;
+        } else {
+          detailsHtml = `
+            <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 24px; font-size: 14px;">
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${details.customerName}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${details.phone}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Address:</strong> ${details.address}</p>
+              ${details.fbProfile ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${details.fbProfile}</p>` : ""}
+              <div style="border-top: 1px solid var(--line); margin: 12px 0;"></div>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Fulfillment:</strong> ${details.fulfillment}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Payment:</strong> ${details.payment}</p>
+              <p style="margin: 0 0 0 0; color: var(--gold); font-weight: bold; font-size: 16px; margin-top: 12px;">Total: ₱${details.totalPrice.toLocaleString()}</p>
+            </div>
+          `;
+        }
+
+        const title = details.type === "rent" ? "Confirm Reservation Details" : "Confirm Order Details";
+
+        overlay.innerHTML = \`
+          <div class="modal-box" style="text-align:center; padding:32px 24px; position:relative; max-width:400px; z-index:1001;">
+            <h3 style="font-family:'Cormorant Garamond', serif; font-size: 24px; color:var(--gold-2); margin-bottom: 16px;">\${title}</h3>
+            <p style="font-size: 14px; color:var(--muted); margin-bottom: 16px;">Please review the details you inputted before proceeding.</p>
+            \${detailsHtml}
+            <div style="display: flex; gap: 12px;">
+              <button class="btn-primary" style="flex:1; background: transparent; border: 1px solid var(--line); color: var(--ink);" onclick="document.getElementById('confirmation-overlay').remove()">Edit</button>
+              <button class="btn-primary" style="flex:1;" id="confirm-proceed-btn">Proceed</button>
+            </div>
+          </div>
+        \`;
+
+        document.body.appendChild(overlay);
+        
+        document.getElementById("confirm-proceed-btn").onclick = function() {
+          overlay.remove();
+          onConfirm();
+        };
+      }
+
       async function handleFormSubmit(e) {
         e.preventDefault();
         const type = document.getElementById("checkout-type").value; // "cart" or "rent"
@@ -4366,7 +4426,26 @@
           document.getElementById("checkout-car-price").value || 0
         );
 
+        if (!window.__checkoutConfirmed) {
+          showCheckoutConfirmationModal({
+            type,
+            customerName,
+            phone,
+            fbProfile,
+            address,
+            fulfillment,
+            payment,
+            totalPrice
+          }, () => {
+            window.__checkoutConfirmed = true;
+            document.getElementById("checkout-form").requestSubmit();
+          });
+          return;
+        }
+        window.__checkoutConfirmed = false;
+
         const activeCompanyId =
+
           localStorage.getItem(configKeys.companyId) || "nika-corp";
         const randId = "web-txn-" + Math.random().toString(36).substr(2, 9);
 
