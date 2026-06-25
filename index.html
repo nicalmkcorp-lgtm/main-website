@@ -3618,17 +3618,7 @@
         const rate = parseFloat(document.getElementById("checkout-car-price").value || 0);
         const duration = document.getElementById("checkout-car-duration").value || "24hr";
         const sDateVal = document.getElementById("checkout-rent-start-date").value;
-        let eDateVal = document.getElementById("checkout-rent-end-date").value;
-        
-        if (duration === "12hr" && sDateVal) {
-          const start = new Date(sDateVal);
-          if (!isNaN(start.getTime())) {
-            const tzOffset = start.getTimezoneOffset() * 60000;
-            const end = new Date(start.getTime() + 12 * 60 * 60 * 1000);
-            eDateVal = (new Date(end - tzOffset)).toISOString().slice(0, 16);
-            document.getElementById("checkout-rent-end-date").value = eDateVal;
-          }
-        }
+        const eDateVal = document.getElementById("checkout-rent-end-date").value;
         
         const hourlyPrice = rate / (duration === "12hr" ? 12 : 24);
         
@@ -3657,17 +3647,6 @@
 
       // Opens Checkout for Car booking
       function openCarCheckout(carModel, rate, duration) {
-        if (duration === '12hr') {
-          if (!confirm("notice: this section is for the 12 hour renting duration, if you are renting more than 12 hours or days, please select the 24 hour price")) {
-            return;
-          }
-          document.getElementById("checkout-rent-end-date").readOnly = true;
-          document.getElementById("checkout-rent-end-date").style.opacity = "0.5";
-        } else {
-          document.getElementById("checkout-rent-end-date").readOnly = false;
-          document.getElementById("checkout-rent-end-date").style.opacity = "1";
-        }
-
         document.getElementById(
           "checkout-title"
         ).textContent = `Book Reservation: ${carModel}`;
