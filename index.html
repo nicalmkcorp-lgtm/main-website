@@ -1895,6 +1895,28 @@
       </div>
     </div>
 
+    <!-- Checkout Instructions Modal -->
+    <div id="checkout-instruction-overlay" class="modal-overlay" style="z-index: 1000">
+      <div class="modal-box" style="max-width: 440px; padding: 24px; position: relative; border-top: 4px solid var(--gold);">
+        <div class="modal-header" style="border-bottom: none; padding: 0; min-height: 0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 style="color: var(--gold); margin: 0; font-size: 18px;">Checkout Instructions</h3>
+          <button class="close-btn" onclick="closeCheckoutInstruction()" style="top: 10px; right: 10px; position: absolute;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 0;">
+          <ul style="color: var(--muted); font-size: 13px; line-height: 1.8; text-align: left; padding-left: 18px; margin: 0 0 24px 0;">
+            <li style="margin-bottom: 8px;">please send the total amount to the selected qr payment,</li>
+            <li style="margin-bottom: 8px;">after paying, please provide the payment reference number,</li>
+            <li style="margin-bottom: 8px;">continue checkout in shoppe, for shipping purposes,</li>
+            <li style="margin-bottom: 8px;">for shipping you will charge 5 peso plus the shipping fee,</li>
+            <li style="margin-bottom: 8px;">send us the shopee shipping screenshot together with your name in fb messenger for confirmation,</li>
+          </ul>
+          <div class="checkout-actions" style="margin-top: 0;">
+            <button type="button" class="btn-primary" style="width: 100%;" onclick="proceedFromInstructions()">I Understand, Proceed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 3. Checkout Modal -->
     <div id="checkout-modal-overlay" class="modal-overlay">
       <div class="modal-box">
@@ -1942,14 +1964,13 @@
               </div>
             </div>
 
-            <div class="form-group" id="checkout-address-group">
+            <div class="form-group" id="checkout-address-group" style="display: none;">
               <label for="checkout-address" id="checkout-address-label"
                 >Delivery Address / Pickup Location</label
               >
               <textarea
                 id="checkout-address"
                 rows="2"
-                required
                 placeholder="House No, Street, Barangay, Cavite"
               ></textarea>
             </div>
@@ -2008,7 +2029,7 @@
             <!-- Standard Courier & Payment Logistics container -->
             <div id="payment-details-container">
               <div class="form-row">
-                <div class="form-group">
+                <div class="form-group" style="display: none;">
                   <label for="checkout-delivery">Fulfillment Route</label>
                   <select
                     id="checkout-delivery"
@@ -3554,9 +3575,25 @@
         if (refInput) refInput.value = "";
 
         updatePaymentDetails();
-        document
-          .getElementById("checkout-modal-overlay")
-          .classList.add("active");
+        
+        // Setup deferred execution for instruction modal
+        window._pendingCheckoutProceed = function() {
+          document.getElementById("checkout-modal-overlay").classList.add("active");
+        };
+        document.getElementById("checkout-instruction-overlay").classList.add("active");
+      }
+
+      function proceedFromInstructions() {
+        document.getElementById("checkout-instruction-overlay").classList.remove("active");
+        if (typeof window._pendingCheckoutProceed === 'function') {
+          window._pendingCheckoutProceed();
+          window._pendingCheckoutProceed = null;
+        }
+      }
+
+      function closeCheckoutInstruction() {
+        document.getElementById("checkout-instruction-overlay").classList.remove("active");
+        window._pendingCheckoutProceed = null;
       }
 
       // Calculates rent reservation total dynamically
