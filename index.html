@@ -3510,21 +3510,42 @@
             item.reseller_amount !== null && item.reseller_amount !== undefined
               ? parseFloat(item.reseller_amount)
               : price;
-          const isLowStock = item.quantity <= 1;
-          const remainsMsg = isLowStock
-            ? `Only ${parseInt(item.quantity)} left!`
-            : "In Stock";
-          const remainsColor = isLowStock ? "#e63946" : "#6b6557";
+
+          const stockQty = parseFloat(item.quantity || 0);
+          const isOutOfStock = stockQty <= 0;
+          const isLowStock = !isOutOfStock && stockQty <= 1;
+
+          let remainsMsg = "In Stock";
+          let remainsColor = "#6b6557";
+          let tagHtml = '<span class="tag">Atelier</span>';
+
+          if (isOutOfStock) {
+            remainsMsg = "Out of Stock";
+            remainsColor = "#e63946";
+            tagHtml = '<span class="tag" style="background:#e63946">Out of Stock</span>';
+          } else if (isLowStock) {
+            remainsMsg = `Only ${parseInt(stockQty)} left!`;
+            remainsColor = "#e63946";
+            tagHtml = '<span class="tag" style="background:#e63946">Low Stock</span>';
+          }
 
           const prodElement = document.createElement("div");
           prodElement.className = `product reveal d${(index % 4) + 1} in`;
+
+          let buttonHtml = `<button class="shop-add-btn" onclick="addToCart('${
+            item.id
+          }', '${item.name.replace(
+              /'/g,
+              "\\'"
+            )}', ${price}, '${imgPath}', ${resellerAmount})">Add to Cart</button>`;
+
+          if (isOutOfStock) {
+            buttonHtml = `<button class="shop-add-btn" disabled style="opacity: 0.5; cursor: not-allowed; pointer-events: none;">Out of Stock</button>`;
+          }
+
           prodElement.innerHTML = `
         <div class="ph">
-          ${
-            isLowStock
-              ? '<span class="tag" style="background:#e63946">Low Stock</span>'
-              : '<span class="tag">Atelier</span>'
-          }
+          ${tagHtml}
           <img alt="${
             item.name
           }" src="${imgPath}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'">
@@ -3537,12 +3558,7 @@
           <span style="color:${remainsColor}">${remainsMsg}</span>
           <span class="price-tag">₱${resellerAmount.toLocaleString()}</span>
         </div>
-        <button class="shop-add-btn" onclick="addToCart('${
-          item.id
-        }', '${item.name.replace(
-            /'/g,
-            "\\'"
-          )}', ${price}, '${imgPath}', ${resellerAmount})">Add to Cart</button>
+        ${buttonHtml}
       `;
           dynamicGrid.appendChild(prodElement);
         });
@@ -3550,6 +3566,13 @@
 
       // Adding items into Cart
       function addToCart(id, name, price, image, resellerAmount) {
+        // Prevent adding if item is out of stock
+        const product = loadedProducts.find((p) => p.id === id);
+        if (product && parseFloat(product.quantity || 0) <= 0) {
+          showToast(`⚠️ "${name}" is currently out of stock.`);
+          return;
+        }
+
         const finalPrice =
           resellerAmount !== undefined && resellerAmount !== null
             ? resellerAmount
