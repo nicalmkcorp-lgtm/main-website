@@ -3796,7 +3796,7 @@
         }
 
         document.getElementById("checkout-submit-btn").textContent =
-          "Reserve Car (No Payment Required)";
+          "Continue Reservation";
 
         // Set default datetimes to now and now + 12hr/24hr
         const now = new Date();
@@ -5286,7 +5286,8 @@
               )
             : totalPrice;
 
-        submitBtn.textContent = "Complete Transaction";
+        submitBtn.textContent =
+          type === "rent" ? "Continue Reservation" : "Complete Transaction";
         submitBtn.disabled = false;
 
         // Reset modals and state
