@@ -3658,10 +3658,38 @@
       // Opens Checkout for Car booking
       function openCarCheckout(carModel, rate, duration) {
         if (duration === "12hr") {
-          const proceed = window.confirm("Notice:\nThis section is for the 12 hour renting duration.\nIf you are renting more than 12 hours or days,\nplease select the 24 hour price.");
-          if (!proceed) return;
+          const oldOverlay = document.getElementById("duration-notice-overlay");
+          if (oldOverlay) oldOverlay.remove();
+
+          const overlay = document.createElement("div");
+          overlay.id = "duration-notice-overlay";
+          overlay.className = "modal-overlay active";
+          overlay.style.zIndex = "1002";
+
+          overlay.innerHTML = `
+            <div class="modal-box" style="text-align:center; padding:32px 24px; position:relative; max-width:400px;">
+              <h3 style="font-family:'Cormorant Garamond', serif; font-size: 24px; color:var(--gold-2); margin-bottom: 16px;">Notice</h3>
+              <p style="font-size: 14px; color:var(--muted); margin-bottom: 24px; line-height: 1.5;">This section is for the <strong>12 hour</strong> renting duration.<br/><br/>If you are renting more than 12 hours or days, please select the <strong>24 hour</strong> price.</p>
+              <div style="display: flex; gap: 12px;">
+                <button class="btn-primary" style="flex:1; background: transparent; border: 1px solid var(--line); color: var(--ink);" onclick="document.getElementById('duration-notice-overlay').remove()">Cancel</button>
+                <button class="btn-primary" style="flex:1;" id="duration-notice-proceed-btn">Proceed</button>
+              </div>
+            </div>
+          `;
+          
+          document.body.appendChild(overlay);
+
+          document.getElementById('duration-notice-proceed-btn').onclick = function() {
+            document.getElementById('duration-notice-overlay').remove();
+            proceedCarCheckout(carModel, rate, duration);
+          };
+          return;
         }
 
+        proceedCarCheckout(carModel, rate, duration);
+      }
+
+      function proceedCarCheckout(carModel, rate, duration) {
         document.getElementById(
           "checkout-title"
         ).textContent = `Book Reservation: ${carModel}`;
