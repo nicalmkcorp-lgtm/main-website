@@ -3276,9 +3276,17 @@
               );
               webConfigs.forEach((cfg) => {
                 if (cfg.key === "rentBannerSettings" && cfg.value) {
-                  newRentals = cfg.value;
+                  let val = cfg.value;
+                  if (typeof val === "string") {
+                    try { val = JSON.parse(val); } catch(e){}
+                  }
+                  newRentals = val;
                 } else if (cfg.key === "rentTabPhotos" && cfg.value) {
-                  newPhotos = cfg.value;
+                  let val = cfg.value;
+                  if (typeof val === "string") {
+                    try { val = JSON.parse(val); } catch(e){}
+                  }
+                  newPhotos = val;
                 } else if (cfg.key === "gcashNum" && cfg.value) {
                   localStorage.setItem(configKeys.gcashNum, cfg.value);
                 } else if (cfg.key === "gcashName" && cfg.value) {
@@ -3463,7 +3471,7 @@
         let i = 1;
 
         for (const [tabName, rentConfig] of Object.entries(loadedRentals)) {
-          if (!rentConfig || !rentConfig.carModel) continue;
+          if (!rentConfig) continue;
 
           // Only display cars that are added to the website
           if (rentConfig.addToWebsite === false || rentConfig.addToWebsite === "false") {
@@ -3472,9 +3480,9 @@
 
           const modelName = rentConfig.carModel || tabName;
           const color = rentConfig.carColor || "Default Spectrum";
-          const p12 = (rentConfig.price12h || "1699").replace(/,/g, "");
-          const p24 = (rentConfig.price24h || "2499").replace(/,/g, "");
-          const pDriver = (rentConfig.priceDriver || "1000").replace(/,/g, "");
+          const p12 = String(rentConfig.price12h || "1699").replace(/,/g, "");
+          const p24 = String(rentConfig.price24h || "2499").replace(/,/g, "");
+          const pDriver = String(rentConfig.priceDriver || "1000").replace(/,/g, "");
           const metaInfo = rentConfig.metaInfo || "Default · Aircon · Automatic";
           const description = rentConfig.description || "Rent package configured for direct Cavite travel. High-tier maintenance.";
 
@@ -5812,9 +5820,7 @@
         const actualPrice =
           type === "rent"
             ? parseFloat(
-                document
-                  .getElementById("rent-calc-total")
-                  .textContent.replace(/[^0-9.]/g, "") || totalPrice
+                document.getElementById("checkout-rent-final-total").value || totalPrice
               )
             : totalPrice;
 
