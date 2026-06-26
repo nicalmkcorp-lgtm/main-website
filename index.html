@@ -3033,6 +3033,7 @@
       // Live retrieved catalogs (loaded from cache on startup if available)
       let loadedProducts = [];
       let loadedRentals = {};
+      let loadedRentTabPhotos = {};
       let currentProductPage = 1;
       const PRODUCTS_PER_PAGE = 12;
       let currentProductCategory = "ALL";
@@ -3045,6 +3046,10 @@
         const cachedRentals = localStorage.getItem("lmk_cached_rentals");
         if (cachedRentals) {
           loadedRentals = JSON.parse(cachedRentals);
+        }
+        const cachedPhotos = localStorage.getItem("lmk_cached_rent_photos");
+        if (cachedPhotos) {
+          loadedRentTabPhotos = JSON.parse(cachedPhotos);
         }
       } catch (e) {
         console.warn("Could not load cached catalogs:", e);
@@ -3251,6 +3256,7 @@
 
           let configsFetched = false;
           let newRentals = null;
+          let newPhotos = null;
 
           // 1. Fetch Config details (website_configs)
           try {
@@ -3269,6 +3275,8 @@
               webConfigs.forEach((cfg) => {
                 if (cfg.key === "rentBannerSettings" && cfg.value) {
                   newRentals = cfg.value;
+                } else if (cfg.key === "rentTabPhotos" && cfg.value) {
+                  newPhotos = cfg.value;
                 } else if (cfg.key === "gcashNum" && cfg.value) {
                   localStorage.setItem(configKeys.gcashNum, cfg.value);
                 } else if (cfg.key === "gcashName" && cfg.value) {
@@ -3320,20 +3328,44 @@
               if (bannerRec && bannerRec.value) {
                 newRentals = bannerRec.value;
               }
+              const photosRec = configRecords.find(
+                (r) => r.key === "rentTabPhotos"
+              );
+              if (photosRec && photosRec.value) {
+                newPhotos = photosRec.value;
+              }
             }
           }
 
+          let carRenderNeeded = false;
           if (newRentals) {
             const rentalsChanged =
               JSON.stringify(newRentals) !== JSON.stringify(loadedRentals);
             if (rentalsChanged) {
               loadedRentals = newRentals;
-              renderDynamicCarCollection();
+              carRenderNeeded = true;
             }
             localStorage.setItem(
               "lmk_cached_rentals",
               JSON.stringify(loadedRentals)
             );
+          }
+
+          if (newPhotos) {
+            const photosChanged =
+              JSON.stringify(newPhotos) !== JSON.stringify(loadedRentTabPhotos);
+            if (photosChanged) {
+              loadedRentTabPhotos = newPhotos;
+              carRenderNeeded = true;
+            }
+            localStorage.setItem(
+              "lmk_cached_rent_photos",
+              JSON.stringify(loadedRentTabPhotos)
+            );
+          }
+
+          if (carRenderNeeded) {
+            renderDynamicCarCollection();
           }
 
           // 2. Fetch products / itemgoods_records
@@ -3405,10 +3437,20 @@
         for (const [tabName, rentConfig] of Object.entries(loadedRentals)) {
           if (!rentConfig || !rentConfig.carModel) continue;
 
+          // Only display cars that are added to the website
+          if (rentConfig.addToWebsite !== true && rentConfig.addToWebsite !== "true") {
+            continue;
+          }
+
           const modelName = rentConfig.carModel || tabName;
           const color = rentConfig.carColor || "Default Spectrum";
           const p12 = rentConfig.price12h || "1699";
           const p24 = rentConfig.price24h || "2499";
+          const metaInfo = rentConfig.metaInfo || "Default · Aircon · Automatic";
+          const description = rentConfig.description || "Rent package configured for direct Cavite travel. High-tier maintenance.";
+
+          // Get image from the corresponding rent tab photo banner
+          const photoBase64 = loadedRentTabPhotos && loadedRentTabPhotos[tabName];
 
           // Default placeholder if photo doesn't exist
           const defaultImg =
@@ -3416,14 +3458,16 @@
               ? "https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907649938.png"
               : "https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907740417.png";
 
+          const carImgSrc = photoBase64 ? photoBase64 : defaultImg;
+
           const carCard = document.createElement("article");
           carCard.className = `car reveal d${(i % 4) + 1} in`; // Inject in class to run observer instantly
           carCard.innerHTML = `
-        <div class="img"><img alt="${modelName}" src="${defaultImg}"></div>
+        <div class="img"><img alt="${modelName}" src="${carImgSrc}"></div>
         <div class="body">
           <h3>${modelName}</h3>
-          <div class="meta">${color} · Aircon · Automatic</div>
-          <p style="color:var(--muted);font-size:14px">Rent package configured for direct Cavite travel. High-tier maintenance.</p>
+          <div class="meta">${metaInfo}</div>
+          <p style="color:var(--muted);font-size:14px">${description}</p>
           <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr')">
             <div><span class="num">₱${parseInt(
               p12
@@ -3445,6 +3489,9 @@
         if (dynamicGrid.children.length > 0) {
           staticGrid.style.display = "none";
           dynamicGrid.style.display = "grid";
+        } else {
+          staticGrid.style.display = "grid";
+          dynamicGrid.style.display = "none";
         }
       }
 
