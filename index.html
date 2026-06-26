@@ -3025,6 +3025,7 @@
         itemGoodsTable: "lmk_store_itemgoods_table",
         checkoutQrs: "lmk_store_checkout_qrs",
         turnstileSiteKey: "lmk_store_turnstile_site_key",
+        turnstileSecretKey: "lmk_store_turnstile_secret_key",
       };
 
       // Live retrieved catalogs (loaded from cache on startup if available)
@@ -3288,6 +3289,10 @@
                       ? cfg.value
                       : JSON.stringify(cfg.value);
                   localStorage.setItem(configKeys.checkoutQrs, qrsVal);
+                } else if (cfg.key === "turnstileSiteKey" && cfg.value) {
+                  localStorage.setItem(configKeys.turnstileSiteKey, cfg.value);
+                } else if (cfg.key === "turnstileSecretKey" && cfg.value) {
+                  localStorage.setItem(configKeys.turnstileSecretKey, cfg.value);
                 }
               });
             }
@@ -4032,7 +4037,7 @@
           } else {
             const siteKey =
               localStorage.getItem(configKeys.turnstileSiteKey) ||
-              "1x00000000000000000000AA";
+              "0x4AAAAAADrPa6DqP4u3WgVW";
             turnstileWidgetId = turnstile.render("#turnstile-container", {
               sitekey: siteKey,
               theme: "dark",
@@ -4051,7 +4056,7 @@
           try {
             const siteKey =
               localStorage.getItem(configKeys.turnstileSiteKey) ||
-              "1x00000000000000000000AA";
+              "0x4AAAAAADrPa6DqP4u3WgVW";
             turnstileWidgetId = turnstile.render("#turnstile-container", {
               sitekey: siteKey,
               theme: "dark",
