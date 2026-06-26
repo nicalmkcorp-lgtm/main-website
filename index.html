@@ -3327,9 +3327,19 @@
               const bannerRec = configRecords.find(
                 (r) => r.key === "rentBannerSettings"
               );
-              // Always override with app_config if it exists, since RentBannerModal saves here
+              // Merge app_config on top of website_configs if both exist, to preserve properties like addToWebsite
               if (bannerRec && bannerRec.value) {
-                newRentals = bannerRec.value;
+                if (newRentals) {
+                  newRentals = { ...newRentals }; // clone
+                  Object.keys(bannerRec.value).forEach(tab => {
+                    newRentals[tab] = {
+                      ...(newRentals[tab] || {}),
+                      ...bannerRec.value[tab]
+                    };
+                  });
+                } else {
+                  newRentals = bannerRec.value;
+                }
               }
               const photosRec = configRecords.find(
                 (r) => r.key === "rentTabPhotos"
