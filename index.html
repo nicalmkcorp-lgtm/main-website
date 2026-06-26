@@ -3313,8 +3313,8 @@
             );
           }
 
-          // Fallback: If website_configs was empty, query legacy app_config for rentBannerSettings
-          if (!configsFetched) {
+          // Also query legacy app_config for rentBannerSettings and rentTabPhotos (since some are saved there)
+          try {
             const { data: configRecords, error: configErr } =
               await supabaseClient
                 .from("app_config")
@@ -3325,6 +3325,7 @@
               const bannerRec = configRecords.find(
                 (r) => r.key === "rentBannerSettings"
               );
+              // Always override with app_config if it exists, since RentBannerModal saves here
               if (bannerRec && bannerRec.value) {
                 newRentals = bannerRec.value;
               }
@@ -3335,6 +3336,8 @@
                 newPhotos = photosRec.value;
               }
             }
+          } catch (err) {
+            console.warn("Could not query app_config table:", err);
           }
 
           let carRenderNeeded = false;
