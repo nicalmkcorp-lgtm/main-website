@@ -2012,6 +2012,8 @@
             <input type="hidden" id="checkout-type" value="cart" />
             <input type="hidden" id="checkout-car-model" value="" />
             <input type="hidden" id="checkout-car-price" value="0" />
+            <input type="hidden" id="checkout-driver-price" value="0" />
+            <input type="hidden" id="checkout-rent-final-total" value="0" />
             <input type="hidden" id="checkout-car-duration" value="" />
 
             <div class="form-group" id="checkout-name-group">
@@ -3447,8 +3449,9 @@
 
           const modelName = rentConfig.carModel || tabName;
           const color = rentConfig.carColor || "Default Spectrum";
-          const p12 = rentConfig.price12h || "1699";
-          const p24 = rentConfig.price24h || "2499";
+          const p12 = (rentConfig.price12h || "1699").replace(/,/g, "");
+          const p24 = (rentConfig.price24h || "2499").replace(/,/g, "");
+          const pDriver = (rentConfig.priceDriver || "1000").replace(/,/g, "");
           const metaInfo = rentConfig.metaInfo || "Default · Aircon · Automatic";
           const description = rentConfig.description || "Rent package configured for direct Cavite travel. High-tier maintenance.";
 
@@ -3471,13 +3474,13 @@
           <h3>${modelName}</h3>
           <div class="meta">${metaInfo}</div>
           <p style="color:var(--muted);font-size:14px">${description}</p>
-          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr')">
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr', ${pDriver})">
             <div><span class="num">₱${parseInt(
               p12
             ).toLocaleString()}</span> <small>/ 12hr</small></div>
             <small>Reserve →</small>
           </div>
-          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p24}, '24hr')">
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p24}, '24hr', ${pDriver})">
             <div><span class="num">₱${parseInt(
               p24
             ).toLocaleString()}</span> <small>/ 24hr</small></div>
@@ -3951,10 +3954,23 @@
         let total = Math.round(hourlyPrice * hours);
         if (isNaN(total) || total < 0) total = 0;
 
+        // Apply driver rate if selected
+        const driverOption = document.getElementById("checkout-rent-driver-option").value;
+        const driverRate = parseFloat(document.getElementById("checkout-driver-price").value || 0);
+        let driverLabel = "";
+        
+        if (driverOption === "with_driver") {
+           // We calculate days based on hours (assume driver rate is per day/24 hours)
+           let days = Math.ceil(hours / 24) || 1;
+           total += driverRate * days;
+           driverLabel = ` + ₱${driverRate.toLocaleString()} driver fee (${days} day${days > 1 ? "s" : ""})`;
+        }
+
         // Show total
+        document.getElementById("checkout-rent-final-total").value = total;
         document.getElementById(
           "rent-calc-total"
-        ).textContent = `₱${total.toLocaleString()}`;
+        ).textContent = `₱${total.toLocaleString()}${driverLabel}`;
       }
 
       // Cache of fetched booked ranges to avoid double-fetching if called in quick succession
@@ -4176,7 +4192,7 @@
       }
 
       // Opens Checkout for Car booking
-      function openCarCheckout(carModel, rate, duration) {
+      function openCarCheckout(carModel, rate, duration, driverRate = 1000) {
         if (duration === "12hr") {
           const oldOverlay = document.getElementById("duration-notice-overlay");
           if (oldOverlay) oldOverlay.remove();
@@ -4214,22 +4230,30 @@
           document.getElementById("duration-notice-proceed-btn").onclick =
             function () {
               document.getElementById("duration-notice-overlay").remove();
-              proceedCarCheckout(carModel, rate, duration);
+              proceedCarCheckout(carModel, rate, duration, driverRate);
             };
           return;
         }
 
-        proceedCarCheckout(carModel, rate, duration);
+        proceedCarCheckout(carModel, rate, duration, driverRate);
       }
 
-      function proceedCarCheckout(carModel, rate, duration) {
+      function proceedCarCheckout(carModel, rate, duration, driverRate = 1000) {
         document.getElementById(
           "checkout-title"
         ).textContent = `Book Reservation: ${carModel}`;
         document.getElementById("checkout-type").value = "rent";
         document.getElementById("checkout-car-model").value = carModel;
         document.getElementById("checkout-car-price").value = rate;
+        document.getElementById("checkout-driver-price").value = driverRate;
+        document.getElementById("checkout-rent-final-total").value = rate; // initialize
         document.getElementById("checkout-car-duration").value = duration;
+
+        // Update driver option label to show price
+        const driverSelect = document.getElementById("checkout-rent-driver-option");
+        if (driverSelect && driverSelect.options.length >= 2) {
+          driverSelect.options[1].text = \`With Driver (+₱\${driverRate.toLocaleString()}/day)\`;
+        }
 
         // Dynamic Label Mapping for Car Renting
         document.getElementById("checkout-name-label").textContent =
@@ -5676,9 +5700,7 @@
             "Cavite City";
 
           const finalRentTotal = parseFloat(
-            document
-              .getElementById("rent-calc-total")
-              .textContent.replace(/[^0-9.]/g, "") || totalPrice
+            document.getElementById("checkout-rent-final-total").value || totalPrice
           );
 
           const durationText =
