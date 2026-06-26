@@ -3329,23 +3329,36 @@
               );
               // Merge app_config on top of website_configs if both exist, to preserve properties like addToWebsite
               if (bannerRec && bannerRec.value) {
+                let bannerVal = bannerRec.value;
+                if (typeof bannerVal === "string") {
+                  try {
+                    bannerVal = JSON.parse(bannerVal);
+                  } catch(e) {}
+                }
+                
                 if (newRentals) {
                   newRentals = { ...newRentals }; // clone
-                  Object.keys(bannerRec.value).forEach(tab => {
+                  Object.keys(bannerVal).forEach(tab => {
                     newRentals[tab] = {
                       ...(newRentals[tab] || {}),
-                      ...bannerRec.value[tab]
+                      ...bannerVal[tab]
                     };
                   });
                 } else {
-                  newRentals = bannerRec.value;
+                  newRentals = bannerVal;
                 }
               }
               const photosRec = configRecords.find(
                 (r) => r.key === "rentTabPhotos"
               );
               if (photosRec && photosRec.value) {
-                newPhotos = photosRec.value;
+                let photoVal = photosRec.value;
+                if (typeof photoVal === "string") {
+                  try {
+                    photoVal = JSON.parse(photoVal);
+                  } catch(e) {}
+                }
+                newPhotos = photoVal;
               }
             }
           } catch (err) {
@@ -3453,7 +3466,7 @@
           if (!rentConfig || !rentConfig.carModel) continue;
 
           // Only display cars that are added to the website
-          if (rentConfig.addToWebsite !== true && rentConfig.addToWebsite !== "true") {
+          if (rentConfig.addToWebsite === false || rentConfig.addToWebsite === "false") {
             continue;
           }
 
