@@ -3975,9 +3975,9 @@
 
         // Show total
         if (driverTotal > 0) {
-          document.getElementById("rent-calc-total").innerHTML = \`₱\${total.toLocaleString()} <span style="font-size: 11px; opacity: 0.7">(includes ₱\${driverTotal.toLocaleString()} driver fee)</span>\`;
+          document.getElementById("rent-calc-total").innerHTML = `₱${total.toLocaleString()} <span style="font-size: 11px; opacity: 0.7">(includes ₱${driverTotal.toLocaleString()} driver fee)</span>`;
         } else {
-          document.getElementById("rent-calc-total").textContent = \`₱\${total.toLocaleString()}\`;
+          document.getElementById("rent-calc-total").textContent = `₱${total.toLocaleString()}`;
         }
         document.getElementById("rent-calc-total").dataset.rawTotal = total;
       }
@@ -4259,10 +4259,10 @@
 
         const driverOptionSelect = document.getElementById("checkout-rent-driver-option");
         if (driverOptionSelect) {
-          driverOptionSelect.innerHTML = \`
+          driverOptionSelect.innerHTML = `
             <option value="self">Self Drive (No Driver)</option>
-            <option value="with_driver">With Driver (+₱\${parseInt(driverPrice).toLocaleString()} / 12hr)</option>
-          \`;
+            <option value="with_driver">With Driver (+₱${parseInt(driverPrice).toLocaleString()} / 12hr)</option>
+          `;
           driverOptionSelect.value = "self";
         }
 
