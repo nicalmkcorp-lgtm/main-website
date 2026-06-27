@@ -1447,7 +1447,7 @@
           >LMK SYSTEM APP PORTAL</a
         >
         <div>© 2026 · located at Cavite Phil.</div>
-        <div>Website · Developer · Marjun Peji</div>
+        <div>Facebook · Shopee · Tiktok Shop</div>
       </div>
     </footer>
     <!-- EXTRA CSS STYLES FOR DYNAMIC CART & MODALS -->
@@ -3459,6 +3459,8 @@
           const color = rentConfig.carColor || "Default Spectrum";
           const p12 = rentConfig.price12h || "1699";
           const p24 = rentConfig.price24h || "2499";
+          const features = rentConfig.features || `${color} · Aircon · Automatic`;
+          const description = rentConfig.description || "Rent package configured for direct Cavite travel. High-tier maintenance.";
 
           // Get image from the corresponding rent tab photo banner
           const photoBase64 = loadedRentTabPhotos && loadedRentTabPhotos[tabName];
@@ -3477,8 +3479,8 @@
         <div class="img"><img alt="${modelName}" src="${carImgSrc}"></div>
         <div class="body">
           <h3>${modelName}</h3>
-          <div class="meta">${color} · Aircon · Automatic</div>
-          <p style="color:var(--muted);font-size:14px">Rent package configured for direct Cavite travel. High-tier maintenance.</p>
+          <div class="meta">${features}</div>
+          <p style="color:var(--muted);font-size:14px">${description}</p>
           <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr')">
             <div><span class="num">₱${parseInt(
               p12
