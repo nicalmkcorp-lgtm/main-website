@@ -5470,28 +5470,8 @@
                     });
 
                   if (error) {
-                    const { error: fallbackErr } = await supabaseClient
-                      .from("sales_records")
-                      .insert({
-                        id: randId,
-                        company: activeCompanyId,
-                        name: `[WEB QR-SHP] ${customerName}`,
-                        amount: totalPrice,
-                        date: new Date().toISOString(),
-                        remarks: orderRemarks,
-                        status: "active",
-                        type: "sales",
-                        tab:
-                          localStorage.getItem(configKeys.salesTable) ||
-                          "Online Store",
-                        sales_entry_type: "sale",
-                        order_status: "pending",
-                        compressed_items: itemsBlobName,
-                        compressed_quantities: itemsBlobQty,
-                        compressed_amounts: itemsBlobAmt,
-                        reference_id: refNum,
-                      });
-                    if (fallbackErr) throw fallbackErr;
+                    console.error("Failed to insert into website_orders.", error);
+                    throw error;
                   }
                   writeSuccessful = true;
                 } catch (err) {
@@ -5536,25 +5516,8 @@
                     });
 
                   if (error) {
-                    const { error: fallbackErr } = await supabaseClient
-                      .from("rent_records")
-                      .insert({
-                        id: randId,
-                        company: activeCompanyId,
-                        name: `${customerName} (${fbProfile})`,
-                        amount: totalPrice,
-                        date: new Date().toISOString(),
-                        end_date: new Date(
-                          Date.now() + (duration === "12hr" ? 12 : 24) * 3600000
-                        ).toISOString(),
-                        remarks: rentRemarks,
-                        facebook: fbProfile,
-                        contact_number: phone,
-                        status: "active",
-                        type: "rent",
-                        tab: "Rent A Car",
-                      });
-                    if (fallbackErr) throw fallbackErr;
+                    console.error("Failed to insert into website_orders.", error);
+                    throw error;
                   }
                   writeSuccessful = true;
                 } catch (err) {
@@ -5639,35 +5602,8 @@
                     .insert(insertPayload);
 
                   if (error) {
-                    console.warn("First PayMongo cart insert failed, retrying...", error);
-                    delete insertPayload.order_type;
-                    const retry = await supabaseClient.from("website_orders").insert(insertPayload);
-                    error = retry.error;
-                  }
-
-                  if (error) {
-                    const { error: fallbackErr } = await supabaseClient
-                      .from("sales_records")
-                      .insert({
-                        id: randId,
-                        company: activeCompanyId,
-                        name: `[WEB PAYMONGO PAID] ${customerName}`,
-                        amount: totalPrice,
-                        date: new Date().toISOString(),
-                        remarks: orderRemarks,
-                        status: "active",
-                        type: "sales",
-                        tab:
-                          localStorage.getItem(configKeys.salesTable) ||
-                          "Online Store",
-                        sales_entry_type: "sale",
-                        order_status: "payment_confirmed",
-                        compressed_items: itemsBlobName,
-                        compressed_quantities: itemsBlobQty,
-                        compressed_amounts: itemsBlobAmt,
-                        reference_id: orderId,
-                      });
-                    if (fallbackErr) throw fallbackErr;
+                    console.error("Failed to insert into website_orders.", error);
+                    throw error;
                   }
                   writeSuccessful = true;
                 } catch (err) {
@@ -5721,34 +5657,8 @@
                     .insert(insertPayload);
                     
                   if (error) {
-                    console.warn("First PayMongo rent insert failed, retrying...", error);
-                    delete insertPayload.car_model;
-                    delete insertPayload.duration;
-                    delete insertPayload.order_type;
-                    const retry = await supabaseClient.from("website_orders").insert(insertPayload);
-                    error = retry.error;
-                  }
-
-                  if (error) {
-                    const { error: fallbackErr } = await supabaseClient
-                      .from("rent_records")
-                      .insert({
-                        id: randId,
-                        company: activeCompanyId,
-                        name: `${customerName} (${fbProfile})`,
-                        amount: totalPrice,
-                        date: new Date().toISOString(),
-                        end_date: new Date(
-                          Date.now() + (duration === "12hr" ? 12 : 24) * 3600000
-                        ).toISOString(),
-                        remarks: rentRemarks,
-                        facebook: fbProfile,
-                        contact_number: phone,
-                        status: "active",
-                        type: "rent",
-                        tab: "Rent A Car",
-                      });
-                    if (fallbackErr) throw fallbackErr;
+                    console.error("Failed to insert into website_orders.", error);
+                    throw error;
                   }
                   writeSuccessful = true;
                 } catch (err) {
@@ -5828,40 +5738,8 @@
                 .insert(insertPayload);
 
               if (error) {
-                console.warn("First cart insert failed, retrying without order_type...", error);
-                delete insertPayload.order_type;
-                const retry = await supabaseClient.from("website_orders").insert(insertPayload);
-                error = retry.error;
-              }
-
-              if (error) {
-                console.warn(
-                  "Direct write to website_orders failed, trying legacy sales_records insert fallback:",
-                  error
-                );
-                // Fall back to legacy direct insertion if table website_orders doesn't exist yet
-                const { error: fallbackErr } = await supabaseClient
-                  .from("sales_records")
-                  .insert({
-                    id: randId,
-                    company: activeCompanyId,
-                    name: `[WEB ORDER] ${customerName}`,
-                    amount: totalPrice,
-                    date: new Date().toISOString(),
-                    remarks: orderRemarks,
-                    status: "active",
-                    type: "sales",
-                    tab:
-                      localStorage.getItem(configKeys.salesTable) ||
-                      "Online Store",
-                    sales_entry_type: "sale",
-                    order_status: "pending",
-                    compressed_items: itemsBlobName,
-                    compressed_quantities: itemsBlobQty,
-                    compressed_amounts: itemsBlobAmt,
-                    reference_id: refNum,
-                  });
-                if (fallbackErr) throw fallbackErr;
+                console.error("Failed to insert into website_orders. Please ensure the table has order_type, car_model, and duration columns.", error);
+                throw error;
               }
               submitCompleted = true;
               triggerWebsiteOrderNotification(
@@ -5909,7 +5787,7 @@
 
           const durationText =
             document.getElementById("rent-calc-days").textContent; // e.g. "2 days"
-          const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel}\nDates: ${sDate} to ${eDate}\nFulfillment: Rental Reservation\nAddress: ${address}\nFB Contact: ${fbProfile}\nDriver Option: ${
+          const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel}\nDates: ${sDate} to ${eDate}\nFulfillment: Rental Reservation\nAddress: ${address}\nFB Contact: ${fbProfile}\nPhone: ${phone}\nDriver Option: ${
             driverOption === "with_driver" ? "With Driver" : "Self Drive"
           }\nPreferred Plate: ${plateNumber}\nOperator: ${operatorName}`;
 
@@ -5952,40 +5830,8 @@
                 .insert(insertPayload);
                 
               if (error) {
-                console.warn("First insert failed, retrying without new columns...", error);
-                delete insertPayload.car_model;
-                delete insertPayload.duration;
-                delete insertPayload.order_type;
-                const retry = await supabaseClient.from("website_orders").insert(insertPayload);
-                error = retry.error;
-              }
-
-              if (error) {
-                console.warn(
-                  "Direct write to website_orders failed, trying legacy rent_records insert fallback:",
-                  error
-                );
-                const { error: fallbackErr } = await supabaseClient
-                  .from("rent_records")
-                  .insert({
-                    id: randId,
-                    company: activeCompanyId,
-                    name: `${customerName} (${fbProfile})`,
-                    amount: finalRentTotal,
-                    date: sDate || new Date().toISOString().split("T")[0],
-                    end_date:
-                      eDate ||
-                      new Date(Date.now() + 24 * 3600000)
-                        .toISOString()
-                        .split("T")[0],
-                    remarks: rentRemarks,
-                    facebook: fbProfile,
-                    contact_number: phone,
-                    status: "active",
-                    type: "rent",
-                    tab: "Rent A Car",
-                  });
-                if (fallbackErr) throw fallbackErr;
+                console.error("Failed to insert into website_orders. Please ensure the table has order_type, car_model, and duration columns.", error);
+                throw error;
               }
               submitCompleted = true;
               triggerWebsiteOrderNotification(
