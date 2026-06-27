@@ -5612,29 +5612,38 @@
 
               if (supabaseClient) {
                 try {
-                  const { error } = await supabaseClient
+                  let insertPayload = {
+                    company_id: activeCompanyId,
+                    customer_name: customerName,
+                    phone: phone,
+                    facebook: fbProfile,
+                    address: address,
+                    fulfillment: fulfillment,
+                    payment_method: "PayMongo",
+                    reference_num: orderId,
+                    total_price: totalPrice,
+                    order_type: "cart",
+                    status: "payment_confirmed",
+                    items: cart.map((i) => ({
+                      id: i.id,
+                      name: i.name,
+                      price: i.price,
+                      qty: i.qty,
+                      image: i.image,
+                    })),
+                    created_at: new Date().toISOString(),
+                  };
+
+                  let { error } = await supabaseClient
                     .from("website_orders")
-                    .insert({
-                      company_id: activeCompanyId,
-                      customer_name: customerName,
-                      phone: phone,
-                      facebook: fbProfile,
-                      address: address,
-                      fulfillment: fulfillment,
-                      payment_method: "PayMongo",
-                      reference_num: orderId,
-                      total_price: totalPrice,
-                      order_type: "cart",
-                      status: "payment_confirmed",
-                      items: cart.map((i) => ({
-                        id: i.id,
-                        name: i.name,
-                        price: i.price,
-                        qty: i.qty,
-                        image: i.image,
-                      })),
-                      created_at: new Date().toISOString(),
-                    });
+                    .insert(insertPayload);
+
+                  if (error) {
+                    console.warn("First PayMongo cart insert failed, retrying...", error);
+                    delete insertPayload.order_type;
+                    const retry = await supabaseClient.from("website_orders").insert(insertPayload);
+                    error = retry.error;
+                  }
 
                   if (error) {
                     const { error: fallbackErr } = await supabaseClient
@@ -5675,32 +5684,50 @@
 
               if (supabaseClient) {
                 try {
-                  const { error } = await supabaseClient
+                  let insertPayload = {
+                    company_id: activeCompanyId,
+                    customer_name: customerName,
+                    phone: phone,
+                    facebook: fbProfile,
+                    address: address,
+                    fulfillment: fulfillment,
+                    payment_method: "PayMongo",
+                    reference_num: orderId,
+                    total_price: totalPrice,
+                    order_type: "rent",
+                    car_model: carModel,
+                    duration: duration,
+                    status: "payment_confirmed",
+                    items: [
+                      {
+                        name: carModel,
+                        qty: 1,
+                        price: totalPrice,
+                        duration: duration,
+                        start_date: document.getElementById("checkout-rent-start-date").value,
+                        end_date: document.getElementById("checkout-rent-end-date").value,
+                        driver_option: document.getElementById("checkout-rent-driver-option").value,
+                        distance_limit: document.getElementById("checkout-rent-distance-limit").value || "300",
+                        plate_number: document.getElementById("checkout-rent-plate-number").value || "TBD",
+                        operator_name: document.getElementById("checkout-rent-operator-name").value || "Nica Lmk Corp",
+                        operator_address: document.getElementById("checkout-rent-operator-address").value || "Cavite City",
+                      },
+                    ],
+                    created_at: new Date().toISOString(),
+                  };
+
+                  let { error } = await supabaseClient
                     .from("website_orders")
-                    .insert({
-                      company_id: activeCompanyId,
-                      customer_name: customerName,
-                      phone: phone,
-                      facebook: fbProfile,
-                      address: address,
-                      fulfillment: fulfillment,
-                      payment_method: "PayMongo",
-                      reference_num: orderId,
-                      total_price: totalPrice,
-                      order_type: "rent",
-                      car_model: carModel,
-                      duration: duration,
-                      status: "payment_confirmed",
-                      items: [
-                        {
-                          name: carModel,
-                          qty: 1,
-                          price: totalPrice,
-                          duration: duration,
-                        },
-                      ],
-                      created_at: new Date().toISOString(),
-                    });
+                    .insert(insertPayload);
+                    
+                  if (error) {
+                    console.warn("First PayMongo rent insert failed, retrying...", error);
+                    delete insertPayload.car_model;
+                    delete insertPayload.duration;
+                    delete insertPayload.order_type;
+                    const retry = await supabaseClient.from("website_orders").insert(insertPayload);
+                    error = retry.error;
+                  }
 
                   if (error) {
                     const { error: fallbackErr } = await supabaseClient
@@ -5774,29 +5801,38 @@
           if (supabaseClient) {
             try {
               // Attempt inserting into public.website_orders as temporary container
-              const { error } = await supabaseClient
+              let insertPayload = {
+                company_id: activeCompanyId,
+                customer_name: customerName,
+                phone: phone,
+                facebook: fbProfile,
+                address: address,
+                fulfillment: fulfillment,
+                payment_method: payment,
+                reference_num: refNum,
+                total_price: totalPrice,
+                order_type: "cart",
+                status: "pending",
+                items: cart.map((i) => ({
+                  id: i.id,
+                  name: i.name,
+                  price: i.price,
+                  qty: i.qty,
+                  image: i.image,
+                })),
+                created_at: new Date().toISOString(),
+              };
+
+              let { error } = await supabaseClient
                 .from("website_orders")
-                .insert({
-                  company_id: activeCompanyId,
-                  customer_name: customerName,
-                  phone: phone,
-                  facebook: fbProfile,
-                  address: address,
-                  fulfillment: fulfillment,
-                  payment_method: payment,
-                  reference_num: refNum,
-                  total_price: totalPrice,
-                  order_type: "cart",
-                  status: "pending",
-                  items: cart.map((i) => ({
-                    id: i.id,
-                    name: i.name,
-                    price: i.price,
-                    qty: i.qty,
-                    image: i.image,
-                  })),
-                  created_at: new Date().toISOString(),
-                });
+                .insert(insertPayload);
+
+              if (error) {
+                console.warn("First cart insert failed, retrying without order_type...", error);
+                delete insertPayload.order_type;
+                const retry = await supabaseClient.from("website_orders").insert(insertPayload);
+                error = retry.error;
+              }
 
               if (error) {
                 console.warn(
@@ -5879,39 +5915,50 @@
 
           if (supabaseClient) {
             try {
+              let insertPayload = {
+                company_id: activeCompanyId,
+                customer_name: customerName,
+                phone: phone,
+                facebook: fbProfile,
+                address: address,
+                fulfillment: "Rental Reservation",
+                payment_method: "Deferred / Staff Confirmation",
+                reference_num: "PENDING_CONFIRMATION",
+                total_price: finalRentTotal,
+                order_type: "rent",
+                car_model: carModel,
+                duration: durationText,
+                status: "pending",
+                items: [
+                  {
+                    name: carModel,
+                    qty: 1,
+                    price: finalRentTotal,
+                    start_date: sDate,
+                    end_date: eDate,
+                    driver_option: driverOption,
+                    distance_limit: distanceLimit,
+                    plate_number: plateNumber,
+                    operator_name: operatorName,
+                    operator_address: operatorAddress,
+                  },
+                ],
+                created_at: new Date().toISOString(),
+              };
+
               // Attempt inserting into website_orders table
-              const { error } = await supabaseClient
+              let { error } = await supabaseClient
                 .from("website_orders")
-                .insert({
-                  company_id: activeCompanyId,
-                  customer_name: customerName,
-                  phone: phone,
-                  facebook: fbProfile,
-                  address: address,
-                  fulfillment: "Rental Reservation",
-                  payment_method: "Deferred / Staff Confirmation",
-                  reference_num: "PENDING_CONFIRMATION",
-                  total_price: finalRentTotal,
-                  order_type: "rent",
-                  car_model: carModel,
-                  duration: durationText,
-                  status: "pending",
-                  items: [
-                    {
-                      name: carModel,
-                      qty: 1,
-                      price: finalRentTotal,
-                      start_date: sDate,
-                      end_date: eDate,
-                      driver_option: driverOption,
-                      distance_limit: distanceLimit,
-                      plate_number: plateNumber,
-                      operator_name: operatorName,
-                      operator_address: operatorAddress,
-                    },
-                  ],
-                  created_at: new Date().toISOString(),
-                });
+                .insert(insertPayload);
+                
+              if (error) {
+                console.warn("First insert failed, retrying without new columns...", error);
+                delete insertPayload.car_model;
+                delete insertPayload.duration;
+                delete insertPayload.order_type;
+                const retry = await supabaseClient.from("website_orders").insert(insertPayload);
+                error = retry.error;
+              }
 
               if (error) {
                 console.warn(
