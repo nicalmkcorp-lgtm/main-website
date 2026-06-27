@@ -1434,7 +1434,7 @@
           >LMK SYSTEM APP PORTAL</a
         >
         <div>© 2026 · located at Cavite Phil.</div>
-        <div>Website Developer · Marjun peji</div>
+        <div>Facebook · Shopee · Tiktok Shop</div>
       </div>
     </footer>
     <!-- EXTRA CSS STYLES FOR DYNAMIC CART & MODALS -->
@@ -2012,8 +2012,6 @@
             <input type="hidden" id="checkout-type" value="cart" />
             <input type="hidden" id="checkout-car-model" value="" />
             <input type="hidden" id="checkout-car-price" value="0" />
-            <input type="hidden" id="checkout-driver-price" value="0" />
-            <input type="hidden" id="checkout-rent-final-total" value="0" />
             <input type="hidden" id="checkout-car-duration" value="" />
 
             <div class="form-group" id="checkout-name-group">
@@ -3276,17 +3274,9 @@
               );
               webConfigs.forEach((cfg) => {
                 if (cfg.key === "rentBannerSettings" && cfg.value) {
-                  let val = cfg.value;
-                  if (typeof val === "string") {
-                    try { val = JSON.parse(val); } catch(e){}
-                  }
-                  newRentals = val;
+                  newRentals = cfg.value;
                 } else if (cfg.key === "rentTabPhotos" && cfg.value) {
-                  let val = cfg.value;
-                  if (typeof val === "string") {
-                    try { val = JSON.parse(val); } catch(e){}
-                  }
-                  newPhotos = val;
+                  newPhotos = cfg.value;
                 } else if (cfg.key === "gcashNum" && cfg.value) {
                   localStorage.setItem(configKeys.gcashNum, cfg.value);
                 } else if (cfg.key === "gcashName" && cfg.value) {
@@ -3323,8 +3313,8 @@
             );
           }
 
-          // Also query legacy app_config for rentBannerSettings and rentTabPhotos (since some are saved there)
-          try {
+          // Fallback: If website_configs was empty, query legacy app_config for rentBannerSettings
+          if (!configsFetched) {
             const { data: configRecords, error: configErr } =
               await supabaseClient
                 .from("app_config")
@@ -3335,42 +3325,16 @@
               const bannerRec = configRecords.find(
                 (r) => r.key === "rentBannerSettings"
               );
-              // Merge app_config on top of website_configs if both exist, to preserve properties like addToWebsite
               if (bannerRec && bannerRec.value) {
-                let bannerVal = bannerRec.value;
-                if (typeof bannerVal === "string") {
-                  try {
-                    bannerVal = JSON.parse(bannerVal);
-                  } catch(e) {}
-                }
-                
-                if (newRentals) {
-                  newRentals = { ...newRentals }; // clone
-                  Object.keys(bannerVal).forEach(tab => {
-                    newRentals[tab] = {
-                      ...(newRentals[tab] || {}),
-                      ...bannerVal[tab]
-                    };
-                  });
-                } else {
-                  newRentals = bannerVal;
-                }
+                newRentals = bannerRec.value;
               }
               const photosRec = configRecords.find(
                 (r) => r.key === "rentTabPhotos"
               );
               if (photosRec && photosRec.value) {
-                let photoVal = photosRec.value;
-                if (typeof photoVal === "string") {
-                  try {
-                    photoVal = JSON.parse(photoVal);
-                  } catch(e) {}
-                }
-                newPhotos = photoVal;
+                newPhotos = photosRec.value;
               }
             }
-          } catch (err) {
-            console.warn("Could not query app_config table:", err);
           }
 
           let carRenderNeeded = false;
@@ -3471,20 +3435,17 @@
         let i = 1;
 
         for (const [tabName, rentConfig] of Object.entries(loadedRentals)) {
-          if (!rentConfig) continue;
+          if (!rentConfig || !rentConfig.carModel) continue;
 
           // Only display cars that are added to the website
-          if (rentConfig.addToWebsite === false || rentConfig.addToWebsite === "false") {
+          if (rentConfig.addToWebsite !== true && rentConfig.addToWebsite !== "true") {
             continue;
           }
 
           const modelName = rentConfig.carModel || tabName;
           const color = rentConfig.carColor || "Default Spectrum";
-          const p12 = String(rentConfig.price12h || "1699").replace(/,/g, "");
-          const p24 = String(rentConfig.price24h || "2499").replace(/,/g, "");
-          const pDriver = String(rentConfig.priceDriver || "1000").replace(/,/g, "");
-          const metaInfo = rentConfig.metaInfo || "Default · Aircon · Automatic";
-          const description = rentConfig.description || "Rent package configured for direct Cavite travel. High-tier maintenance.";
+          const p12 = rentConfig.price12h || "1699";
+          const p24 = rentConfig.price24h || "2499";
 
           // Get image from the corresponding rent tab photo banner
           const photoBase64 = loadedRentTabPhotos && loadedRentTabPhotos[tabName];
@@ -3503,15 +3464,15 @@
         <div class="img"><img alt="${modelName}" src="${carImgSrc}"></div>
         <div class="body">
           <h3>${modelName}</h3>
-          <div class="meta">${metaInfo}</div>
-          <p style="color:var(--muted);font-size:14px">${description}</p>
-          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr', ${pDriver})">
+          <div class="meta">${color} · Aircon · Automatic</div>
+          <p style="color:var(--muted);font-size:14px">Rent package configured for direct Cavite travel. High-tier maintenance.</p>
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr')">
             <div><span class="num">₱${parseInt(
               p12
             ).toLocaleString()}</span> <small>/ 12hr</small></div>
             <small>Reserve →</small>
           </div>
-          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p24}, '24hr', ${pDriver})">
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p24}, '24hr')">
             <div><span class="num">₱${parseInt(
               p24
             ).toLocaleString()}</span> <small>/ 24hr</small></div>
@@ -3985,23 +3946,10 @@
         let total = Math.round(hourlyPrice * hours);
         if (isNaN(total) || total < 0) total = 0;
 
-        // Apply driver rate if selected
-        const driverOption = document.getElementById("checkout-rent-driver-option").value;
-        const driverRate = parseFloat(document.getElementById("checkout-driver-price").value || 0);
-        let driverLabel = "";
-        
-        if (driverOption === "with_driver") {
-           // We calculate days based on hours (assume driver rate is per day/24 hours)
-           let days = Math.ceil(hours / 24) || 1;
-           total += driverRate * days;
-           driverLabel = ` + ₱${driverRate.toLocaleString()} driver fee (${days} day${days > 1 ? "s" : ""})`;
-        }
-
         // Show total
-        document.getElementById("checkout-rent-final-total").value = total;
         document.getElementById(
           "rent-calc-total"
-        ).textContent = `₱${total.toLocaleString()}${driverLabel}`;
+        ).textContent = `₱${total.toLocaleString()}`;
       }
 
       // Cache of fetched booked ranges to avoid double-fetching if called in quick succession
@@ -4223,7 +4171,7 @@
       }
 
       // Opens Checkout for Car booking
-      function openCarCheckout(carModel, rate, duration, driverRate = 1000) {
+      function openCarCheckout(carModel, rate, duration) {
         if (duration === "12hr") {
           const oldOverlay = document.getElementById("duration-notice-overlay");
           if (oldOverlay) oldOverlay.remove();
@@ -4261,30 +4209,22 @@
           document.getElementById("duration-notice-proceed-btn").onclick =
             function () {
               document.getElementById("duration-notice-overlay").remove();
-              proceedCarCheckout(carModel, rate, duration, driverRate);
+              proceedCarCheckout(carModel, rate, duration);
             };
           return;
         }
 
-        proceedCarCheckout(carModel, rate, duration, driverRate);
+        proceedCarCheckout(carModel, rate, duration);
       }
 
-      function proceedCarCheckout(carModel, rate, duration, driverRate = 1000) {
+      function proceedCarCheckout(carModel, rate, duration) {
         document.getElementById(
           "checkout-title"
         ).textContent = `Book Reservation: ${carModel}`;
         document.getElementById("checkout-type").value = "rent";
         document.getElementById("checkout-car-model").value = carModel;
         document.getElementById("checkout-car-price").value = rate;
-        document.getElementById("checkout-driver-price").value = driverRate;
-        document.getElementById("checkout-rent-final-total").value = rate; // initialize
         document.getElementById("checkout-car-duration").value = duration;
-
-        // Update driver option label to show price
-        const driverSelect = document.getElementById("checkout-rent-driver-option");
-        if (driverSelect && driverSelect.options.length >= 2) {
-          driverSelect.options[1].text = \`With Driver (+₱\${driverRate.toLocaleString()}/day)\`;
-        }
 
         // Dynamic Label Mapping for Car Renting
         document.getElementById("checkout-name-label").textContent =
@@ -5731,7 +5671,9 @@
             "Cavite City";
 
           const finalRentTotal = parseFloat(
-            document.getElementById("checkout-rent-final-total").value || totalPrice
+            document
+              .getElementById("rent-calc-total")
+              .textContent.replace(/[^0-9.]/g, "") || totalPrice
           );
 
           const durationText =
@@ -5820,7 +5762,9 @@
         const actualPrice =
           type === "rent"
             ? parseFloat(
-                document.getElementById("checkout-rent-final-total").value || totalPrice
+                document
+                  .getElementById("rent-calc-total")
+                  .textContent.replace(/[^0-9.]/g, "") || totalPrice
               )
             : totalPrice;
 
