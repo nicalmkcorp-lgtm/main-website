@@ -2218,7 +2218,7 @@
                   <span
                     id="rent-calc-days"
                     style="color: var(--ink); font-weight: 600"
-                    >0 hours</span
+                    >0 days</span
                   >
                 </div>
                 <div
@@ -3995,6 +3995,7 @@
         const hourlyPrice = rate / (duration === "12hr" ? 12 : 24);
 
         let hours = 0;
+        let days = 0;
         if (sDateVal && eDateVal) {
           const start = new Date(sDateVal);
           const end = new Date(eDateVal);
@@ -4002,17 +4003,24 @@
           if (diffTime >= 0) {
             hours = diffTime / (1000 * 60 * 60);
             hours = Math.ceil(hours * 10) / 10; // keep 1 decimal precision
+            days = diffTime / (1000 * 60 * 60 * 24);
+            days = Math.ceil(days * 10) / 10; // keep 1 decimal precision
           }
         }
 
-        // Show base rate
-        document.getElementById(
-          "rent-calc-base-rate"
-        ).textContent = `₱${rate.toLocaleString()} / ${duration} (₱${hourlyPrice.toFixed(
-          2
-        )}/hr)`;
-        document.getElementById("rent-calc-days").textContent = `${hours} hour${
-          hours !== 1 ? "s" : ""
+        // Show base rate in terms of day/12hr
+        if (duration === "12hr") {
+          document.getElementById(
+            "rent-calc-base-rate"
+          ).textContent = `₱${rate.toLocaleString()} / 12hr (₱${(rate * 2).toLocaleString()}/day)`;
+        } else {
+          document.getElementById(
+            "rent-calc-base-rate"
+          ).textContent = `₱${rate.toLocaleString()} / day`;
+        }
+
+        document.getElementById("rent-calc-days").textContent = `${days} day${
+          days !== 1 ? "s" : ""
         }`;
 
         // Calculate total
