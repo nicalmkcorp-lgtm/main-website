@@ -14,17 +14,29 @@
       content="An elegant boutique for premium car rentals, smart loans, and curated fashion."
     />
 
-<!-- SEO Description (Max 160 characters) -->
-  <meta name="description" content="Welcome to Lmk Corp Sys. We provide reliable corporate systems, modern digital infrastructure solutions, and specialized technical support for businesses.">
-  
-  <!-- Keywords (Optional but helpful for organization) -->
-  <meta name="keywords" content="nica Lmk Corp, corporate busines systems, business system solutions, Nica Lmk, Nica Online shop, lmk shop">
-  
-  <!-- Open Graph / Facebook (Controls appearance when sharing on social media/WhatsApp) -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://lmk-corp-sys.com">
-  <meta property="og:title" content="Lmk Corp Sys | Professional System Solutions">
-  <meta property="og:description" content="Reliable corporate systems and digital infrastructure solutions for your business.">
+    <!-- SEO Description (Max 160 characters) -->
+    <meta
+      name="description"
+      content="Welcome to Lmk Corp Sys. We provide reliable corporate systems, modern digital infrastructure solutions, and specialized technical support for businesses."
+    />
+
+    <!-- Keywords (Optional but helpful for organization) -->
+    <meta
+      name="keywords"
+      content="nica Lmk Corp, corporate busines systems, business system solutions, Nica Lmk, Nica Online shop, lmk shop"
+    />
+
+    <!-- Open Graph / Facebook (Controls appearance when sharing on social media/WhatsApp) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lmk-corp-sys.com" />
+    <meta
+      property="og:title"
+      content="Lmk Corp Sys | Professional System Solutions"
+    />
+    <meta
+      property="og:description"
+      content="Reliable corporate systems and digital infrastructure solutions for your business."
+    />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1167,7 +1179,15 @@
         ></div>
         <div
           id="dynamic-garments-pagination"
-          style="display: none; justify-content: center; align-items: center; gap: 16px; margin-top: 40px; font-family: 'Space Grotesk', sans-serif; flex-wrap: wrap;"
+          style="
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 40px;
+            font-family: 'Space Grotesk', sans-serif;
+            flex-wrap: wrap;
+          "
         ></div>
       </div>
     </section>
@@ -2930,59 +2950,66 @@
       // If you want your public storefront to connect instantly without local storage setup,
       // paste your Supabase URL and public anon key below (highly recommended!).
       const HARDCODED_SUPABASE_URL = "https://offsatjnqrvaqlcegyyi.supabase.co";
-      const HARDCODED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZnNhdGpucXJ2YXFsY2VneXlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMDgwNTUsImV4cCI6MjA5NTc4NDA1NX0.SElBQUHRzbL-58lD0YZ-7kx6z1iZeoOs9-YSYy9udU8";
+      const HARDCODED_SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZnNhdGpucXJ2YXFsY2VneXlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMDgwNTUsImV4cCI6MjA5NTc4NDA1NX0.SElBQUHRzbL-58lD0YZ-7kx6z1iZeoOs9-YSYy9udU8";
       const HARDCODED_COMPANY_ID = "nikalmkcorp"; // Default company ID slug which determines what catalog is loaded
 
       // Native App Deep Linking Helper with Smart Web Fallback
-      window.openNativeApp = function(platform, fallbackUrl, event) {
+      window.openNativeApp = function (platform, fallbackUrl, event) {
         if (event) {
           event.preventDefault();
         }
-        
+
         // Detect if user is on a mobile platform (iOS, Android, etc.)
         const ua = navigator.userAgent || navigator.vendor || window.opera;
-        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-        
+        const isMobile =
+          /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+
         if (!isMobile) {
-          window.open(fallbackUrl, '_blank');
+          window.open(fallbackUrl, "_blank");
           return;
         }
 
-        let schemeUrl = '';
-        
+        let schemeUrl = "";
+
         switch (platform.toLowerCase()) {
-          case 'facebook':
-            schemeUrl = 'fb://facewebmodal/f?href=' + encodeURIComponent(fallbackUrl);
+          case "facebook":
+            schemeUrl =
+              "fb://facewebmodal/f?href=" + encodeURIComponent(fallbackUrl);
             break;
-          case 'youtube':
-            if (fallbackUrl.includes('@')) {
-              const handle = fallbackUrl.substring(fallbackUrl.indexOf('@'));
-              schemeUrl = 'youtube://www.youtube.com/' + handle;
+          case "youtube":
+            if (fallbackUrl.includes("@")) {
+              const handle = fallbackUrl.substring(fallbackUrl.indexOf("@"));
+              schemeUrl = "youtube://www.youtube.com/" + handle;
             } else {
-              schemeUrl = fallbackUrl.replace(/^https?:\/\//i, 'youtube://');
+              schemeUrl = fallbackUrl.replace(/^https?:\/\//i, "youtube://");
             }
             break;
-          case 'tiktok':
-            if (fallbackUrl.includes('@')) {
-              const username = fallbackUrl.substring(fallbackUrl.indexOf('@') + 1);
-              schemeUrl = 'tiktok://user?username=' + username;
+          case "tiktok":
+            if (fallbackUrl.includes("@")) {
+              const username = fallbackUrl.substring(
+                fallbackUrl.indexOf("@") + 1
+              );
+              schemeUrl = "tiktok://user?username=" + username;
             } else {
-              schemeUrl = 'tiktok://';
+              schemeUrl = "tiktok://";
             }
             break;
-          case 'shopee':
-            schemeUrl = fallbackUrl.replace(/^https?:\/\//i, 'shopeeedl://');
+          case "shopee":
+            schemeUrl = fallbackUrl.replace(/^https?:\/\//i, "shopeeedl://");
             break;
-          case 'messenger':
-            const parts = fallbackUrl.split('?')[0].split('/');
+          case "messenger":
+            const parts = fallbackUrl.split("?")[0].split("/");
             const id = parts[parts.length - 1] || parts[parts.length - 2];
-            const queryParams = fallbackUrl.includes('?') ? '?' + fallbackUrl.split('?')[1] : '';
+            const queryParams = fallbackUrl.includes("?")
+              ? "?" + fallbackUrl.split("?")[1]
+              : "";
             if (id && /^\d+$/.test(id)) {
-              schemeUrl = 'fb-messenger://user/' + id + queryParams;
+              schemeUrl = "fb-messenger://user/" + id + queryParams;
             } else if (id) {
-              schemeUrl = 'fb-messenger://m.me/' + id + queryParams;
+              schemeUrl = "fb-messenger://m.me/" + id + queryParams;
             } else {
-              schemeUrl = 'fb-messenger://' + queryParams;
+              schemeUrl = "fb-messenger://" + queryParams;
             }
             break;
           default:
@@ -2990,28 +3017,37 @@
         }
 
         let hasLeft = false;
-        
-        const handleVisibilityChange = function() {
+
+        const handleVisibilityChange = function () {
           if (document.hidden || document.webkitHidden) {
             hasLeft = true;
           }
         };
-        
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        document.addEventListener('webkitvisibilitychange', handleVisibilityChange);
-        window.addEventListener('pagehide', handleVisibilityChange);
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        document.addEventListener(
+          "webkitvisibilitychange",
+          handleVisibilityChange
+        );
+        window.addEventListener("pagehide", handleVisibilityChange);
 
         // Try triggering the custom app scheme URL
         window.location.href = schemeUrl;
 
         // Fallback to web URL if app launch fails (doesn't trigger tab hide)
-        setTimeout(function() {
-          document.removeEventListener('visibilitychange', handleVisibilityChange);
-          document.removeEventListener('webkitvisibilitychange', handleVisibilityChange);
-          window.removeEventListener('pagehide', handleVisibilityChange);
-          
+        setTimeout(function () {
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange
+          );
+          document.removeEventListener(
+            "webkitvisibilitychange",
+            handleVisibilityChange
+          );
+          window.removeEventListener("pagehide", handleVisibilityChange);
+
           if (!hasLeft) {
-            window.open(fallbackUrl, '_blank');
+            window.open(fallbackUrl, "_blank");
           }
         }, 1200);
       };
@@ -3316,7 +3352,10 @@
                 } else if (cfg.key === "turnstileSiteKey" && cfg.value) {
                   localStorage.setItem(configKeys.turnstileSiteKey, cfg.value);
                 } else if (cfg.key === "turnstileSecretKey" && cfg.value) {
-                  localStorage.setItem(configKeys.turnstileSecretKey, cfg.value);
+                  localStorage.setItem(
+                    configKeys.turnstileSecretKey,
+                    cfg.value
+                  );
                 }
               });
             }
@@ -3452,20 +3491,27 @@
           if (!rentConfig || !rentConfig.carModel) continue;
 
           // Only display cars that are added to the website
-          if (rentConfig.addToWebsite !== true && rentConfig.addToWebsite !== "true") {
+          if (
+            rentConfig.addToWebsite !== true &&
+            rentConfig.addToWebsite !== "true"
+          ) {
             continue;
           }
 
           const modelName = rentConfig.carModel || tabName;
           const color = rentConfig.carColor || "Default Spectrum";
-          const p12 = (rentConfig.price12h || "1699").replace(/,/g, '');
-          const p24 = (rentConfig.price24h || "2499").replace(/,/g, '');
-          const pDriver = (rentConfig.priceDriver || "1000").replace(/,/g, '');
-          const features = rentConfig.features || `${color} · Aircon · Automatic`;
-          const description = rentConfig.description || "Rent package configured for direct Cavite travel. High-tier maintenance.";
+          const p12 = (rentConfig.price12h || "1699").replace(/,/g, "");
+          const p24 = (rentConfig.price24h || "2499").replace(/,/g, "");
+          const pDriver = (rentConfig.priceDriver || "1000").replace(/,/g, "");
+          const features =
+            rentConfig.features || `${color} · Aircon · Automatic`;
+          const description =
+            rentConfig.description ||
+            "Rent package configured for direct Cavite travel. High-tier maintenance.";
 
           // Get image from the corresponding rent tab photo banner
-          const photoBase64 = loadedRentTabPhotos && loadedRentTabPhotos[tabName];
+          const photoBase64 =
+            loadedRentTabPhotos && loadedRentTabPhotos[tabName];
 
           // Default placeholder if photo doesn't exist
           const defaultImg =
@@ -3567,7 +3613,9 @@
         const totalItems = allFilteredItems.length;
         const totalPages = Math.ceil(totalItems / PRODUCTS_PER_PAGE);
 
-        const pagContainer = document.getElementById("dynamic-garments-pagination");
+        const pagContainer = document.getElementById(
+          "dynamic-garments-pagination"
+        );
 
         if (totalItems === 0) {
           dynamicGrid.innerHTML =
@@ -3621,11 +3669,13 @@
           if (isOutOfStock) {
             remainsMsg = "Out of Stock";
             remainsColor = "#e63946";
-            tagHtml = '<span class="tag" style="background:#e63946">Out of Stock</span>';
+            tagHtml =
+              '<span class="tag" style="background:#e63946">Out of Stock</span>';
           } else if (isLowStock) {
             remainsMsg = `Only ${parseInt(stockQty)} left!`;
             remainsColor = "#e63946";
-            tagHtml = '<span class="tag" style="background:#e63946">Low Stock</span>';
+            tagHtml =
+              '<span class="tag" style="background:#e63946">Low Stock</span>';
           }
 
           const prodElement = document.createElement("div");
@@ -3634,9 +3684,9 @@
           let buttonHtml = `<button class="shop-add-btn" onclick="addToCart('${
             item.id
           }', '${item.name.replace(
-              /'/g,
-              "\\'"
-            )}', ${price}, '${imgPath}', ${resellerAmount})">Add to Cart</button>`;
+            /'/g,
+            "\\'"
+          )}', ${price}, '${imgPath}', ${resellerAmount})">Add to Cart</button>`;
 
           if (isOutOfStock) {
             buttonHtml = `<button class="shop-add-btn" disabled style="opacity: 0.5; cursor: not-allowed; pointer-events: none;">Out of Stock</button>`;
@@ -3676,13 +3726,19 @@
               }
             }
 
-            const prevButtonHtml = currentProductPage > 1
-              ? `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px;" onclick="goToProductPage(${currentProductPage - 1})">PREV</button>`
-              : `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px; opacity: 0.4; cursor: not-allowed; pointer-events: none;" disabled>PREV</button>`;
+            const prevButtonHtml =
+              currentProductPage > 1
+                ? `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px;" onclick="goToProductPage(${
+                    currentProductPage - 1
+                  })">PREV</button>`
+                : `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px; opacity: 0.4; cursor: not-allowed; pointer-events: none;" disabled>PREV</button>`;
 
-            const nextButtonHtml = currentProductPage < totalPages
-              ? `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px;" onclick="goToProductPage(${currentProductPage + 1})">NEXT</button>`
-              : `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px; opacity: 0.4; cursor: not-allowed; pointer-events: none;" disabled>NEXT</button>`;
+            const nextButtonHtml =
+              currentProductPage < totalPages
+                ? `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px;" onclick="goToProductPage(${
+                    currentProductPage + 1
+                  })">NEXT</button>`
+                : `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px; opacity: 0.4; cursor: not-allowed; pointer-events: none;" disabled>NEXT</button>`;
 
             pagContainer.innerHTML = `
               <div style="font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-right: 12px; font-family: 'Space Grotesk', sans-serif;">
@@ -3700,7 +3756,7 @@
         }
       }
 
-      window.goToProductPage = function(page) {
+      window.goToProductPage = function (page) {
         currentProductPage = page;
         filterAndRenderProducts(currentProductCategory);
         const shopSection = document.getElementById("shop");
@@ -3963,8 +4019,12 @@
         let total = Math.round(hourlyPrice * hours);
         if (isNaN(total) || total < 0) total = 0;
 
-        const driverOption = document.getElementById("checkout-rent-driver-option").value;
-        const driverPrice = parseFloat(document.getElementById("checkout-driver-price").value || 1000);
+        const driverOption = document.getElementById(
+          "checkout-rent-driver-option"
+        ).value;
+        const driverPrice = parseFloat(
+          document.getElementById("checkout-driver-price").value || 1000
+        );
         let driverTotal = 0;
 
         if (driverOption === "with_driver" && hours > 0) {
@@ -3975,9 +4035,13 @@
 
         // Show total
         if (driverTotal > 0) {
-          document.getElementById("rent-calc-total").innerHTML = `₱${total.toLocaleString()} <span style="font-size: 11px; opacity: 0.7">(includes ₱${driverTotal.toLocaleString()} driver fee)</span>`;
+          document.getElementById(
+            "rent-calc-total"
+          ).innerHTML = `₱${total.toLocaleString()} <span style="font-size: 11px; opacity: 0.7">(includes ₱${driverTotal.toLocaleString()} driver fee)</span>`;
         } else {
-          document.getElementById("rent-calc-total").textContent = `₱${total.toLocaleString()}`;
+          document.getElementById(
+            "rent-calc-total"
+          ).textContent = `₱${total.toLocaleString()}`;
         }
         document.getElementById("rent-calc-total").dataset.rawTotal = total;
       }
@@ -4003,23 +4067,29 @@
             .eq("car_model", carModel);
 
           if (orders) {
-            orders.forEach(order => {
+            orders.forEach((order) => {
               if (order.status === "declined" || order.status === "cancelled") {
                 return;
               }
               let start = null;
               let end = null;
-              
-              if (order.items && Array.isArray(order.items) && order.items.length > 0) {
+
+              if (
+                order.items &&
+                Array.isArray(order.items) &&
+                order.items.length > 0
+              ) {
                 const item = order.items[0];
                 if (item.start_date) start = item.start_date;
                 if (item.end_date) end = item.end_date;
               }
-              
+
               if (!start && order.created_at) {
                 start = order.created_at;
                 const durHours = order.duration === "12hr" ? 12 : 24;
-                const future = new Date(new Date(start).getTime() + durHours * 60 * 60 * 1000);
+                const future = new Date(
+                  new Date(start).getTime() + durHours * 60 * 60 * 1000
+                );
                 end = future.toISOString();
               }
 
@@ -4037,16 +4107,25 @@
             .eq("type", "rent");
 
           if (rentRecs) {
-            rentRecs.forEach(rec => {
-              if (rec.status === "cancelled" || rec.status === "deleted" || rec.status === "finished") {
+            rentRecs.forEach((rec) => {
+              if (
+                rec.status === "cancelled" ||
+                rec.status === "deleted" ||
+                rec.status === "finished"
+              ) {
                 return;
               }
-              const matchesCar = 
-                (rec.remarks && rec.remarks.toLowerCase().includes(carModel.toLowerCase())) ||
-                (rec.name && rec.name.toLowerCase().includes(carModel.toLowerCase()));
-              
+              const matchesCar =
+                (rec.remarks &&
+                  rec.remarks.toLowerCase().includes(carModel.toLowerCase())) ||
+                (rec.name &&
+                  rec.name.toLowerCase().includes(carModel.toLowerCase()));
+
               if (matchesCar && rec.date && rec.end_date) {
-                ranges.push({ start: new Date(rec.date), end: new Date(rec.end_date) });
+                ranges.push({
+                  start: new Date(rec.date),
+                  end: new Date(rec.end_date),
+                });
               }
             });
           }
@@ -4058,27 +4137,62 @@
       }
 
       function isDateBooked(date, ranges) {
-        const checkTime = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-        return ranges.some(range => {
-          const rangeStart = new Date(range.start.getFullYear(), range.start.getMonth(), range.start.getDate()).getTime();
-          const rangeEnd = new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate()).getTime();
+        const checkTime = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate()
+        ).getTime();
+        return ranges.some((range) => {
+          const rangeStart = new Date(
+            range.start.getFullYear(),
+            range.start.getMonth(),
+            range.start.getDate()
+          ).getTime();
+          const rangeEnd = new Date(
+            range.end.getFullYear(),
+            range.end.getMonth(),
+            range.end.getDate()
+          ).getTime();
           return checkTime >= rangeStart && checkTime <= rangeEnd;
         });
       }
 
-      function renderCalendar(containerEl, carModel, ranges, initialDate = new Date()) {
+      function renderCalendar(
+        containerEl,
+        carModel,
+        ranges,
+        initialDate = new Date()
+      ) {
         if (!containerEl) return;
 
         let currentYear = initialDate.getFullYear();
         let currentMonth = initialDate.getMonth();
 
         function draw() {
-          const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-          const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-          
+          const firstDayOfMonth = new Date(
+            currentYear,
+            currentMonth,
+            1
+          ).getDay();
+          const daysInMonth = new Date(
+            currentYear,
+            currentMonth + 1,
+            0
+          ).getDate();
+
           const monthNames = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
           ];
 
           let html = `
@@ -4100,7 +4214,11 @@
           }
 
           const today = new Date();
-          const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+          const todayMidnight = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+          ).getTime();
 
           // Days of month
           for (let day = 1; day <= daysInMonth; day++) {
@@ -4143,7 +4261,9 @@
             }
 
             html += `
-              <div class="cal-day ${dayClass}" style="${dayStyle}" title="${isBooked ? 'Already booked/reserved' : 'Available'}" data-date="${dateObj.toISOString().split('T')[0]}">
+              <div class="cal-day ${dayClass}" style="${dayStyle}" title="${
+              isBooked ? "Already booked/reserved" : "Available"
+            }" data-date="${dateObj.toISOString().split("T")[0]}">
                 ${day}
               </div>
             `;
@@ -4184,12 +4304,16 @@
           });
 
           // Allow clicking an available day to populate start date in checkout modal
-          containerEl.querySelectorAll(".day-available").forEach(el => {
+          containerEl.querySelectorAll(".day-available").forEach((el) => {
             el.addEventListener("click", () => {
               const selectedDateStr = el.getAttribute("data-date");
-              const startDateInput = document.getElementById("checkout-rent-start-date");
+              const startDateInput = document.getElementById(
+                "checkout-rent-start-date"
+              );
               if (startDateInput && startDateInput.required) {
-                const currentTime = startDateInput.value ? startDateInput.value.split("T")[1] || "09:00" : "09:00";
+                const currentTime = startDateInput.value
+                  ? startDateInput.value.split("T")[1] || "09:00"
+                  : "09:00";
                 startDateInput.value = `${selectedDateStr}T${currentTime}`;
                 updateRentPriceCalculation();
               }
@@ -4229,8 +4353,10 @@
 
           document.body.appendChild(overlay);
 
-          fetchBookedRanges(carModel).then(ranges => {
-            const container = document.getElementById("notice-calendar-container");
+          fetchBookedRanges(carModel).then((ranges) => {
+            const container = document.getElementById(
+              "notice-calendar-container"
+            );
             if (container) {
               renderCalendar(container, carModel, ranges);
             }
@@ -4257,11 +4383,15 @@
         document.getElementById("checkout-car-duration").value = duration;
         document.getElementById("checkout-driver-price").value = driverPrice;
 
-        const driverOptionSelect = document.getElementById("checkout-rent-driver-option");
+        const driverOptionSelect = document.getElementById(
+          "checkout-rent-driver-option"
+        );
         if (driverOptionSelect) {
           driverOptionSelect.innerHTML = `
             <option value="self">Self Drive (No Driver)</option>
-            <option value="with_driver">With Driver (+₱${parseInt(driverPrice).toLocaleString()} / 12hr)</option>
+            <option value="with_driver">With Driver (+₱${parseInt(
+              driverPrice
+            ).toLocaleString()} / 12hr)</option>
           `;
           driverOptionSelect.value = "self";
         }
@@ -4331,10 +4461,12 @@
         updateRentPriceCalculation();
 
         // Render Calendar inside the Checkout Modal
-        const calContainer = document.getElementById("checkout-calendar-container");
+        const calContainer = document.getElementById(
+          "checkout-calendar-container"
+        );
         if (calContainer) {
           calContainer.innerHTML = `<div style="font-size: 12px; color: var(--muted); text-align: center; padding: 15px;">Loading active rental schedules...</div>`;
-          fetchBookedRanges(carModel).then(ranges => {
+          fetchBookedRanges(carModel).then((ranges) => {
             renderCalendar(calContainer, carModel, ranges);
           });
         }
@@ -5127,7 +5259,10 @@
                 document.getElementById("checkout-rent-end-date").value
               }</p>
               <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Driver Option:</strong> ${
-                document.getElementById("checkout-rent-driver-option").value
+                document.getElementById("checkout-rent-driver-option").value ===
+                "with_driver"
+                  ? "With Driver"
+                  : "Self Drive"
               }</p>
               <p style="margin: 0 0 0 0; color: var(--gold); font-weight: bold; font-size: 16px; margin-top: 12px;">Total Estimate: ₱${details.totalPrice.toLocaleString()}</p>
             </div>
@@ -5201,9 +5336,27 @@
         const fulfillment = document.getElementById("checkout-delivery").value;
         const payment = document.getElementById("checkout-payment").value;
         const refNum = document.getElementById("checkout-ref").value.trim();
-        const totalPrice = parseFloat(
+        let totalPrice = parseFloat(
           document.getElementById("checkout-car-price").value || 0
         );
+
+        if (type === "cart") {
+          totalPrice = cart.reduce((sum, item) => {
+            const priceVal =
+              item.resellerAmount !== undefined && item.resellerAmount !== null
+                ? parseFloat(item.resellerAmount)
+                : parseFloat(item.price);
+            return sum + priceVal * item.qty;
+          }, 0);
+        } else if (type === "rent") {
+          totalPrice = parseFloat(
+            document.getElementById("rent-calc-total").dataset.rawTotal ||
+              document
+                .getElementById("rent-calc-total")
+                .textContent.replace(/[^0-9.]/g, "") ||
+              totalPrice
+          );
+        }
 
         // Anti-spam protection: 30-second cooldown between final submissions
         const lastCheckout = localStorage.getItem("__last_checkout_time");
@@ -5711,8 +5864,11 @@
             "Cavite City";
 
           const finalRentTotal = parseFloat(
-            document.getElementById("rent-calc-total").dataset.rawTotal || 
-            document.getElementById("rent-calc-total").textContent.replace(/[^0-9.]/g, "") || totalPrice
+            document.getElementById("rent-calc-total").dataset.rawTotal ||
+              document
+                .getElementById("rent-calc-total")
+                .textContent.replace(/[^0-9.]/g, "") ||
+              totalPrice
           );
 
           const durationText =
@@ -5798,13 +5954,7 @@
           }
         }
 
-        const actualPrice =
-          type === "rent"
-            ? parseFloat(
-                document.getElementById("rent-calc-total").dataset.rawTotal || 
-                document.getElementById("rent-calc-total").textContent.replace(/[^0-9.]/g, "") || totalPrice
-              )
-            : totalPrice;
+        const actualPrice = totalPrice;
 
         submitBtn.textContent =
           type === "rent" ? "Continue Reservation" : "Complete Transaction";
