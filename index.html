@@ -1503,7 +1503,7 @@
           >LMK SYSTEM APP PORTAL</a
         >
         <div>© 2026 · located at Cavite Phil.</div>
-        <div>Site Developer · Marjun Peji</div>
+        <div>Facebook · Shopee · Tiktok Shop</div>
       </div>
     </footer>
     <!-- EXTRA CSS STYLES FOR DYNAMIC CART & MODALS -->
@@ -1926,6 +1926,11 @@
       src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
       crossorigin="anonymous"
     ></script>
+    <!-- EMAILJS SDK VIA CDN -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
+      crossorigin="anonymous"
+    ></script>
     <!-- CRYPTO-JS FOR SHOPEE SECURITY HMAC ENCRYPTION -->
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
@@ -2293,6 +2298,16 @@
                 >
                 <input type="text" id="checkout-fb" placeholder="fb.com/juan" />
               </div>
+            </div>
+
+            <div class="form-group" id="checkout-email-group">
+              <label for="checkout-email">Email Address</label>
+              <input
+                type="email"
+                id="checkout-email"
+                required
+                placeholder="juan@example.com"
+              />
             </div>
 
             <div class="form-group" id="checkout-address-group">
@@ -3130,6 +3145,9 @@
         checkoutQrs: "lmk_store_checkout_qrs",
         turnstileSiteKey: "lmk_store_turnstile_site_key",
         turnstileSecretKey: "lmk_store_turnstile_secret_key",
+        emailjsServiceId: "lmk_store_emailjs_service_id",
+        emailjsTemplateId: "lmk_store_emailjs_template_id",
+        emailjsPublicKey: "lmk_store_emailjs_public_key",
       };
 
       // Live retrieved catalogs (loaded from cache on startup if available)
@@ -3240,6 +3258,9 @@
         checkAndSave("shopee_url", configKeys.shopeeUrl);
         checkAndSave("sales_table", configKeys.salesTable);
         checkAndSave("itemgoods_table", configKeys.itemGoodsTable);
+        checkAndSave("emailjsServiceId", configKeys.emailjsServiceId);
+        checkAndSave("emailjsTemplateId", configKeys.emailjsTemplateId);
+        checkAndSave("emailjsPublicKey", configKeys.emailjsPublicKey);
 
         if (updated) {
           showToast(
@@ -3408,6 +3429,12 @@
                     configKeys.turnstileSecretKey,
                     cfg.value
                   );
+                } else if (cfg.key === "emailjsServiceId" && cfg.value) {
+                  localStorage.setItem(configKeys.emailjsServiceId, cfg.value);
+                } else if (cfg.key === "emailjsTemplateId" && cfg.value) {
+                  localStorage.setItem(configKeys.emailjsTemplateId, cfg.value);
+                } else if (cfg.key === "emailjsPublicKey" && cfg.value) {
+                  localStorage.setItem(configKeys.emailjsPublicKey, cfg.value);
                 }
               });
             }
@@ -5276,6 +5303,92 @@
         }
       }
 
+      async function sendAutomatedEmail(data) {
+        if (typeof emailjs === "undefined") {
+          console.warn("📧 EmailJS SDK is not loaded. Cannot send automated email.");
+          return;
+        }
+
+        const serviceId = localStorage.getItem("lmk_store_emailjs_service_id") || "YOUR_EMAILJS_SERVICE_ID";
+        const templateId = localStorage.getItem("lmk_store_emailjs_template_id") || "YOUR_EMAILJS_TEMPLATE_ID";
+        const publicKey = localStorage.getItem("lmk_store_emailjs_public_key") || "YOUR_EMAILJS_PUBLIC_KEY";
+
+        // Check if EmailJS keys are unconfigured
+        const isUnconfigured = !serviceId || serviceId.includes("YOUR_") ||
+                              !templateId || templateId.includes("YOUR_") ||
+                              !publicKey || publicKey.includes("YOUR_");
+
+        if (isUnconfigured) {
+          console.warn(
+            "📧 EmailJS credentials are not configured or are using placeholder values.\n" +
+            "To enable automated email receipt sending, please set these credentials in your local storage or website_configs table:\n" +
+            "  - emailjsServiceId\n" +
+            "  - emailjsTemplateId\n" +
+            "  - emailjsPublicKey"
+          );
+          return;
+        }
+
+        // Initialize EmailJS with Public Key
+        emailjs.init({
+          publicKey: publicKey,
+        });
+
+        // Formulate order details text
+        let orderDetails = "";
+        if (data.type === "cart") {
+          orderDetails += "🛒 SHOPPING CART ITEMS:\n";
+          if (typeof cart !== "undefined" && cart.length > 0) {
+            cart.forEach((item, index) => {
+              const price = item.resellerAmount !== undefined && item.resellerAmount !== null ? item.resellerAmount : item.price;
+              orderDetails += `${index + 1}. ${item.name} (x${item.qty}) - ₱${(price * item.qty).toLocaleString()}\n`;
+            });
+          } else {
+            orderDetails += "No items found in cart.\n";
+          }
+        } else {
+          const carModel = document.getElementById("checkout-car-model")?.value || "Car Rental";
+          const sDate = document.getElementById("checkout-rent-start-date")?.value || "";
+          const eDate = document.getElementById("checkout-rent-end-date")?.value || "";
+          const driverOption = document.getElementById("checkout-rent-driver-option")?.value || "self";
+          const plateNumber = document.getElementById("checkout-rent-plate-number")?.value || "TBD";
+          const distanceLimit = document.getElementById("checkout-rent-distance-limit")?.value || "300";
+          const operatorName = document.getElementById("checkout-rent-operator-name")?.value || "Nica Lmk Corp";
+
+          orderDetails += "🚗 CAR RENTAL DETAILS:\n";
+          orderDetails += `▪️ Vehicle Model: ${carModel}\n`;
+          orderDetails += `▪️ Start Date/Time: ${sDate}\n`;
+          orderDetails += `▪️ End Date/Time: ${eDate}\n`;
+          orderDetails += `▪️ Driver Option: ${driverOption === "with_driver" ? "With Driver" : "Self Drive"}\n`;
+          orderDetails += `▪️ Preferred Plate: ${plateNumber}\n`;
+          orderDetails += `▪️ Distance Limit: ${distanceLimit} km\n`;
+          orderDetails += `▪️ Operator: ${operatorName}\n`;
+        }
+
+        const templateParams = {
+          customer_name: data.customerName,
+          customer_email: data.email,
+          customer_phone: data.phone,
+          customer_address: data.address,
+          customer_fb: data.fbProfile,
+          fulfillment_type: data.fulfillment,
+          payment_method: data.payment,
+          reference_number: data.refNum || data.orderId || "PENDING_CONFIRMATION",
+          total_price: "₱" + parseFloat(data.totalPrice).toLocaleString(),
+          order_type: data.type === "rent" ? "Rental Reservation" : "Item Purchase",
+          order_details: orderDetails,
+          company_name: "Nica Lmk Corp",
+        };
+
+        try {
+          console.log("📧 Sending automated email to customer via EmailJS...", templateParams);
+          const response = await emailjs.send(serviceId, templateId, templateParams);
+          console.log("📧 Email successfully sent! Status:", response.status, response.text);
+        } catch (error) {
+          console.error("📧 EmailJS failed to send email:", error);
+        }
+      }
+
       function showCheckoutConfirmationModal(details, onConfirm) {
         const oldOverlay = document.getElementById("confirmation-overlay");
         if (oldOverlay) oldOverlay.remove();
@@ -5291,6 +5404,11 @@
               <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${
                 details.customerName
               }</p>
+              ${
+                details.email
+                  ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Email:</strong> ${details.email}</p>`
+                  : ""
+              }
               <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${
                 details.phone
               }</p>
@@ -5324,6 +5442,11 @@
               <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${
                 details.customerName
               }</p>
+              ${
+                details.email
+                  ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Email:</strong> ${details.email}</p>`
+                  : ""
+              }
               <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${
                 details.phone
               }</p>
@@ -5379,6 +5502,9 @@
         const customerName = document
           .getElementById("checkout-name")
           .value.trim();
+        const email = document.getElementById("checkout-email")
+          ? document.getElementById("checkout-email").value.trim()
+          : "";
         const phone = document.getElementById("checkout-phone").value.trim();
         const fbProfile = document.getElementById("checkout-fb").value.trim();
         const address = document
@@ -5438,6 +5564,7 @@
             {
               type,
               customerName,
+              email,
               phone,
               fbProfile,
               address,
@@ -5587,6 +5714,21 @@
             submitBtnInside.textContent = "Complete Transaction";
             submitBtnInside.disabled = false;
 
+            // Send automated email to customer
+            sendAutomatedEmail({
+              type: type,
+              customerName: customerName,
+              email: email,
+              phone: phone,
+              fbProfile: fbProfile,
+              address: address,
+              fulfillment: fulfillment,
+              payment: "QR Code",
+              refNum: refNum,
+              totalPrice: totalPrice,
+              orderId: orderId,
+            });
+
             // Show completed screen
             closeCheckoutModal();
             showCompletionPage(
@@ -5727,6 +5869,21 @@
             // Reset submit button as complete
             submitBtnInside.textContent = "Complete Transaction";
             submitBtnInside.disabled = false;
+
+            // Send automated email to customer
+            sendAutomatedEmail({
+              type: type,
+              customerName: customerName,
+              email: email,
+              phone: phone,
+              fbProfile: fbProfile,
+              address: address,
+              fulfillment: fulfillment,
+              payment: "PayMongo",
+              refNum: orderId,
+              totalPrice: totalPrice,
+              orderId: orderId,
+            });
 
             // Show completed screen
             closeCheckoutModal();
@@ -5908,6 +6065,20 @@
         closeCheckoutModal();
 
         if (submitCompleted) {
+          // Send automated email
+          sendAutomatedEmail({
+            type: type,
+            customerName: customerName,
+            email: email,
+            phone: phone,
+            fbProfile: fbProfile,
+            address: address,
+            fulfillment: type === "rent" ? "Rental Reservation" : fulfillment,
+            payment: type === "rent" ? "Deferred / Staff Confirmation" : payment,
+            refNum: type === "rent" ? "PENDING_CONFIRMATION" : refNum,
+            totalPrice: type === "rent" ? parseFloat(document.getElementById("rent-calc-total").dataset.rawTotal || document.getElementById("rent-calc-total").textContent.replace(/[^0-9.]/g, "") || totalPrice) : totalPrice,
+            orderId: randId,
+          });
           showCompletionPage(customerName, randId, actualPrice, true);
         } else {
           // Graceful offline/restricted checkout fallback: Prebuilds Facebook Messenger Link
@@ -5958,6 +6129,21 @@
           // Fallback Messenger deep link
           const messengerId = "nicalmkcorp"; // principal company messenger page
           const messengerLink = `https://m.me/${messengerId}?text=${formattedUrlMessage}`;
+
+          // Send automated email in fallback mode
+          sendAutomatedEmail({
+            type: type,
+            customerName: customerName,
+            email: email,
+            phone: phone,
+            fbProfile: fbProfile,
+            address: address,
+            fulfillment: type === "rent" ? "Rental Reservation" : fulfillment,
+            payment: type === "rent" ? "Deferred / Staff Confirmation" : payment,
+            refNum: type === "rent" ? "PENDING_CONFIRMATION" : refNum,
+            totalPrice: type === "rent" ? parseFloat(document.getElementById("rent-calc-total").dataset.rawTotal || document.getElementById("rent-calc-total").textContent.replace(/[^0-9.]/g, "") || totalPrice) : totalPrice,
+            orderId: randId,
+          });
 
           showCompletionPage(
             customerName,
