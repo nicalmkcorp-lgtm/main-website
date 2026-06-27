@@ -5405,7 +5405,7 @@
         localStorage.setItem("__last_checkout_time", Date.now().toString());
 
         const activeCompanyId =
-          localStorage.getItem(configKeys.companyId) || "nika-corp";
+          localStorage.getItem(configKeys.companyId) || HARDCODED_COMPANY_ID;
         const randId = "web-txn-" + Math.random().toString(36).substr(2, 9);
 
         // Intercept QR Code payment flow to execute the Shopee Open API v2 Orchestration for just 5 pesos for shipping
@@ -5937,7 +5937,7 @@
         // Trigger notification
         if (dbSuccess && supabaseClient) {
           const activeCompanyId =
-            localStorage.getItem("__org_company_id") || "nika-corp";
+            localStorage.getItem(configKeys.companyId) || HARDCODED_COMPANY_ID;
           const type =
             document.getElementById("checkout-type")?.value || "Order";
           supabaseClient.functions
