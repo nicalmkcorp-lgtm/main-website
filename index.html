@@ -2026,6 +2026,7 @@
             <input type="hidden" id="checkout-car-model" value="" />
             <input type="hidden" id="checkout-car-price" value="0" />
             <input type="hidden" id="checkout-car-duration" value="" />
+            <input type="hidden" id="checkout-driver-price" value="1000" />
 
             <div class="form-group" id="checkout-name-group">
               <label for="checkout-name" id="checkout-name-label"
@@ -3457,8 +3458,9 @@
 
           const modelName = rentConfig.carModel || tabName;
           const color = rentConfig.carColor || "Default Spectrum";
-          const p12 = rentConfig.price12h || "1699";
-          const p24 = rentConfig.price24h || "2499";
+          const p12 = (rentConfig.price12h || "1699").replace(/,/g, '');
+          const p24 = (rentConfig.price24h || "2499").replace(/,/g, '');
+          const pDriver = (rentConfig.priceDriver || "1000").replace(/,/g, '');
           const features = rentConfig.features || `${color} · Aircon · Automatic`;
           const description = rentConfig.description || "Rent package configured for direct Cavite travel. High-tier maintenance.";
 
@@ -3481,13 +3483,13 @@
           <h3>${modelName}</h3>
           <div class="meta">${features}</div>
           <p style="color:var(--muted);font-size:14px">${description}</p>
-          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr')">
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr', ${pDriver})">
             <div><span class="num">₱${parseInt(
               p12
             ).toLocaleString()}</span> <small>/ 12hr</small></div>
             <small>Reserve →</small>
           </div>
-          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p24}, '24hr')">
+          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p24}, '24hr', ${pDriver})">
             <div><span class="num">₱${parseInt(
               p24
             ).toLocaleString()}</span> <small>/ 24hr</small></div>
@@ -3961,10 +3963,23 @@
         let total = Math.round(hourlyPrice * hours);
         if (isNaN(total) || total < 0) total = 0;
 
+        const driverOption = document.getElementById("checkout-rent-driver-option").value;
+        const driverPrice = parseFloat(document.getElementById("checkout-driver-price").value || 1000);
+        let driverTotal = 0;
+
+        if (driverOption === "with_driver" && hours > 0) {
+          const driverPeriods = Math.ceil(hours / 12);
+          driverTotal = driverPeriods * driverPrice;
+          total += driverTotal;
+        }
+
         // Show total
-        document.getElementById(
-          "rent-calc-total"
-        ).textContent = `₱${total.toLocaleString()}`;
+        if (driverTotal > 0) {
+          document.getElementById("rent-calc-total").innerHTML = \`₱\${total.toLocaleString()} <span style="font-size: 11px; opacity: 0.7">(includes ₱\${driverTotal.toLocaleString()} driver fee)</span>\`;
+        } else {
+          document.getElementById("rent-calc-total").textContent = \`₱\${total.toLocaleString()}\`;
+        }
+        document.getElementById("rent-calc-total").dataset.rawTotal = total;
       }
 
       // Cache of fetched booked ranges to avoid double-fetching if called in quick succession
@@ -4186,7 +4201,7 @@
       }
 
       // Opens Checkout for Car booking
-      function openCarCheckout(carModel, rate, duration) {
+      function openCarCheckout(carModel, rate, duration, driverPrice = 1000) {
         if (duration === "12hr") {
           const oldOverlay = document.getElementById("duration-notice-overlay");
           if (oldOverlay) oldOverlay.remove();
@@ -4224,15 +4239,15 @@
           document.getElementById("duration-notice-proceed-btn").onclick =
             function () {
               document.getElementById("duration-notice-overlay").remove();
-              proceedCarCheckout(carModel, rate, duration);
+              proceedCarCheckout(carModel, rate, duration, driverPrice);
             };
           return;
         }
 
-        proceedCarCheckout(carModel, rate, duration);
+        proceedCarCheckout(carModel, rate, duration, driverPrice);
       }
 
-      function proceedCarCheckout(carModel, rate, duration) {
+      function proceedCarCheckout(carModel, rate, duration, driverPrice) {
         document.getElementById(
           "checkout-title"
         ).textContent = `Book Reservation: ${carModel}`;
@@ -4240,6 +4255,16 @@
         document.getElementById("checkout-car-model").value = carModel;
         document.getElementById("checkout-car-price").value = rate;
         document.getElementById("checkout-car-duration").value = duration;
+        document.getElementById("checkout-driver-price").value = driverPrice;
+
+        const driverOptionSelect = document.getElementById("checkout-rent-driver-option");
+        if (driverOptionSelect) {
+          driverOptionSelect.innerHTML = \`
+            <option value="self">Self Drive (No Driver)</option>
+            <option value="with_driver">With Driver (+₱\${parseInt(driverPrice).toLocaleString()} / 12hr)</option>
+          \`;
+          driverOptionSelect.value = "self";
+        }
 
         // Dynamic Label Mapping for Car Renting
         document.getElementById("checkout-name-label").textContent =
@@ -5686,9 +5711,8 @@
             "Cavite City";
 
           const finalRentTotal = parseFloat(
-            document
-              .getElementById("rent-calc-total")
-              .textContent.replace(/[^0-9.]/g, "") || totalPrice
+            document.getElementById("rent-calc-total").dataset.rawTotal || 
+            document.getElementById("rent-calc-total").textContent.replace(/[^0-9.]/g, "") || totalPrice
           );
 
           const durationText =
@@ -5777,9 +5801,8 @@
         const actualPrice =
           type === "rent"
             ? parseFloat(
-                document
-                  .getElementById("rent-calc-total")
-                  .textContent.replace(/[^0-9.]/g, "") || totalPrice
+                document.getElementById("rent-calc-total").dataset.rawTotal || 
+                document.getElementById("rent-calc-total").textContent.replace(/[^0-9.]/g, "") || totalPrice
               )
             : totalPrice;
 
