@@ -2211,38 +2211,38 @@
               <input type="hidden" id="checkout-rent-start-date" />
               <input type="hidden" id="checkout-rent-end-date" />
 
-              <div class="form-row">
-                <div class="form-group">
+              <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px;">
+                <div class="form-group" style="margin-bottom: 0;">
                   <label>Start Date &amp; Time</label>
                   <div style="display: flex; gap: 8px;">
                     <input
                       type="date"
                       id="checkout-rent-start-date-part"
                       onchange="syncSplitToHidden(); updateRentPriceCalculation()"
-                      style="color-scheme: dark; flex: 2;"
+                      style="color-scheme: dark; flex: 1.5;"
                     />
                     <input
                       type="time"
                       id="checkout-rent-start-time-part"
                       onchange="syncSplitToHidden(); updateRentPriceCalculation()"
-                      style="color-scheme: dark; flex: 1; min-width: 90px;"
+                      style="color-scheme: dark; flex: 1; min-width: 130px;"
                     />
                   </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 0;">
                   <label>End Date &amp; Time</label>
                   <div style="display: flex; gap: 8px;">
                     <input
                       type="date"
                       id="checkout-rent-end-date-part"
                       onchange="syncSplitToHidden(); updateRentPriceCalculation()"
-                      style="color-scheme: dark; flex: 2;"
+                      style="color-scheme: dark; flex: 1.5;"
                     />
                     <input
                       type="time"
                       id="checkout-rent-end-time-part"
                       onchange="syncSplitToHidden(); updateRentPriceCalculation()"
-                      style="color-scheme: dark; flex: 1; min-width: 90px;"
+                      style="color-scheme: dark; flex: 1; min-width: 130px;"
                     />
                   </div>
                 </div>
@@ -4177,6 +4177,9 @@
         if (sDate && sTime) {
           const sInput = document.getElementById("checkout-rent-start-date");
           if (sInput) sInput.value = `${sDate}T${sTime}`;
+        } else {
+          const sInput = document.getElementById("checkout-rent-start-date");
+          if (sInput) sInput.value = "";
         }
 
         const eDate = document.getElementById("checkout-rent-end-date-part")?.value || "";
@@ -4184,6 +4187,9 @@
         if (eDate && eTime) {
           const eInput = document.getElementById("checkout-rent-end-date");
           if (eInput) eInput.value = `${eDate}T${eTime}`;
+        } else {
+          const eInput = document.getElementById("checkout-rent-end-date");
+          if (eInput) eInput.value = "";
         }
       }
 
@@ -4195,6 +4201,11 @@
           const timeInput = document.getElementById("checkout-rent-start-time-part");
           if (dateInput) dateInput.value = parts[0];
           if (timeInput) timeInput.value = parts[1].slice(0, 5);
+        } else {
+          const dateInput = document.getElementById("checkout-rent-start-date-part");
+          const timeInput = document.getElementById("checkout-rent-start-time-part");
+          if (dateInput) dateInput.value = "";
+          if (timeInput) timeInput.value = "";
         }
 
         const endVal = document.getElementById("checkout-rent-end-date")?.value;
@@ -4204,6 +4215,11 @@
           const timeInput = document.getElementById("checkout-rent-end-time-part");
           if (dateInput) dateInput.value = parts[0];
           if (timeInput) timeInput.value = parts[1].slice(0, 5);
+        } else {
+          const dateInput = document.getElementById("checkout-rent-end-date-part");
+          const timeInput = document.getElementById("checkout-rent-end-time-part");
+          if (dateInput) dateInput.value = "";
+          if (timeInput) timeInput.value = "";
         }
       }
 
@@ -4812,23 +4828,34 @@
                 return;
               }
 
+              const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
+              const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "09:00";
+
               if (!selectedStartCalDate || (selectedStartCalDate && selectedEndCalDate)) {
+                // First click, or clicking again when both are already set
                 selectedStartCalDate = dateStr;
                 selectedEndCalDate = null;
+                document.getElementById("checkout-rent-start-date").value = `${dateStr}T${sTime}`;
+                document.getElementById("checkout-rent-end-date").value = "";
+                updateRentPriceCalculation();
                 draw();
               } else {
+                // selectedStartCalDate is set, selectedEndCalDate is null
                 if (dateStr < selectedStartCalDate) {
+                  // Clicked date is earlier than start date, so make this the new start date
                   selectedStartCalDate = dateStr;
                   selectedEndCalDate = null;
+                  document.getElementById("checkout-rent-start-date").value = `${dateStr}T${sTime}`;
+                  document.getElementById("checkout-rent-end-date").value = "";
+                  updateRentPriceCalculation();
                   draw();
                 } else {
+                  // Clicked date is start date or later
                   if (checkRangeConflict(new Date(selectedStartCalDate), new Date(dateStr), ranges)) {
                     showToast("⚠️ Conflicting date, please select another dates");
                     return;
                   }
                   selectedEndCalDate = dateStr;
-                  const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
-                  const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "09:00";
                   document.getElementById("checkout-rent-start-date").value = `${selectedStartCalDate}T${sTime}`;
                   document.getElementById("checkout-rent-end-date").value = `${selectedEndCalDate}T${eTime}`;
                   updateRentPriceCalculation();
@@ -5120,26 +5147,34 @@
         document.getElementById("checkout-submit-btn").textContent =
           "Continue Reservation";
 
-        // Set default datetimes to now and now + 12hr/24hr
-        const now = new Date();
-        const tzOffset = now.getTimezoneOffset() * 60000;
-        const localISO = new Date(now - tzOffset).toISOString().slice(0, 16);
+        // Set default datetimes to now and now + 12hr, or empty for 24hr/other durations
+        if (duration === "12hr") {
+          const now = new Date();
+          const tzOffset = now.getTimezoneOffset() * 60000;
+          const localISO = new Date(now - tzOffset).toISOString().slice(0, 16);
 
-        const durHours = duration === "12hr" ? 12 : 24;
-        const future = new Date(now.getTime() + durHours * 60 * 60 * 1000);
-        const futureLocalISO = new Date(future - tzOffset)
-          .toISOString()
-          .slice(0, 16);
+          const durHours = 12;
+          const future = new Date(now.getTime() + durHours * 60 * 60 * 1000);
+          const futureLocalISO = new Date(future - tzOffset)
+            .toISOString()
+            .slice(0, 16);
 
-        document.getElementById("checkout-rent-start-date").value = localISO;
-        document.getElementById("checkout-rent-end-date").value =
-          futureLocalISO;
+          document.getElementById("checkout-rent-start-date").value = localISO;
+          document.getElementById("checkout-rent-end-date").value = futureLocalISO;
 
-        // Initialize state variables
-        lastValidStartDate = localISO;
-        lastValidEndDate = futureLocalISO;
-        selectedStartCalDate = localISO.split("T")[0];
-        selectedEndCalDate = futureLocalISO.split("T")[0];
+          lastValidStartDate = localISO;
+          lastValidEndDate = futureLocalISO;
+          selectedStartCalDate = localISO.split("T")[0];
+          selectedEndCalDate = futureLocalISO.split("T")[0];
+        } else {
+          document.getElementById("checkout-rent-start-date").value = "";
+          document.getElementById("checkout-rent-end-date").value = "";
+
+          lastValidStartDate = "";
+          lastValidEndDate = "";
+          selectedStartCalDate = null;
+          selectedEndCalDate = null;
+        }
         currentActiveRanges = [];
 
         const refInput = document.getElementById("checkout-ref");
