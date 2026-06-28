@@ -4743,14 +4743,6 @@
 
           function handleDragStart(dateStr) {
             if (duration === "12hr") {
-              selectedStartCalDate = dateStr;
-              selectedEndCalDate = dateStr;
-              const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
-              const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "21:00";
-              document.getElementById("checkout-rent-start-date").value = `${dateStr}T${sTime}`;
-              document.getElementById("checkout-rent-end-date").value = `${dateStr}T${eTime}`;
-              updateRentPriceCalculation();
-              draw();
               return;
             }
 
@@ -4770,6 +4762,8 @@
             if (!isDragging) return;
             isDragging = false;
             clearTempHighlights();
+
+            if (!hasDragged) return;
 
             const finalStart = dragStartStr < dateStr ? dragStartStr : dateStr;
             const finalEnd = dragStartStr < dateStr ? dateStr : dragStartStr;
@@ -4815,7 +4809,6 @@
                 hasDragged = false;
                 return;
               }
-
               if (duration === "12hr") {
                 selectedStartCalDate = dateStr;
                 selectedEndCalDate = dateStr;
