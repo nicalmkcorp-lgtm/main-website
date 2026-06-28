@@ -636,6 +636,18 @@
         max-width: 520px;
         color: var(--muted);
       }
+      .about-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 48px;
+        align-items: stretch;
+      }
+      @media (max-width: 920px) {
+        .about-grid {
+          grid-template-columns: 1fr;
+          gap: 32px;
+        }
+      }
       /* FOOTER */
       footer {
         border-top: 1px solid var(--line);
@@ -912,7 +924,7 @@
           <div class="loan-card reveal-x">
             <div class="eyebrow">Choose your tier</div>
             <div class="loan-tiers">
-              <div class="tier">
+              <div class="tier" onclick="selectLoanTier(this, 'cash', event)">
                 <div>
                   <div class="t-name">Cash Loan</div>
                   <div class="t-amount">up to php 10,000</div>
@@ -925,6 +937,7 @@
                   border-color: var(--gold);
                   background: rgba(201, 169, 106, 0.05);
                 "
+                onclick="selectLoanTier(this, 'gadgets', event)"
               >
                 <div>
                   <div class="t-name">Gadgets/appliances Loan</div>
@@ -932,14 +945,14 @@
                 </div>
                 <div class="t-rate">from 15%</div>
               </div>
-              <div class="tier">
+              <div class="tier" onclick="selectLoanTier(this, 'sm_groceries', event)">
                 <div>
                   <div class="t-name">Sm/ Groceries/ Watson</div>
                   <div class="t-amount">the amount depends on the items</div>
                 </div>
                 <div class="t-rate">from 10%</div>
               </div>
-              <div class="tier">
+              <div class="tier" onclick="selectLoanTier(this, 'gold', event)">
                 <div>
                   <div class="t-name">gold loan</div>
                   <div class="t-amount">the amount depends on the item</div>
@@ -1271,6 +1284,60 @@
         alt="Hostess welcoming you"
       />
       <div class="container" style="position: relative; z-index: 2">
+        <!-- About Lmk Corp Section -->
+        <div class="about-corp-section reveal" style="margin-bottom: 90px; text-align: left; border-bottom: 1px solid var(--line); padding-bottom: 70px;">
+          <div class="about-grid">
+            <!-- Column 1: Intro -->
+            <div>
+              <div class="eyebrow" style="color: var(--gold-2); margin-bottom: 16px;">Our Identity</div>
+              <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 38px; line-height: 1.2; color: var(--ink); margin-bottom: 24px;">About Lmk Corp</h2>
+              
+              <p style="font-size: 15px; line-height: 1.7; color: var(--ink); opacity: 0.95; margin-bottom: 18px; font-family: 'Inter', sans-serif;">
+                Welcome to a smarter way to manage your lifestyle and business needs. We are a multi-faceted enterprise dedicated to providing. From quick, hassle-free loans and dependable car rentals to high-quality, in-house garment production, our automated system ensures speed, reliability, and precision in everything we deliver.
+              </p>
+              
+              <p style="font-size: 14px; line-height: 1.7; color: var(--muted); font-family: 'Inter', sans-serif;">
+                Driven by technology, our entire ecosystem is fully automated. This means zero friction, lightning-fast processing, and a seamless digital experience whether you are securing a loan, booking a ride, or ordering from our latest in-house garments collection. We bridge the gap between everyday essentials and cutting-edge convenience.
+              </p>
+            </div>
+            
+            <!-- Column 2: B2B partnership -->
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--line); padding: 32px; border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--gold-2); margin-bottom: 16px; font-style: italic;">Be a supplimented business!</h3>
+                <p style="font-size: 14px; line-height: 1.6; color: var(--muted); margin-bottom: 20px; font-family: 'Inter', sans-serif;">
+                  Lower your overhead and boost your profits. Order our in-house production garments in bulk to unlock premium tiers for a low and discount pricing.
+                </p>
+                
+                <ul style="list-style: none; padding: 0; margin: 0 0 24px 0; display: flex; flex-direction: column; gap: 10px;">
+                  <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--ink); font-family: 'Inter', sans-serif;">
+                    <span style="color: var(--gold); font-size: 14px; line-height: 1;">✦</span>
+                    <span>Direct from factory production</span>
+                  </li>
+                  <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--ink); font-family: 'Inter', sans-serif;">
+                    <span style="color: var(--gold); font-size: 14px; line-height: 1;">✦</span>
+                    <span>Automated fulfillment for faster delivery</span>
+                  </li>
+                  <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--ink); font-family: 'Inter', sans-serif;">
+                    <span style="color: var(--gold); font-size: 14px; line-height: 1;">✦</span>
+                    <span>Unbeatable cost-per-piece value</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div style="border-top: 1px dashed var(--line); padding-top: 20px;">
+                <p style="font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 14px; font-family: 'Inter', sans-serif; line-height: 1.5;">
+                  Ready to stock up?<br/>
+                  <span style="color: var(--muted); font-size: 13px; font-weight: normal;">Contact us today for our bulk price matrix!</span>
+                </p>
+                <button class="btn-primary" style="width: 100%; font-size: 13px; padding: 12px 20px;" onclick="window.openNativeApp('messenger', 'https://m.me/61585716959982', event)">
+                  Inquire Bulk Price Matrix
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="eyebrow reveal">Become a member</div>
         <h2 class="reveal d1" style="margin-top: 22px">
           Three pleasures, <em>sa isang lugar.</em>
@@ -2140,26 +2207,44 @@
                 Rent Agreement Details
               </h4>
 
+              <!-- Hidden fields for compatibility with backend and existing systems -->
+              <input type="hidden" id="checkout-rent-start-date" />
+              <input type="hidden" id="checkout-rent-end-date" />
+
               <div class="form-row">
                 <div class="form-group">
-                  <label for="checkout-rent-start-date"
-                    >Start Date / Time</label
-                  >
-                  <input
-                    type="datetime-local"
-                    id="checkout-rent-start-date"
-                    onchange="updateRentPriceCalculation()"
-                    style="color-scheme: dark"
-                  />
+                  <label>Start Date &amp; Time</label>
+                  <div style="display: flex; gap: 8px;">
+                    <input
+                      type="date"
+                      id="checkout-rent-start-date-part"
+                      onchange="syncSplitToHidden(); updateRentPriceCalculation()"
+                      style="color-scheme: dark; flex: 2;"
+                    />
+                    <input
+                      type="time"
+                      id="checkout-rent-start-time-part"
+                      onchange="syncSplitToHidden(); updateRentPriceCalculation()"
+                      style="color-scheme: dark; flex: 1; min-width: 90px;"
+                    />
+                  </div>
                 </div>
                 <div class="form-group">
-                  <label for="checkout-rent-end-date">End Date / Time</label>
-                  <input
-                    type="datetime-local"
-                    id="checkout-rent-end-date"
-                    onchange="updateRentPriceCalculation()"
-                    style="color-scheme: dark"
-                  />
+                  <label>End Date &amp; Time</label>
+                  <div style="display: flex; gap: 8px;">
+                    <input
+                      type="date"
+                      id="checkout-rent-end-date-part"
+                      onchange="syncSplitToHidden(); updateRentPriceCalculation()"
+                      style="color-scheme: dark; flex: 2;"
+                    />
+                    <input
+                      type="time"
+                      id="checkout-rent-end-time-part"
+                      onchange="syncSplitToHidden(); updateRentPriceCalculation()"
+                      style="color-scheme: dark; flex: 1; min-width: 90px;"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -3331,7 +3416,8 @@
 
         const toast = document.createElement("div");
         toast.className = "custom-toast";
-        toast.innerHTML = `🌟 <span>${message}</span>`;
+        const icon = message.startsWith("⚠️") ? "" : "🌟 ";
+        toast.innerHTML = `${icon}<span>${message}</span>`;
         document.body.appendChild(toast);
 
         setTimeout(() => {
@@ -4035,6 +4121,12 @@
         document.getElementById("checkout-ref").required = true;
         document.getElementById("checkout-rent-start-date").required = false;
         document.getElementById("checkout-rent-end-date").required = false;
+        if (document.getElementById("checkout-rent-start-date-part")) {
+          document.getElementById("checkout-rent-start-date-part").required = false;
+          document.getElementById("checkout-rent-start-time-part").required = false;
+          document.getElementById("checkout-rent-end-date-part").required = false;
+          document.getElementById("checkout-rent-end-time-part").required = false;
+        }
 
         document.getElementById("checkout-submit-btn").textContent =
           "Complete Transaction";
@@ -4079,6 +4171,81 @@
         window._pendingCheckoutProceed = null;
       }
 
+      function syncSplitToHidden() {
+        const sDate = document.getElementById("checkout-rent-start-date-part")?.value || "";
+        const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "";
+        if (sDate && sTime) {
+          const sInput = document.getElementById("checkout-rent-start-date");
+          if (sInput) sInput.value = `${sDate}T${sTime}`;
+        }
+
+        const eDate = document.getElementById("checkout-rent-end-date-part")?.value || "";
+        const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "";
+        if (eDate && eTime) {
+          const eInput = document.getElementById("checkout-rent-end-date");
+          if (eInput) eInput.value = `${eDate}T${eTime}`;
+        }
+      }
+
+      function syncHiddenToSplit() {
+        const startVal = document.getElementById("checkout-rent-start-date")?.value;
+        if (startVal && startVal.includes("T")) {
+          const parts = startVal.split("T");
+          const dateInput = document.getElementById("checkout-rent-start-date-part");
+          const timeInput = document.getElementById("checkout-rent-start-time-part");
+          if (dateInput) dateInput.value = parts[0];
+          if (timeInput) timeInput.value = parts[1].slice(0, 5);
+        }
+
+        const endVal = document.getElementById("checkout-rent-end-date")?.value;
+        if (endVal && endVal.includes("T")) {
+          const parts = endVal.split("T");
+          const dateInput = document.getElementById("checkout-rent-end-date-part");
+          const timeInput = document.getElementById("checkout-rent-end-time-part");
+          if (dateInput) dateInput.value = parts[0];
+          if (timeInput) timeInput.value = parts[1].slice(0, 5);
+        }
+      }
+
+      // Calendar Selection & Drag State Variables
+      let selectedStartCalDate = null; // String "YYYY-MM-DD"
+      let selectedEndCalDate = null;   // String "YYYY-MM-DD"
+      let currentActiveRanges = [];    // Loaded ranges for the selected car
+      let lastValidStartDate = "";     // ISO start datetime (e.g. "YYYY-MM-DDTHH:MM")
+      let lastValidEndDate = "";       // ISO end datetime (e.g. "YYYY-MM-DDTHH:MM")
+
+      let activeCalendarContainer = null;
+      let activeCalendarCarModel = null;
+      let activeCalendarRanges = null;
+
+      function redrawCalendar() {
+        if (activeCalendarContainer && activeCalendarCarModel && activeCalendarRanges) {
+          renderCalendar(activeCalendarContainer, activeCalendarCarModel, activeCalendarRanges);
+        }
+      }
+
+      // Helper to check range conflict including start, end, and intermediate days
+      function checkRangeConflict(start, end, ranges) {
+        if (!start || !end || !ranges || ranges.length === 0) return false;
+        
+        const startDate = typeof start === "string" ? new Date(start) : start;
+        const endDate = typeof end === "string" ? new Date(end) : end;
+        
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return false;
+
+        const s = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+        const e = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
+        let current = new Date(s);
+        while (current <= e) {
+          if (isDateBooked(current, ranges)) {
+            return true;
+          }
+          current.setDate(current.getDate() + 1);
+        }
+        return false;
+      }
+
       // Calculates rent reservation total dynamically
       function updateRentPriceCalculation() {
         const rate = parseFloat(
@@ -4086,7 +4253,7 @@
         );
         const duration =
           document.getElementById("checkout-car-duration").value || "24hr";
-        const sDateVal = document.getElementById(
+        let sDateVal = document.getElementById(
           "checkout-rent-start-date"
         ).value;
         let eDateVal = document.getElementById("checkout-rent-end-date").value;
@@ -4099,6 +4266,59 @@
             eDateVal = new Date(end - tzOffset).toISOString().slice(0, 16);
             document.getElementById("checkout-rent-end-date").value = eDateVal;
           }
+        }
+
+        if (duration === "24hr" && sDateVal && eDateVal) {
+          const start = new Date(sDateVal);
+          const end = new Date(eDateVal);
+          if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+            const minDiff = 24 * 60 * 60 * 1000;
+            if (end.getTime() - start.getTime() < minDiff) {
+              showToast("⚠️ Reservation for 24-hour rate must be at least 24 hours");
+              const correctedEnd = new Date(start.getTime() + minDiff);
+              const tzOffset = correctedEnd.getTimezoneOffset() * 60000;
+              eDateVal = new Date(correctedEnd - tzOffset).toISOString().slice(0, 16);
+              document.getElementById("checkout-rent-end-date").value = eDateVal;
+            }
+          }
+        }
+
+        // Validate conflicting date range for manual date selection
+        if (sDateVal && eDateVal && currentActiveRanges && currentActiveRanges.length > 0) {
+          const start = new Date(sDateVal);
+          const end = new Date(eDateVal);
+          if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+            if (checkRangeConflict(start, end, currentActiveRanges)) {
+              showToast("⚠️ Conflicting date, please select another dates");
+              
+              // Revert to last valid dates
+              if (lastValidStartDate) {
+                document.getElementById("checkout-rent-start-date").value = lastValidStartDate;
+                sDateVal = lastValidStartDate;
+              } else {
+                document.getElementById("checkout-rent-start-date").value = "";
+                sDateVal = "";
+              }
+              if (lastValidEndDate) {
+                document.getElementById("checkout-rent-end-date").value = lastValidEndDate;
+                eDateVal = lastValidEndDate;
+              } else {
+                document.getElementById("checkout-rent-end-date").value = "";
+                eDateVal = "";
+              }
+              syncHiddenToSplit();
+              redrawCalendar();
+              return;
+            }
+          }
+        }
+
+        // Save last valid selection and update calendar highlight bounds
+        if (sDateVal && eDateVal) {
+          lastValidStartDate = sDateVal;
+          lastValidEndDate = eDateVal;
+          selectedStartCalDate = sDateVal.split("T")[0];
+          selectedEndCalDate = eDateVal.split("T")[0];
         }
 
         const hourlyPrice = rate / (duration === "12hr" ? 12 : 24);
@@ -4161,6 +4381,8 @@
           ).textContent = `₱${total.toLocaleString()}`;
         }
         document.getElementById("rent-calc-total").dataset.rawTotal = total;
+
+        syncHiddenToSplit();
       }
 
       // Cache of fetched booked ranges to avoid double-fetching if called in quick succession
@@ -4282,6 +4504,43 @@
       ) {
         if (!containerEl) return;
 
+        activeCalendarContainer = containerEl;
+        activeCalendarCarModel = carModel;
+        activeCalendarRanges = ranges;
+
+        if (!document.getElementById("calendar-range-styles")) {
+          const style = document.createElement("style");
+          style.id = "calendar-range-styles";
+          style.textContent = `
+            .cal-day.cal-day-start {
+              background-color: var(--gold) !important;
+              color: #000 !important;
+              font-weight: bold !important;
+              border-radius: 4px 0 0 4px !important;
+            }
+            .cal-day.cal-day-end {
+              background-color: var(--gold) !important;
+              color: #000 !important;
+              font-weight: bold !important;
+              border-radius: 0 4px 4px 0 !important;
+            }
+            .cal-day.cal-day-start.cal-day-end {
+              border-radius: 4px !important;
+            }
+            .cal-day.cal-day-range {
+              background-color: rgba(201, 138, 55, 0.25) !important;
+              color: var(--gold-2) !important;
+              border-radius: 0 !important;
+            }
+            .cal-day.cal-day-temp-range {
+              background-color: rgba(201, 138, 55, 0.15) !important;
+              color: var(--gold-2) !important;
+              border-radius: 0 !important;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+
         let currentYear = initialDate.getFullYear();
         let currentMonth = initialDate.getMonth();
 
@@ -4342,6 +4601,7 @@
             const dateObj = new Date(currentYear, currentMonth, day);
             const isBooked = isDateBooked(dateObj, ranges);
             const isToday = dateObj.getTime() === todayMidnight;
+            const dateStr = dateObj.toISOString().split("T")[0];
 
             let dayStyle = `
               height: 32px;
@@ -4377,10 +4637,23 @@
               dayClass = "day-available";
             }
 
+            let selectionClass = "";
+            if (!isBooked) {
+              if (selectedStartCalDate && dateStr === selectedStartCalDate) {
+                selectionClass += " cal-day-start";
+              }
+              if (selectedEndCalDate && dateStr === selectedEndCalDate) {
+                selectionClass += " cal-day-end";
+              }
+              if (selectedStartCalDate && selectedEndCalDate && dateStr > selectedStartCalDate && dateStr < selectedEndCalDate) {
+                selectionClass += " cal-day-range";
+              }
+            }
+
             html += `
-              <div class="cal-day ${dayClass}" style="${dayStyle}" title="${
+              <div class="cal-day ${dayClass}${selectionClass}" style="${dayStyle}" title="${
               isBooked ? "Already booked/reserved" : "Available"
-            }" data-date="${dateObj.toISOString().split("T")[0]}">
+            }" data-date="${dateStr}">
                 ${day}
               </div>
             `;
@@ -4420,25 +4693,302 @@
             draw();
           });
 
-          // Allow clicking an available day to populate start date in checkout modal
-          containerEl.querySelectorAll(".day-available").forEach((el) => {
+          // Range Selection & Swipe/Drag handlers
+          const duration = document.getElementById("checkout-car-duration")?.value || "24hr";
+          let isDragging = false;
+          let dragStartStr = null;
+          let hasDragged = false;
+
+          const daysGrid = containerEl.querySelector(".calendar-days");
+
+          function getDayDate(el) {
+            const dayEl = el ? el.closest(".day-available") : null;
+            return dayEl ? dayEl.getAttribute("data-date") : null;
+          }
+
+          function clearTempHighlights() {
+            daysGrid.querySelectorAll(".cal-day").forEach((el) => {
+              el.classList.remove("cal-day-temp-range");
+            });
+          }
+
+          function applyTempHighlights(startStr, endStr) {
+            clearTempHighlights();
+            const minStr = startStr < endStr ? startStr : endStr;
+            const maxStr = startStr < endStr ? endStr : startStr;
+
+            daysGrid.querySelectorAll(".day-available").forEach((el) => {
+              const dStr = el.getAttribute("data-date");
+              if (dStr >= minStr && dStr <= maxStr) {
+                el.classList.add("cal-day-temp-range");
+              }
+            });
+          }
+
+          function handleDragStart(dateStr) {
+            if (duration === "12hr") {
+              selectedStartCalDate = dateStr;
+              selectedEndCalDate = dateStr;
+              const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
+              const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "21:00";
+              document.getElementById("checkout-rent-start-date").value = `${dateStr}T${sTime}`;
+              document.getElementById("checkout-rent-end-date").value = `${dateStr}T${eTime}`;
+              updateRentPriceCalculation();
+              draw();
+              return;
+            }
+
+            isDragging = true;
+            hasDragged = false;
+            dragStartStr = dateStr;
+            applyTempHighlights(dateStr, dateStr);
+          }
+
+          function handleDragMove(dateStr) {
+            if (!isDragging) return;
+            hasDragged = true;
+            applyTempHighlights(dragStartStr, dateStr);
+          }
+
+          function handleDragEnd(dateStr) {
+            if (!isDragging) return;
+            isDragging = false;
+            clearTempHighlights();
+
+            const finalStart = dragStartStr < dateStr ? dragStartStr : dateStr;
+            const finalEnd = dragStartStr < dateStr ? dateStr : dragStartStr;
+
+            if (checkRangeConflict(new Date(finalStart), new Date(finalEnd), ranges)) {
+              showToast("⚠️ Conflicting date, please select another dates");
+              draw();
+              return;
+            }
+
+            selectedStartCalDate = finalStart;
+            selectedEndCalDate = finalEnd;
+
+            const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
+            const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "09:00";
+            document.getElementById("checkout-rent-start-date").value = `${finalStart}T${sTime}`;
+            document.getElementById("checkout-rent-end-date").value = `${finalEnd}T${eTime}`;
+            updateRentPriceCalculation();
+            draw();
+          }
+
+          daysGrid.querySelectorAll(".day-available").forEach((el) => {
+            const dateStr = el.getAttribute("data-date");
+
+            // Touchstart / Mousedown
+            el.addEventListener("mousedown", (e) => {
+              e.preventDefault();
+              handleDragStart(dateStr);
+            });
+
+            el.addEventListener("touchstart", (e) => {
+              handleDragStart(dateStr);
+            }, { passive: true });
+
+            // Mouseenter
+            el.addEventListener("mouseenter", () => {
+              handleDragMove(dateStr);
+            });
+
+            // Normal click handler
             el.addEventListener("click", () => {
-              const selectedDateStr = el.getAttribute("data-date");
-              const startDateInput = document.getElementById(
-                "checkout-rent-start-date"
-              );
-              if (startDateInput && startDateInput.required) {
-                const currentTime = startDateInput.value
-                  ? startDateInput.value.split("T")[1] || "09:00"
-                  : "09:00";
-                startDateInput.value = `${selectedDateStr}T${currentTime}`;
+              if (hasDragged) {
+                hasDragged = false;
+                return;
+              }
+
+              if (duration === "12hr") {
+                selectedStartCalDate = dateStr;
+                selectedEndCalDate = dateStr;
+                const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
+                const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "21:00";
+                document.getElementById("checkout-rent-start-date").value = `${dateStr}T${sTime}`;
+                document.getElementById("checkout-rent-end-date").value = `${dateStr}T${eTime}`;
                 updateRentPriceCalculation();
+                draw();
+                return;
+              }
+
+              if (!selectedStartCalDate || (selectedStartCalDate && selectedEndCalDate)) {
+                selectedStartCalDate = dateStr;
+                selectedEndCalDate = null;
+                draw();
+              } else {
+                if (dateStr < selectedStartCalDate) {
+                  selectedStartCalDate = dateStr;
+                  selectedEndCalDate = null;
+                  draw();
+                } else {
+                  if (checkRangeConflict(new Date(selectedStartCalDate), new Date(dateStr), ranges)) {
+                    showToast("⚠️ Conflicting date, please select another dates");
+                    return;
+                  }
+                  selectedEndCalDate = dateStr;
+                  const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
+                  const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "09:00";
+                  document.getElementById("checkout-rent-start-date").value = `${selectedStartCalDate}T${sTime}`;
+                  document.getElementById("checkout-rent-end-date").value = `${selectedEndCalDate}T${eTime}`;
+                  updateRentPriceCalculation();
+                  draw();
+                }
               }
             });
           });
+
+          // Global release for mouse dragging
+          const globalMouseUp = (e) => {
+            if (!isDragging) return;
+            const targetEl = document.elementFromPoint(e.clientX, e.clientY);
+            const dateStr = getDayDate(targetEl) || dragStartStr;
+            handleDragEnd(dateStr);
+            window.removeEventListener("mouseup", globalMouseUp);
+          };
+
+          daysGrid.addEventListener("mousedown", () => {
+            window.addEventListener("mouseup", globalMouseUp);
+          });
+
+          // Touch move & touch end listeners
+          daysGrid.addEventListener("touchmove", (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+            const dateStr = getDayDate(targetEl);
+            if (dateStr) {
+              handleDragMove(dateStr);
+            }
+          }, { passive: true });
+
+          daysGrid.addEventListener("touchend", (e) => {
+            if (!isDragging) return;
+            const touch = e.changedTouches[0];
+            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+            const dateStr = getDayDate(targetEl) || dragStartStr;
+            handleDragEnd(dateStr);
+          }, { passive: true });
         }
 
         draw();
+      }
+
+      // Selected Loan Tiers Interactive Popups
+      function selectLoanTier(element, loanType, event) {
+        if (event) event.stopPropagation();
+        
+        // Remove style or active highlights from all tiers
+        const tiers = document.querySelectorAll('.loan-tiers .tier');
+        tiers.forEach(t => {
+          t.removeAttribute('style');
+        });
+        
+        // Highlight clicked tier
+        element.style.borderColor = 'var(--gold)';
+        element.style.background = 'rgba(201, 169, 106, 0.05)';
+        
+        // Open details modal
+        openLoanDetailsModal(loanType);
+      }
+
+      function openLoanDetailsModal(loanType) {
+        const oldOverlay = document.getElementById("loan-details-overlay");
+        if (oldOverlay) oldOverlay.remove();
+
+        let title = "";
+        let contentHtml = "";
+
+        const linksHtml = `
+          <div style="margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 12px; font-weight: 500; color: var(--ink);">
+            Contact us for more info!<br/>
+            Send us a message in facebook,
+            <div style="margin-top: 8px; display: flex; gap: 12px; justify-content: flex-start; align-items: center; font-size: 13px; font-weight: normal;">
+              <a href="https://www.facebook.com/profile.php?id=61585716959982" onclick="window.openNativeApp('facebook', 'https://www.facebook.com/profile.php?id=61585716959982', event)" target="_blank" style="color: var(--gold); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 1px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block; vertical-align: middle;"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Facebook Page
+              </a>
+              <span style="color: rgba(255,255,255,0.15);">|</span>
+              <a href="https://m.me/61585716959982" onclick="window.openNativeApp('messenger', 'https://m.me/61585716959982', event)" target="_blank" style="color: var(--gold); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 1px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block; vertical-align: middle;"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.293 14.193l-3.043-3.245-5.932 3.245 6.523-6.93 3.09 3.245 5.885-3.245-6.523 6.93z"/></svg> Messenger Chat
+              </a>
+            </div>
+          </div>
+        `;
+
+        if (loanType === "cash") {
+          title = "Cash Loan";
+          contentHtml = `
+            <p style="font-size: 15px; color: var(--gold-2); font-weight: 500; margin-bottom: 12px; font-family: 'Inter', sans-serif;">System and Mechanics</p>
+            <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 20px; line-height: 1.6; font-size: 14px; color: var(--muted); font-family: 'Inter', sans-serif;">
+              <div style="margin-bottom: 10px;">
+                <strong style="color: var(--ink);">Option A</strong><br/>
+                <span>• 1week to pay 20% int.</span>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <strong style="color: var(--ink);">Option B</strong><br/>
+                <span>• 10% int daily hulog 7days.</span>
+              </div>
+              ${linksHtml}
+            </div>
+          `;
+        } else if (loanType === "gadgets") {
+          title = "Gadgets / Appliances Loan";
+          contentHtml = `
+            <p style="font-size: 15px; color: var(--gold-2); font-weight: 500; margin-bottom: 12px; font-family: 'Inter', sans-serif;">System and Mechanics</p>
+            <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 20px; line-height: 1.6; font-size: 14px; color: var(--muted); font-family: 'Inter', sans-serif;">
+              <div>
+                <span style="color: var(--ink);">• 50%dp +15% int balance 4weeks to pay.</span>
+              </div>
+              ${linksHtml}
+            </div>
+          `;
+        } else if (loanType === "sm_groceries") {
+          title = "Sm / Groceries / Watson";
+          contentHtml = `
+            <p style="font-size: 15px; color: var(--gold-2); font-weight: 500; margin-bottom: 12px; font-family: 'Inter', sans-serif;">System and Mechanics</p>
+            <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 20px; line-height: 1.6; font-size: 14px; color: var(--muted); font-family: 'Inter', sans-serif;">
+              <div>
+                <span style="color: var(--ink);">• 14days to pay +20% int.</span>
+              </div>
+              ${linksHtml}
+            </div>
+          `;
+        } else if (loanType === "gold") {
+          title = "Gold Loans";
+          contentHtml = `
+            <p style="font-size: 15px; color: var(--gold-2); font-weight: 500; margin-bottom: 12px; font-family: 'Inter', sans-serif;">System and Mechanics</p>
+            <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 20px; line-height: 1.6; font-size: 14px; color: var(--muted); font-family: 'Inter', sans-serif;">
+              <div>
+                <span style="color: var(--ink);">• 50%dp +15% int balance 4weeks to pay</span>
+              </div>
+              ${linksHtml}
+            </div>
+          `;
+        }
+
+        const overlay = document.createElement("div");
+        overlay.id = "loan-details-overlay";
+        overlay.className = "modal-overlay active";
+        overlay.style.zIndex = "1002";
+
+        overlay.innerHTML = `
+          <div class="modal-box" style="text-align:center; padding:32px 24px; position:relative; max-width:440px;">
+            <h3 style="font-family:'Cormorant Garamond', serif; font-size: 26px; color:var(--gold-2); margin-bottom: 16px;">${title}</h3>
+            ${contentHtml}
+
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+              <button class="btn-primary" style="flex:1; background: transparent; border: 1px solid var(--line); color: var(--ink);" onclick="document.getElementById('loan-details-overlay').remove()">Cancel</button>
+              <button class="btn-primary" style="flex:1;" id="loan-msg-btn">Send Message</button>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        document.getElementById("loan-msg-btn").onclick = function (e) {
+          document.getElementById("loan-details-overlay").remove();
+          window.openNativeApp('messenger', 'https://m.me/61585716959982', e);
+        };
       }
 
       // Opens Checkout for Car booking
@@ -4527,6 +5077,12 @@
         document.getElementById("checkout-ref").required = false;
         document.getElementById("checkout-rent-start-date").required = true;
         document.getElementById("checkout-rent-end-date").required = true;
+        if (document.getElementById("checkout-rent-start-date-part")) {
+          document.getElementById("checkout-rent-start-date-part").required = true;
+          document.getElementById("checkout-rent-start-time-part").required = true;
+          document.getElementById("checkout-rent-end-date-part").required = true;
+          document.getElementById("checkout-rent-end-time-part").required = true;
+        }
 
         if (duration === "12hr") {
           document.getElementById("checkout-rent-end-date").readOnly = true;
@@ -4535,12 +5091,30 @@
           document.getElementById(
             "checkout-rent-end-date"
           ).style.pointerEvents = "none";
+
+          if (document.getElementById("checkout-rent-end-date-part")) {
+            document.getElementById("checkout-rent-end-date-part").readOnly = true;
+            document.getElementById("checkout-rent-end-date-part").style.opacity = "0.6";
+            document.getElementById("checkout-rent-end-date-part").style.pointerEvents = "none";
+            document.getElementById("checkout-rent-end-time-part").readOnly = true;
+            document.getElementById("checkout-rent-end-time-part").style.opacity = "0.6";
+            document.getElementById("checkout-rent-end-time-part").style.pointerEvents = "none";
+          }
         } else {
           document.getElementById("checkout-rent-end-date").readOnly = false;
           document.getElementById("checkout-rent-end-date").style.opacity = "1";
           document.getElementById(
             "checkout-rent-end-date"
           ).style.pointerEvents = "auto";
+
+          if (document.getElementById("checkout-rent-end-date-part")) {
+            document.getElementById("checkout-rent-end-date-part").readOnly = false;
+            document.getElementById("checkout-rent-end-date-part").style.opacity = "1";
+            document.getElementById("checkout-rent-end-date-part").style.pointerEvents = "auto";
+            document.getElementById("checkout-rent-end-time-part").readOnly = false;
+            document.getElementById("checkout-rent-end-time-part").style.opacity = "1";
+            document.getElementById("checkout-rent-end-time-part").style.pointerEvents = "auto";
+          }
         }
 
         document.getElementById("checkout-submit-btn").textContent =
@@ -4561,10 +5135,15 @@
         document.getElementById("checkout-rent-end-date").value =
           futureLocalISO;
 
+        // Initialize state variables
+        lastValidStartDate = localISO;
+        lastValidEndDate = futureLocalISO;
+        selectedStartCalDate = localISO.split("T")[0];
+        selectedEndCalDate = futureLocalISO.split("T")[0];
+        currentActiveRanges = [];
+
         const refInput = document.getElementById("checkout-ref");
         if (refInput) refInput.value = "";
-
-        updateRentPriceCalculation();
 
         // Render Calendar inside the Checkout Modal
         const calContainer = document.getElementById(
@@ -4573,6 +5152,8 @@
         if (calContainer) {
           calContainer.innerHTML = `<div style="font-size: 12px; color: var(--muted); text-align: center; padding: 15px;">Loading active rental schedules...</div>`;
           fetchBookedRanges(carModel).then((ranges) => {
+            currentActiveRanges = ranges;
+            updateRentPriceCalculation();
             renderCalendar(calContainer, carModel, ranges);
           });
         }
@@ -5527,6 +6108,38 @@
         e.preventDefault();
         const type = document.getElementById("checkout-type").value; // "cart" or "rent"
 
+        // Validate Rent Reservation minimum duration constraints
+        if (type === "rent") {
+          const sDateVal = document.getElementById("checkout-rent-start-date").value;
+          const eDateVal = document.getElementById("checkout-rent-end-date").value;
+          const duration = document.getElementById("checkout-car-duration").value || "24hr";
+
+          if (sDateVal && eDateVal) {
+            const start = new Date(sDateVal);
+            const end = new Date(eDateVal);
+            if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+              const diffMs = end.getTime() - start.getTime();
+              // Calculate hours, keeping floating point precision for exact check
+              const diffHours = diffMs / (1000 * 60 * 60);
+
+              if (duration === "12hr" && diffHours < 12) {
+                showToast("⚠️ Reservation for 12-hour rate must be at least 12 hours.");
+                return;
+              }
+              if (duration === "24hr" && diffHours < 24) {
+                showToast("⚠️ Reservation for 24-hour rate must be at least 24 hours.");
+                return;
+              }
+            } else {
+              showToast("⚠️ Please select valid start and end dates/times.");
+              return;
+            }
+          } else {
+            showToast("⚠️ Please select both start and end dates/times.");
+            return;
+          }
+        }
+
         const customerName = document
           .getElementById("checkout-name")
           .value.trim();
@@ -6371,7 +6984,7 @@
             const drawer = document.getElementById('cart-drawer');
             if (drawer) drawer.classList.remove('open');
           }
-        } else if (id === 'duration-notice-overlay' || id === 'payment-verification-overlay') {
+        } else if (id === 'duration-notice-overlay' || id === 'payment-verification-overlay' || id === 'loan-details-overlay') {
           topModal.remove();
         } else {
           topModal.classList.remove('active');
@@ -6395,6 +7008,13 @@
           const diff = pushedModalStates - count;
           pushedModalStates = count;
           window.history.go(-diff);
+        }
+
+        // Lock body scrolling when any modal is active to prevent scroll propagation
+        if (count > 0) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
         }
       }
 
