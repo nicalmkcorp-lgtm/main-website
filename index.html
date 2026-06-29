@@ -1759,10 +1759,27 @@
         align-items: center;
         justify-content: center;
       }
-      .cart-item-qty-control span {
+      .cart-item-qty-control span,
+      .cart-item-qty-control input {
         font-size: 13px;
         min-width: 14px;
+        width: 32px;
         text-align: center;
+        background: transparent;
+        border: none;
+        color: var(--ink);
+        font-family: inherit;
+        outline: none;
+        padding: 0;
+        margin: 0;
+      }
+      .cart-item-qty-control input::-webkit-outer-spin-button,
+      .cart-item-qty-control input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .cart-item-qty-control input[type=number] {
+        -moz-appearance: textfield;
       }
       .cart-item-remove {
         background: transparent;
@@ -2079,14 +2096,20 @@
         </div>
       </div>
       <div class="drawer-footer">
-        <div class="cart-summary">
-          <span>Order Total</span>
-          <span id="cart-total-display">₱0.00</span>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted);">
+            <span>Total Items</span>
+            <span id="cart-total-qty" style="color: var(--ink); font-weight: 500;">0 items</span>
+          </div>
+          <div class="cart-summary" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--line); padding-top: 10px;">
+            <span>Order Total</span>
+            <span id="cart-total-display">₱0.00</span>
+          </div>
         </div>
         <button
           id="cart-checkout-btn"
           class="btn-primary"
-          style="width: 100%; margin-top: 20px; display: none"
+          style="width: 100%; margin-top: 10px; display: none"
           onclick="openOrderCheckout()"
         >
           PROCEED TO CHECKOUT
@@ -4052,6 +4075,10 @@
           navToggle.textContent = "Cart (0)";
           checkoutBtn.style.display = "none";
           totalDisplay.textContent = "₱0.00";
+          const totalQtyDisplay = document.getElementById("cart-total-qty");
+          if (totalQtyDisplay) {
+            totalQtyDisplay.textContent = "0 items";
+          }
           return;
         }
 
@@ -4068,12 +4095,23 @@
           }" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'">
         <div class="cart-item-info">
           <div class="cart-item-name">${item.name}</div>
-          <div class="cart-item-price">₱${(
-            item.price * item.qty
-          ).toLocaleString()}</div>
+          <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px;">
+            <div style="font-size: 13px; color: var(--muted);">Base: ₱${item.price.toLocaleString()}</div>
+            <div class="cart-item-price" style="font-weight: 500; font-size: 14px; color: var(--gold);">Total: ₱${(
+              item.price * item.qty
+            ).toLocaleString()}</div>
+          </div>
           <div class="cart-item-qty-control">
             <button onclick="changeQty('${item.id}', -1)">-</button>
-            <span>${item.qty}</span>
+            <input
+              type="number"
+              value="${item.qty}"
+              min="1"
+              onchange="setCartItemQty('${item.id}', this.value)"
+              onclick="this.select()"
+              style="width: 32px; text-align: center; background: transparent; border: none; color: var(--ink); font-size: 13px; font-family: inherit; outline: none; padding: 0; margin: 0;"
+              onkeydown="if(event.key === 'Enter') this.blur();"
+            />
             <button onclick="changeQty('${item.id}', 1)">+</button>
           </div>
         </div>
@@ -4090,6 +4128,10 @@
         navToggle.textContent = `Cart (${totalQty})`;
         checkoutBtn.style.display = "block";
         totalDisplay.textContent = `₱${totalPrice.toLocaleString()}`;
+        const totalQtyDisplay = document.getElementById("cart-total-qty");
+        if (totalQtyDisplay) {
+          totalQtyDisplay.textContent = `${totalQty} item${totalQty !== 1 ? "s" : ""}`;
+        }
       }
 
       // Qty controller
@@ -4110,6 +4152,19 @@
         if (index !== -1) {
           cart.splice(index, 1);
         }
+        updateCartUI();
+      }
+
+      function setCartItemQty(id, value) {
+        const index = cart.findIndex((item) => item.id === id);
+        if (index === -1) return;
+
+        let qty = parseInt(value, 10);
+        if (isNaN(qty) || qty <= 0) {
+          qty = 1;
+        }
+
+        cart[index].qty = qty;
         updateCartUI();
       }
 
@@ -4660,7 +4715,10 @@
             const dateObj = new Date(currentYear, currentMonth, day);
             const isBooked = isDateBooked(dateObj, ranges);
             const isToday = dateObj.getTime() === todayMidnight;
-            const dateStr = dateObj.toISOString().split("T")[0];
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+            const dd = String(dateObj.getDate()).padStart(2, "0");
+            const dateStr = `${yyyy}-${mm}-${dd}`;
 
             let dayStyle = `
               height: 32px;
