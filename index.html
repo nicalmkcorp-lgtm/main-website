@@ -2428,6 +2428,7 @@
                   required
                   placeholder="0917XXXXXXX"
                 />
+                <div id="checkout-phone-error" style="color: #ff4d4f; font-size: 11px; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; font-family: 'Inter', sans-serif; display: none;">please put valid phone number</div>
               </div>
               <div class="form-group">
                 <label
@@ -3377,6 +3378,20 @@
         const refInput = document.getElementById("checkout-ref");
         if (refInput) {
           refInput.addEventListener("input", validateRefInput);
+        }
+
+        const phoneInput = document.getElementById("checkout-phone");
+        if (phoneInput) {
+          phoneInput.addEventListener("input", () => {
+            let val = phoneInput.value;
+            if (val.startsWith("0")) {
+              phoneInput.value = "+63" + val.slice(1);
+            }
+            validatePhoneInput(false);
+          });
+          phoneInput.addEventListener("blur", () => {
+            validatePhoneInput(true);
+          });
         }
       });
 
@@ -5602,6 +5617,45 @@
         }
       }
 
+      function validatePhoneInput(showIfIncomplete = false) {
+        const phoneInput = document.getElementById("checkout-phone");
+        const errorEl = document.getElementById("checkout-phone-error");
+        if (!phoneInput || !errorEl) return true;
+
+        const rawVal = phoneInput.value.trim();
+        if (!rawVal) {
+          errorEl.style.display = "none";
+          phoneInput.style.borderColor = "";
+          return false;
+        }
+
+        const cleaned = rawVal.replace(/[^\d+]/g, "");
+
+        let isValid = false;
+        if (cleaned.startsWith("+63")) {
+          isValid = (cleaned.length === 13);
+        } else if (cleaned.startsWith("0")) {
+          isValid = (cleaned.length === 11);
+        } else if (/^\d{10}$/.test(cleaned)) {
+          isValid = true;
+        }
+
+        if (isValid) {
+          errorEl.style.display = "none";
+          phoneInput.style.borderColor = "";
+          return true;
+        } else {
+          if (showIfIncomplete || cleaned.length >= 11) {
+            errorEl.style.display = "block";
+            phoneInput.style.borderColor = "#ff4d4f";
+          } else {
+            errorEl.style.display = "none";
+            phoneInput.style.borderColor = "";
+          }
+          return false;
+        }
+      }
+
       // Bind QR layout helper functions globally to window for reliable iframe event hand-shaking
       window.openQRZoomModal = function (title, imgUrl, description) {
         document.getElementById("qr-zoom-title").textContent = title;
@@ -6270,6 +6324,20 @@
             }
           } else {
             showToast("⚠️ Please select both start and end dates/times.");
+            return;
+          }
+        }
+
+        // Validate Phone Number
+        if (typeof validatePhoneInput === "function") {
+          const isPhoneValid = validatePhoneInput(true);
+          if (!isPhoneValid) {
+            showToast("⚠️ please put valid phone number");
+            const phoneInput = document.getElementById("checkout-phone");
+            if (phoneInput) {
+              phoneInput.focus();
+              phoneInput.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
             return;
           }
         }
