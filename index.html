@@ -1668,12 +1668,14 @@
         inset: 0;
         background: rgba(0, 0, 0, 0.6);
         z-index: 199;
+        display: none;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.4s ease;
         backdrop-filter: blur(4px);
       }
       .drawer-overlay.active {
+        display: block;
         opacity: 1;
         pointer-events: all;
       }
@@ -1800,7 +1802,7 @@
         inset: 0;
         background: rgba(0, 0, 0, 0.75);
         z-index: 300;
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: center;
         opacity: 0;
@@ -1810,6 +1812,7 @@
         padding: 20px;
       }
       .modal-overlay.active {
+        display: flex;
         opacity: 1;
         pointer-events: all;
       }
@@ -2039,7 +2042,9 @@
       class="floating-cart-btn"
       onclick="toggleCartDrawer(true)"
     >
-      <span class="icon">🛒</span>
+      <span class="icon" style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; color: #0e0d0b;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; display: block;"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+      </span>
       <span id="cart-count">0</span>
     </button>
 
@@ -3874,12 +3879,21 @@
           const prodElement = document.createElement("div");
           prodElement.className = `product reveal d${(index % 4) + 1} in`;
 
-          let buttonHtml = `<button class="shop-add-btn" onclick="addToCart('${
+          const cartItem = cart.find((ci) => ci.id === item.id);
+          const cartQty = cartItem ? cartItem.qty : 0;
+
+          let buttonHtml = `<button class="shop-add-btn" id="add-btn-${
+            item.id
+          }" onclick="addToCart('${
             item.id
           }', '${item.name.replace(
             /'/g,
             "\\'"
-          )}', ${price}, '${imgPath}', ${resellerAmount})">Add to Cart</button>`;
+          )}', ${price}, '${imgPath}', ${resellerAmount})">Add to Cart${
+            cartQty > 0
+              ? ` <span class="btn-cart-badge" style="display: inline-flex; align-items: center; justify-content: center; background: #e63946; color: white; border-radius: 50%; min-width: 18px; height: 18px; font-size: 9px; font-weight: bold; line-height: 1; padding: 2px; margin-left: 8px;">${cartQty}</span>`
+              : ""
+          }</button>`;
 
           if (isOutOfStock) {
             buttonHtml = `<button class="shop-add-btn" disabled style="opacity: 0.5; cursor: not-allowed; pointer-events: none;">Out of Stock</button>`;
@@ -3985,13 +3999,35 @@
           });
         }
 
-        showToast(`🛍️ "${name}" loaded inside your shopping cart!`);
+        showToast("added to cart");
         updateCartUI();
-        toggleCartDrawer(true);
       }
 
       // Update Cart UI
       function updateCartUI() {
+        // Update product "Add to Cart" buttons' badges on the storefront page
+        document.querySelectorAll('[id^="add-btn-"]').forEach((btn) => {
+          const prodId = btn.id.replace('add-btn-', '');
+          const cartItem = cart.find((ci) => ci.id === prodId);
+          if (cartItem && cartItem.qty > 0) {
+            let badgeEl = btn.querySelector('.btn-cart-badge');
+            if (badgeEl) {
+              badgeEl.textContent = cartItem.qty;
+            } else {
+              const span = document.createElement('span');
+              span.className = 'btn-cart-badge';
+              span.style.cssText = 'display: inline-flex; align-items: center; justify-content: center; background: #e63946; color: white; border-radius: 50%; min-width: 18px; height: 18px; font-size: 9px; font-weight: bold; line-height: 1; padding: 2px; margin-left: 8px;';
+              span.textContent = cartItem.qty;
+              btn.appendChild(span);
+            }
+          } else {
+            let badgeEl = btn.querySelector('.btn-cart-badge');
+            if (badgeEl) {
+              badgeEl.remove();
+            }
+          }
+        });
+
         const container = document.getElementById("cart-items");
         const badge = document.getElementById("floating-cart-btn");
         const badgeCount = document.getElementById("cart-count");
@@ -4777,8 +4813,8 @@
             selectedStartCalDate = finalStart;
             selectedEndCalDate = finalEnd;
 
-            const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
-            const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "09:00";
+            const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "07:00";
+            const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "07:00";
             document.getElementById("checkout-rent-start-date").value = `${finalStart}T${sTime}`;
             document.getElementById("checkout-rent-end-date").value = `${finalEnd}T${eTime}`;
             updateRentPriceCalculation();
@@ -4812,8 +4848,8 @@
               if (duration === "12hr") {
                 selectedStartCalDate = dateStr;
                 selectedEndCalDate = dateStr;
-                const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
-                const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "21:00";
+                const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "07:00";
+                const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "19:00";
                 document.getElementById("checkout-rent-start-date").value = `${dateStr}T${sTime}`;
                 document.getElementById("checkout-rent-end-date").value = `${dateStr}T${eTime}`;
                 updateRentPriceCalculation();
@@ -4821,8 +4857,8 @@
                 return;
               }
 
-              const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "09:00";
-              const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "09:00";
+              const sTime = document.getElementById("checkout-rent-start-time-part")?.value || "07:00";
+              const eTime = document.getElementById("checkout-rent-end-time-part")?.value || "07:00";
 
               if (!selectedStartCalDate || (selectedStartCalDate && selectedEndCalDate)) {
                 // First click, or clicking again when both are already set
@@ -5140,15 +5176,18 @@
         document.getElementById("checkout-submit-btn").textContent =
           "Continue Reservation";
 
-        // Set default datetimes to now and now + 12hr, or empty for 24hr/other durations
+        // Set default datetimes to today 07:00 AM and 07:00 PM for 12hr, or empty for 24hr/other durations
         if (duration === "12hr") {
           const now = new Date();
-          const tzOffset = now.getTimezoneOffset() * 60000;
-          const localISO = new Date(now - tzOffset).toISOString().slice(0, 16);
+          const start = new Date(now);
+          start.setHours(7, 0, 0, 0);
+
+          const tzOffset = start.getTimezoneOffset() * 60000;
+          const localISO = new Date(start.getTime() - tzOffset).toISOString().slice(0, 16);
 
           const durHours = 12;
-          const future = new Date(now.getTime() + durHours * 60 * 60 * 1000);
-          const futureLocalISO = new Date(future - tzOffset)
+          const future = new Date(start.getTime() + durHours * 60 * 60 * 1000);
+          const futureLocalISO = new Date(future.getTime() - tzOffset)
             .toISOString()
             .slice(0, 16);
 
@@ -6967,8 +7006,17 @@
         const overlays = Array.from(document.querySelectorAll('.modal-overlay, .drawer-overlay, #duration-notice-overlay'));
         return overlays.filter(m => {
           if (m.classList.contains('active') || m.classList.contains('open')) return true;
-          const computedStyle = window.getComputedStyle(m);
-          if (computedStyle.display !== 'none' && computedStyle.visibility !== 'hidden' && computedStyle.opacity !== '0') return true;
+          
+          const id = m.id;
+          if (id === 'paymongo-modal-overlay' || id === 'shopee-modal-overlay') {
+            const computedStyle = window.getComputedStyle(m);
+            if (computedStyle.display !== 'none') return true;
+          }
+          
+          if (id === 'duration-notice-overlay' || id === 'payment-verification-overlay' || id === 'loan-details-overlay') {
+            return true;
+          }
+          
           return false;
         });
       }
@@ -7039,10 +7087,9 @@
         }
 
         // Lock body scrolling when any modal is active to prevent scroll propagation
-        if (count > 0) {
-          document.body.style.overflow = 'hidden';
-        } else {
-          document.body.style.overflow = '';
+        const desiredOverflow = count > 0 ? 'hidden' : '';
+        if (document.body.style.overflow !== desiredOverflow) {
+          document.body.style.overflow = desiredOverflow;
         }
       }
 
