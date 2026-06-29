@@ -3307,6 +3307,11 @@
           entries.forEach((e) => {
             if (e.isIntersecting) {
               e.target.classList.add("in");
+              if (e.target.classList.contains("final")) {
+                e.target.querySelectorAll(".host").forEach((h) => {
+                  h.classList.add("in");
+                });
+              }
               io.unobserve(e.target);
             }
           });
@@ -3314,7 +3319,7 @@
         { threshold: 0.12, rootMargin: "0px 0px -60px 0px" }
       );
       document
-        .querySelectorAll(".reveal, .reveal-x")
+        .querySelectorAll(".reveal, .reveal-x, .final")
         .forEach((el) => io.observe(el));
 
       // Soft parallax on hero
