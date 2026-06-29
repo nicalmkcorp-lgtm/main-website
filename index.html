@@ -751,18 +751,29 @@
           transform: translateY(-10px) rotate(1.5deg);
         }
       }
+      .footer-qr-grid {
+        margin-top: 45px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 260px));
+        gap: 48px;
+        justify-content: center;
+      }
       @media (max-width: 900px) {
         .host {
           height: 42%;
           max-height: 300px;
-          opacity: 0.55 !important;
+          opacity: 1 !important;
         }
       }
       @media (max-width: 600px) {
         .host {
           height: 34%;
           max-height: 230px;
-          opacity: 0.4 !important;
+          opacity: 1 !important;
+        }
+        .footer-qr-grid {
+          grid-template-columns: 1fr;
+          gap: 36px;
         }
       }
     </style>
@@ -1358,16 +1369,7 @@
           <button class="btn-primary">Request invitation</button>
           <button class="btn-ghost">Speak to a admin</button>
         </div>
-        <div
-          class="reveal d4"
-          style="
-            margin-top: 45px;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 260px));
-            gap: 48px;
-            justify-content: center;
-          "
-        >
+        <div class="reveal d4 footer-qr-grid">
           <div
             style="
               display: flex;
