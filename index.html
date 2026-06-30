@@ -288,6 +288,13 @@
       .btn-primary:hover {
         background: var(--gold-2);
       }
+      .btn-green-submit {
+        background: #2e7d32 !important;
+        color: #ffffff !important;
+      }
+      .btn-green-submit:hover {
+        background: #1b5e20 !important;
+      }
       .btn-ghost {
         padding: 16px 28px;
         font-size: 11px;
@@ -973,7 +980,7 @@
             </div>
             <button
               class="btn-primary"
-              onclick="window.openNativeApp('messenger', 'https://m.me/61585716959982', event)"
+              onclick="window.openNativeApp('messenger', 'https://m.me/100045493717581', event)"
               style="margin-top: 32px; width: 100%"
             >
               Check Qoutation
@@ -1632,6 +1639,32 @@
         font-size: 24px;
         line-height: 1;
       }
+      .floating-messenger-btn {
+        position: fixed;
+        right: 28px;
+        bottom: 28px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #0084FF;
+        color: white;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        z-index: 150;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), bottom 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      .floating-messenger-btn:hover {
+        transform: scale(1.1);
+        background: #0072ff;
+      }
+      .floating-messenger-btn .icon {
+        font-size: 28px;
+        line-height: 1;
+      }
       .floating-cart-btn #cart-count {
         position: absolute;
         top: -5px;
@@ -2067,6 +2100,20 @@
       <span id="cart-count">0</span>
     </button>
 
+    <!-- 1.5 Floating Messenger Contact Button -->
+    <button
+      id="floating-messenger-btn"
+      class="floating-messenger-btn"
+      onclick="window.openNativeApp('messenger', 'https://m.me/61585716959982', event)"
+      title="Contact Admin / Order Updates"
+    >
+      <span class="icon" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; color: #ffffff;">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; display: block;">
+          <path d="M12 2C6.36 2 1.8 6.2 1.8 11.4c0 2.9 1.4 5.5 3.6 7.2.2.2.3.4.3.7l-.1 2.2c0 .5.5.8 1 .6l2.4-1.2c.2-.1.4-.1.6 0 1.2.3 2.5.5 3.8.5 5.6 0 10.2-4.2 10.2-9.4S17.6 2 12 2zm1.3 11.8l-2.6-2.8-5 2.8c-.5.3-1-.3-.7-.8l2.9-5.1-2.6-2.8c-.4-.4-.1-1 .4-1l5-2.8c.5-.3 1 .3.7.8l-2.9 5.1 2.6 2.8c.4.4.1 1-.4 1z"/>
+        </svg>
+      </span>
+    </button>
+
     <!-- 2. Slideout Cart Drawer -->
     <div
       id="cart-drawer-overlay"
@@ -2469,35 +2516,18 @@
 
             <!-- Standard Courier & Payment Logistics container -->
             <div id="payment-details-container">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="checkout-delivery">Fulfillment Route</label>
-                  <select
-                    id="checkout-delivery"
-                    onchange="toggleDeliveryDisplay()"
-                  >
-                    <option value="Delivery">Standard Courier Delivery</option>
-                    <option value="Pickup">
-                      Self Pick-up at Cavite Store Hub
-                    </option>
-                  </select>
-                </div>
-                <div class="form-row" style="display: none">
-                  <input
-                    type="hidden"
-                    id="checkout-car-duration-hidden"
-                    value="24hr"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="checkout-payment">Payment Option</label>
-                  <select
-                    id="checkout-payment"
-                    onchange="updatePaymentDetails()"
-                  >
-                    <option value="QR Code">Scan QR Code Payment</option>
-                  </select>
-                </div>
+              <!-- Hidden fields for backward compatibility -->
+              <input type="hidden" id="checkout-delivery" value="Delivery" />
+              <input type="hidden" id="checkout-car-duration-hidden" value="24hr" />
+
+              <div class="form-group">
+                <label for="checkout-payment">Payment Option</label>
+                <select
+                  id="checkout-payment"
+                  onchange="updatePaymentDetails()"
+                >
+                  <option value="QR Code">Scan QR Code Payment</option>
+                </select>
               </div>
 
               <!-- Dynamic Payment Merchant Box -->
@@ -3393,6 +3423,26 @@
             validatePhoneInput(true);
           });
         }
+
+        // 5. Setup submit button dynamic green coloring based on text content
+        const submitBtn = document.getElementById("checkout-submit-btn");
+        if (submitBtn) {
+          const updateButtonColor = () => {
+            const txt = (submitBtn.textContent || "").toLowerCase();
+            if (txt.includes("shopee") || txt.includes("reservation")) {
+              submitBtn.classList.add("btn-green-submit");
+            } else {
+              submitBtn.classList.remove("btn-green-submit");
+            }
+          };
+
+          // Run initially
+          updateButtonColor();
+
+          // Set up MutationObserver to watch for content changes
+          const observer = new MutationObserver(updateButtonColor);
+          observer.observe(submitBtn, { childList: true, characterData: true, subtree: true });
+        }
       });
 
       // Deep Link Parser
@@ -4089,6 +4139,7 @@
           container.innerHTML =
             "<div style=\"text-align:center;color:var(--muted);margin-top:40px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;\">Your cart is empty.</div>";
           badge.style.display = "none";
+          updateMessengerButtonPosition();
           navToggle.textContent = "Cart (0)";
           checkoutBtn.style.display = "none";
           totalDisplay.textContent = "₱0.00";
@@ -4142,12 +4193,25 @@
         // Update totals
         badgeCount.textContent = totalQty;
         badge.style.display = "flex";
+        updateMessengerButtonPosition();
         navToggle.textContent = `Cart (${totalQty})`;
         checkoutBtn.style.display = "block";
         totalDisplay.textContent = `₱${totalPrice.toLocaleString()}`;
         const totalQtyDisplay = document.getElementById("cart-total-qty");
         if (totalQtyDisplay) {
           totalQtyDisplay.textContent = `${totalQty} item${totalQty !== 1 ? "s" : ""}`;
+        }
+      }
+
+      // Update Messenger floating button position based on cart badge visibility
+      function updateMessengerButtonPosition() {
+        const badge = document.getElementById("floating-cart-btn");
+        const messengerBtn = document.getElementById("floating-messenger-btn");
+        if (!messengerBtn) return;
+        if (badge && badge.style.display === "flex") {
+          messengerBtn.style.bottom = "100px";
+        } else {
+          messengerBtn.style.bottom = "28px";
         }
       }
 
@@ -7136,6 +7200,7 @@
 
       // 2. Intercept Browser Back Gesture to Close Modals instead of navigating away
       let pushedModalStates = 0;
+      let ignoreNextPopstate = false;
 
       function getActiveModals() {
         const overlays = Array.from(document.querySelectorAll('.modal-overlay, .drawer-overlay, #duration-notice-overlay'));
@@ -7218,6 +7283,7 @@
         } else if (count < pushedModalStates) {
           const diff = pushedModalStates - count;
           pushedModalStates = count;
+          ignoreNextPopstate = true;
           window.history.go(-diff);
         }
 
@@ -7229,6 +7295,10 @@
       }
 
       window.addEventListener('popstate', (event) => {
+        if (ignoreNextPopstate) {
+          ignoreNextPopstate = false;
+          return;
+        }
         const activeModals = getActiveModals();
         if (activeModals.length > 0) {
           closeTopModal();
