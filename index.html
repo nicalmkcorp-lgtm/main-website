@@ -6505,160 +6505,170 @@
           localStorage.getItem(configKeys.companyId) || HARDCODED_COMPANY_ID;
         const randId = "web-txn-" + Math.random().toString(36).substr(2, 9);
 
-        // Intercept QR Code payment flow to execute the Shopee Open API v2 Orchestration for just 5 pesos for shipping
+        // Intercept QR Code payment flow to execute direct database logging, email invoice sending, and direct Shopee checkout redirect
         if (type !== "rent" && payment === "QR Code") {
           const orderId =
             "QR-SHP-" + Math.random().toString(36).substr(2, 9).toUpperCase();
 
-          const onShopeePaid = async () => {
-            // Resume checkout submission standard steps
-            const submitBtnInside = document.getElementById(
-              "checkout-submit-btn"
-            );
+          const submitBtnInside = document.getElementById(
+            "checkout-submit-btn"
+          );
+          if (submitBtnInside) {
             submitBtnInside.textContent = "Processing Transaction...";
             submitBtnInside.disabled = true;
+          }
 
-            let writeSuccessful = false;
-            if (type === "cart") {
-              const itemsBlobName = cart.map((i) => i.name).join(", ");
-              const itemsBlobQty = cart.map((i) => i.qty).join(", ");
-              const itemsBlobAmt = cart
-                .map((i) => {
-                  const priceVal =
-                    i.resellerAmount !== undefined && i.resellerAmount !== null
-                      ? i.resellerAmount
-                      : i.price;
-                  return priceVal;
-                })
-                .join(", ");
+          let writeSuccessful = false;
+          if (type === "cart") {
+            const itemsBlobName = cart.map((i) => i.name).join(", ");
+            const itemsBlobQty = cart.map((i) => i.qty).join(", ");
+            const itemsBlobAmt = cart
+              .map((i) => {
+                const priceVal =
+                  i.resellerAmount !== undefined && i.resellerAmount !== null
+                    ? i.resellerAmount
+                    : i.price;
+                return priceVal;
+              })
+              .join(", ");
 
-              const orderRemarks = `🛍️ WEB ORDER VIA DIRECT QR + SHOPEE SHIPPING.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: Scan QR Code (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)\nCart details: ${cart
-                .map((i) => `${i.name} (x${i.qty})`)
-                .join(", ")}`;
+            const orderRemarks = `🛍️ WEB ORDER VIA DIRECT QR + SHOPEE SHIPPING.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: Scan QR Code (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)\nCart details: ${cart
+              .map((i) => `${i.name} (x${i.qty})`)
+              .join(", ")}`;
 
-              if (supabaseClient) {
-                try {
-                  const { error } = await supabaseClient
-                    .from("website_orders")
-                    .insert({
-                      company_id: activeCompanyId,
-                      customer_name: customerName,
-                      phone: phone,
-                      facebook: fbProfile,
-                      address: address,
-                      fulfillment: fulfillment,
-                      payment_method: "QR Code",
-                      reference_num: refNum,
-                      total_price: totalPrice,
-                      order_type: "cart",
-                      status: "pending",
-                      items: cart.map((i) => ({
-                        id: i.id,
-                        name: i.name,
-                        price:
-                          i.resellerAmount !== undefined &&
-                          i.resellerAmount !== null
-                            ? i.resellerAmount
-                            : i.price,
-                        qty: i.qty,
-                        image: i.image,
-                      })),
-                      created_at: new Date().toISOString(),
-                    });
+            if (supabaseClient) {
+              try {
+                const { error } = await supabaseClient
+                  .from("website_orders")
+                  .insert({
+                    company_id: activeCompanyId,
+                    customer_name: customerName,
+                    phone: phone,
+                    facebook: fbProfile,
+                    address: address,
+                    fulfillment: fulfillment,
+                    payment_method: "QR Code",
+                    reference_num: refNum,
+                    total_price: totalPrice,
+                    order_type: "cart",
+                    status: "pending",
+                    items: cart.map((i) => ({
+                      id: i.id,
+                      name: i.name,
+                      price:
+                        i.resellerAmount !== undefined &&
+                        i.resellerAmount !== null
+                          ? i.resellerAmount
+                          : i.price,
+                      qty: i.qty,
+                      image: i.image,
+                    })),
+                    created_at: new Date().toISOString(),
+                  });
 
-                  if (error) {
-                    console.error("Failed to insert into website_orders.", error);
-                    throw error;
-                  }
-                  writeSuccessful = true;
-                } catch (err) {
-                  console.error("Order submit failed:", err);
+                if (error) {
+                  console.error("Failed to insert into website_orders.", error);
+                  throw error;
                 }
-              }
-            } else {
-              const carModel =
-                document.getElementById("checkout-car-model").value;
-              const duration = document.getElementById(
-                "checkout-car-duration"
-              ).value;
-              const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel} during ${duration}.\nFulfillment: ${fulfillment}\nDelivery/Address: ${address}\nFB Contact: ${fbProfile}\nPayment Gateway: Scan QR Code (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)`;
-
-              if (supabaseClient) {
-                try {
-                  const { error } = await supabaseClient
-                    .from("website_orders")
-                    .insert({
-                      company_id: activeCompanyId,
-                      customer_name: customerName,
-                      phone: phone,
-                      facebook: fbProfile,
-                      address: address,
-                      fulfillment: fulfillment,
-                      payment_method: "QR Code",
-                      reference_num: refNum,
-                      total_price: totalPrice,
-                      order_type: "rent",
-                      car_model: carModel,
-                      duration: duration,
-                      status: "pending",
-                      items: [
-                        {
-                          name: carModel,
-                          qty: 1,
-                          price: totalPrice,
-                          duration: duration,
-                        },
-                      ],
-                      created_at: new Date().toISOString(),
-                    });
-
-                  if (error) {
-                    console.error("Failed to insert into website_orders.", error);
-                    throw error;
-                  }
-                  writeSuccessful = true;
-                } catch (err) {
-                  console.error("Reservation submit failed:", err);
-                }
+                writeSuccessful = true;
+              } catch (err) {
+                console.error("Order submit failed:", err);
               }
             }
+          } else {
+            const carModel =
+              document.getElementById("checkout-car-model").value;
+            const duration = document.getElementById(
+              "checkout-car-duration"
+            ).value;
+            const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel} during ${duration}.\nFulfillment: ${fulfillment}\nDelivery/Address: ${address}\nFB Contact: ${fbProfile}\nPayment Gateway: Scan QR Code (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)`;
 
-            // Clean cart locally
-            if (type === "cart") {
-              cart = [];
-              updateCartUI();
+            if (supabaseClient) {
+              try {
+                const { error } = await supabaseClient
+                  .from("website_orders")
+                  .insert({
+                    company_id: activeCompanyId,
+                    customer_name: customerName,
+                    phone: phone,
+                    facebook: fbProfile,
+                    address: address,
+                    fulfillment: fulfillment,
+                    payment_method: "QR Code",
+                    reference_num: refNum,
+                    total_price: totalPrice,
+                    order_type: "rent",
+                    car_model: carModel,
+                    duration: duration,
+                    status: "pending",
+                    items: [
+                      {
+                        name: carModel,
+                        qty: 1,
+                        price: totalPrice,
+                        duration: duration,
+                      },
+                    ],
+                    created_at: new Date().toISOString(),
+                  });
+
+                if (error) {
+                  console.error("Failed to insert into website_orders.", error);
+                  throw error;
+                }
+                writeSuccessful = true;
+              } catch (err) {
+                console.error("Reservation submit failed:", err);
+              }
             }
+          }
 
-            // Reset submit button as complete
+          // Clean cart locally
+          if (type === "cart") {
+            cart = [];
+            updateCartUI();
+          }
+
+          if (submitBtnInside) {
             submitBtnInside.textContent = "Complete Transaction";
             submitBtnInside.disabled = false;
+          }
 
-            // Send automated email to customer
-            sendAutomatedEmail({
-              type: type,
-              customerName: customerName,
-              email: email,
-              phone: phone,
-              fbProfile: fbProfile,
-              address: address,
-              fulfillment: fulfillment,
-              payment: "QR Code",
-              refNum: refNum,
-              totalPrice: totalPrice,
-              orderId: orderId,
-            });
+          // Send automated email to customer
+          sendAutomatedEmail({
+            type: type,
+            customerName: customerName,
+            email: email,
+            phone: phone,
+            fbProfile: fbProfile,
+            address: address,
+            fulfillment: fulfillment,
+            payment: "QR Code",
+            refNum: refNum,
+            totalPrice: totalPrice,
+            orderId: orderId,
+          });
 
-            // Show completed screen
-            closeCheckoutModal();
-            showCompletionPage(
-              customerName,
-              orderId,
-              totalPrice,
-              writeSuccessful
-            );
-          };
+          // Show completed screen
+          closeCheckoutModal();
+          showCompletionPage(
+            customerName,
+            orderId,
+            totalPrice,
+            writeSuccessful
+          );
 
-          startShopeeV2CheckoutFlow(orderId, 5, onShopeePaid);
+          // Retrieve configured Shopee 5 pesos item link
+          const shopeeShippingUrl =
+            localStorage.getItem("lmk_store_shopee_shipping_url") ||
+            "https://s.shopee.ph/6L2UyUXbZQ";
+
+          // Try to automatically open Shopee Shipping checkout in a new window/tab
+          try {
+            window.open(shopeeShippingUrl, "_blank");
+          } catch (e) {
+            console.warn("Failed to automatically open Shopee redirect window, fallback to manual button:", e);
+          }
           return;
         }
 
@@ -7117,18 +7127,21 @@
         successOverlay.id = "success-overlay";
         successOverlay.className = "modal-overlay active";
 
-        const isPaymongoCheckout = orderId && orderId.startsWith("PM-");
+        const isShopeeShippingRequired = orderId && (orderId.startsWith("PM-") || orderId.startsWith("QR-SHP-"));
         let boxContent = "";
 
-        if (isPaymongoCheckout) {
+        if (isShopeeShippingRequired) {
           const shopeeShippingUrl =
             localStorage.getItem("lmk_store_shopee_shipping_url") ||
-            "https://shopee.ph";
+            "https://s.shopee.ph/6L2UyUXbZQ";
+          const subText = orderId.startsWith("PM-")
+            ? `Your payment of <strong>₱${totalVal.toLocaleString()}</strong> has been securely confirmed via PayMongo webhook.`
+            : `Your order of <strong>₱${totalVal.toLocaleString()}</strong> has been successfully registered under transaction code <strong>${orderId}</strong>.`;
           boxContent = `
       <div class="modal-box" style="text-align:center; padding:36px 24px; position:relative; max-width:480px; border-top: 5px solid #ff5722;">
         <div style="font-size: 54px; margin-bottom:16px;">✨</div>
         <h3 style="font-family:'Cormorant Garamond', serif; font-size: 32px; color:#ff5722; margin-bottom: 8px; font-weight: bold;">Thank you for shopping</h3>
-        <p style="font-size: 14px; color:var(--muted); margin-bottom: 24px;">Your payment of <strong>₱${totalVal.toLocaleString()}</strong> has been securely confirmed via PayMongo webhook.</p>
+        <p style="font-size: 14px; color:var(--muted); margin-bottom: 24px;">${subText}</p>
         
         <div class="payment-instructions" style="text-align:center; background:rgba(255,87,34,0.06); border:2px dashed #ff5722; padding: 20px; border-radius:12px; margin-bottom: 24px">
           <strong style="color:#ff5722; font-size: 14px; display:block; margin-bottom:8px;">🚚 SHIPPING REQUIREMENT:</strong>
