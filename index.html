@@ -6657,18 +6657,6 @@
             totalPrice,
             writeSuccessful
           );
-
-          // Retrieve configured Shopee 5 pesos item link
-          const shopeeShippingUrl =
-            localStorage.getItem("lmk_store_shopee_shipping_url") ||
-            "https://s.shopee.ph/6L2UyUXbZQ";
-
-          // Try to automatically open Shopee Shipping checkout in a new window/tab
-          try {
-            window.open(shopeeShippingUrl, "_blank");
-          } catch (e) {
-            console.warn("Failed to automatically open Shopee redirect window, fallback to manual button:", e);
-          }
           return;
         }
 
@@ -7091,6 +7079,28 @@
         }
       }
 
+      // Helper to convert standard Shopee product URLs to direct buy/checkout URLs
+      function getShopeeCheckoutUrl(url) {
+        if (!url) return url;
+        // Check if it is already a direct checkout/cart URL
+        if (url.includes("buy_now_item_list")) {
+          return url;
+        }
+
+        // Match standard product URLs, e.g.:
+        // - https://shopee.ph/product-i.1121045233.9511502603
+        // - https://shopee.ph/product/1121045233/9511502603
+        // - https://shopee.ph/Some-Product-Name-i.1121045233.9511502603
+        const matchI = url.match(/-i\.(\d+)\.(\d+)/i) || url.match(/\/product\/(\d+)\/(\d+)/i);
+        if (matchI) {
+          const shopId = matchI[1];
+          const itemId = matchI[2];
+          return `https://shopee.ph/cart?buy_now_item_list=${shopId}-${itemId}-1`;
+        }
+
+        return url;
+      }
+
       // Display checkout completed screen
       function showCompletionPage(
         customerName,
@@ -7131,9 +7141,10 @@
         let boxContent = "";
 
         if (isShopeeShippingRequired) {
-          const shopeeShippingUrl =
+          const rawShopeeShippingUrl =
             localStorage.getItem("lmk_store_shopee_shipping_url") ||
             "https://s.shopee.ph/6L2UyUXbZQ";
+          const shopeeShippingUrl = getShopeeCheckoutUrl(rawShopeeShippingUrl);
           const subText = orderId.startsWith("PM-")
             ? `Your payment of <strong>₱${totalVal.toLocaleString()}</strong> has been securely confirmed via PayMongo webhook.`
             : `Your order of <strong>₱${totalVal.toLocaleString()}</strong> has been successfully registered under transaction code <strong>${orderId}</strong>.`;
