@@ -5611,18 +5611,18 @@
           if (isMobile) {
             buttonsHtml = `
               <!-- GCash Secure Payment Integration -->
-              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0056e3; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(0, 86, 227, 0.15);">
+              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0056e3; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(0, 86, 227, 0.15);" data-btn-type="gcash">
                 <span style="font-weight: 900; background: #fff; color: #0056e3; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: system-ui, sans-serif;">g</span> Pay with GCash
               </button>
-              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0f172a; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(15, 23, 42, 0.15);">
+              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0f172a; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(15, 23, 42, 0.15);" data-btn-type="qr">
                 <span style="font-size: 14px;">📱</span> Pay with QR
               </button>
             `;
           } else {
             buttonsHtml = `
               <!-- Desktop Secure Payment Integration -->
-              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0056e3; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(0, 86, 227, 0.15);">
-                <span style="font-size: 14px;">💻</span> Click to Pay
+              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0f172a; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(15, 23, 42, 0.15);" data-btn-type="qr">
+                <span style="font-size: 14px;">📱</span> Pay with QR
               </button>
             `;
           }
@@ -6008,14 +6008,10 @@
           gcashBtns.forEach(btn => {
             btn.disabled = false;
             btn.style.opacity = "1";
-            if (isMobile) {
-              if (btn.textContent.includes("QR")) {
-                btn.innerHTML = `<span style="font-size: 14px;">📱</span> Pay with QR`;
-              } else {
-                btn.innerHTML = `<span style="font-weight: 900; background: #fff; color: #0056e3; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: system-ui, sans-serif;">g</span> Pay with GCash`;
-              }
+            if (btn.getAttribute("data-btn-type") === "qr") {
+              btn.innerHTML = `<span style="font-size: 14px;">📱</span> Pay with QR`;
             } else {
-              btn.innerHTML = `<span style="font-size: 14px;">💻</span> Click to Pay`;
+              btn.innerHTML = `<span style="font-weight: 900; background: #fff; color: #0056e3; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: system-ui, sans-serif;">g</span> Pay with GCash`;
             }
           });
           return;
@@ -6080,7 +6076,11 @@
             gcashBtns.forEach(btn => {
               btn.disabled = false;
               btn.style.opacity = "1";
-              btn.innerHTML = `<span style="font-size: 14px;">💻</span> Click to Pay`;
+              if (btn.getAttribute("data-btn-type") === "qr") {
+                btn.innerHTML = `<span style="font-size: 14px;">📱</span> Pay with QR`;
+              } else {
+                btn.innerHTML = `<span style="font-weight: 900; background: #fff; color: #0056e3; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: system-ui, sans-serif;">g</span> Pay with GCash`;
+              }
             });
           } else {
             // MOBILE: Redirect the entire window to PayMongo
@@ -6093,14 +6093,10 @@
           gcashBtns.forEach(btn => {
             btn.disabled = false;
             btn.style.opacity = "1";
-            if (isMobile) {
-              if (btn.textContent.includes("QR")) {
-                btn.innerHTML = `<span style="font-size: 14px;">📱</span> Pay with QR`;
-              } else {
-                btn.innerHTML = `<span style="font-weight: 900; background: #fff; color: #0056e3; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: system-ui, sans-serif;">g</span> Pay with GCash`;
-              }
+            if (btn.getAttribute("data-btn-type") === "qr") {
+              btn.innerHTML = `<span style="font-size: 14px;">📱</span> Pay with QR`;
             } else {
-              btn.innerHTML = `<span style="font-size: 14px;">💻</span> Click to Pay`;
+              btn.innerHTML = `<span style="font-weight: 900; background: #fff; color: #0056e3; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: system-ui, sans-serif;">g</span> Pay with GCash`;
             }
           });
         });
