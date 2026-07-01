@@ -2470,7 +2470,7 @@
               />
             </div>
 
-            <div class="form-row" id="checkout-contact-row">
+            <div class="form-row" id="checkout-contact-row" style="grid-template-columns: 1fr;">
               <div class="form-group">
                 <label for="checkout-phone">Phone / Contact No.</label>
                 <input
@@ -2481,7 +2481,7 @@
                 />
                 <div id="checkout-phone-error" style="color: #ff4d4f; font-size: 11px; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; font-family: 'Inter', sans-serif; display: none;">please put valid phone number</div>
               </div>
-              <div class="form-group">
+              <div class="form-group" style="display: none !important;">
                 <label
                   for="checkout-fb"
                   style="
@@ -2498,11 +2498,10 @@
             </div>
 
             <div class="form-group" id="checkout-email-group">
-              <label for="checkout-email">Email Address</label>
+              <label for="checkout-email">Email Address (Optional)</label>
               <input
                 type="email"
                 id="checkout-email"
-                required
                 placeholder="juan@example.com"
               />
             </div>
@@ -2530,6 +2529,7 @@
                   id="checkout-payment"
                   onchange="updatePaymentDetails()"
                 >
+                  <option value="PayMongo">PayMongo Secure Checkout (GCash / Maya / Card)</option>
                   <option value="QR Code">Scan QR Code Payment</option>
                 </select>
               </div>
@@ -2818,7 +2818,7 @@
                 line-height: 1.4;
               "
             >
-              Select your payment option inside PayMongo Secure Gateway sandbox
+              Select your payment option inside PayMongo Secure Gateway
               to complete checkout.
             </p>
 
@@ -3447,6 +3447,13 @@
           const observer = new MutationObserver(updateButtonColor);
           observer.observe(submitBtn, { childList: true, characterData: true, subtree: true });
         }
+
+        // 6. Automatically restore state if returned from a successful GCash payment redirect
+        setTimeout(() => {
+          if (typeof restoreGcashPaymentIfRedirected === "function") {
+            restoreGcashPaymentIfRedirected();
+          }
+        }, 500);
       });
 
       // Deep Link Parser
@@ -3493,6 +3500,92 @@
             window.location.pathname +
             (params.get("company") ? `?company=${params.get("company")}` : "");
           window.history.replaceState({ path: newUrl }, "", newUrl);
+        }
+      }
+
+      // Restores GCash checkout form state and cart, automatically validating and verifying
+      function restoreGcashPaymentIfRedirected() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isSuccess = urlParams.get("gcash_success") === "true";
+        const ref = urlParams.get("ref");
+
+        if (isSuccess && ref) {
+          if (window.opener && !window.opener.closed) {
+            // We are running inside a popup opened by the desktop site!
+            // Notify the parent window to verify the payment and close this popup.
+            localStorage.setItem('gcash_success_pm_' + ref, 'true');
+            window.close();
+            return;
+          }
+
+          const pendingCartStr = localStorage.getItem("__gcash_pending_cart");
+          const pendingFormStr = localStorage.getItem("__gcash_pending_form");
+
+          if (pendingCartStr) {
+            try {
+              const pendingCart = JSON.parse(pendingCartStr);
+              if (pendingCart && pendingCart.length > 0) {
+                cart = pendingCart;
+                updateCartUI();
+              }
+            } catch (e) {
+              console.error("Error restoring pending cart:", e);
+            }
+          }
+
+          if (pendingFormStr) {
+            try {
+              const pendingForm = JSON.parse(pendingFormStr);
+              if (pendingForm) {
+                // Open appropriate checkout modal
+                if (pendingForm.checkoutType === "rent") {
+                  openCarCheckout(pendingForm.carModel, pendingForm.carPrice, pendingForm.rentDays || "24hr");
+                } else {
+                  openOrderCheckout();
+                }
+
+                // Populate form fields once the modal elements are ready in the DOM
+                setTimeout(() => {
+                  const setVal = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val || "";
+                  };
+                  setVal("checkout-name", pendingForm.name);
+                  setVal("checkout-phone", pendingForm.phone);
+                  setVal("checkout-address", pendingForm.address);
+                  setVal("checkout-fb", pendingForm.fbProfile);
+                  setVal("checkout-rent-start-date", pendingForm.startDate);
+                  setVal("checkout-rent-end-date", pendingForm.endDate);
+                  setVal("checkout-delivery-option", pendingForm.deliveryOption);
+
+                  // Set payment option to PayMongo
+                  const paymentSelect = document.getElementById("checkout-payment");
+                  if (paymentSelect) {
+                    paymentSelect.value = "PayMongo";
+                    updatePaymentDetails();
+                  }
+
+                  // Force the PayMongo UI into verified successful state instantly
+                  setTimeout(() => {
+                    window.verifyPaymongoPayment(ref);
+                    showToast("💳 PayMongo GCash payment verified successfully!");
+                  }, 250);
+
+                }, 500);
+              }
+            } catch (e) {
+              console.error("Error restoring pending form:", e);
+            }
+          }
+
+          // Clean up the URL parameters so the page looks clean and avoids accidental re-verification
+          const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + 
+            (urlParams.get("company") ? `?company=${urlParams.get("company")}` : "");
+          window.history.replaceState({ path: cleanUrl }, "", cleanUrl);
+
+          // Clear the pending state from localStorage
+          localStorage.removeItem("__gcash_pending_cart");
+          localStorage.removeItem("__gcash_pending_form");
         }
       }
 
@@ -3655,6 +3748,10 @@
                   localStorage.setItem(configKeys.emailjsTemplateId, cfg.value);
                 } else if (cfg.key === "emailjsPublicKey" && cfg.value) {
                   localStorage.setItem(configKeys.emailjsPublicKey, cfg.value);
+                } else if (cfg.key === "paymongoPublicKey" && cfg.value) {
+                  localStorage.setItem(configKeys.paymongoPublicKey, cfg.value);
+                } else if (cfg.key === "paymongoSecretKey" && cfg.value) {
+                  localStorage.setItem(configKeys.paymongoSecretKey, cfg.value);
                 }
               });
             }
@@ -5500,7 +5597,94 @@
           document.getElementById("checkout-car-price").value || 0
         );
 
-        if (paymentMethod === "QR Code") {
+        if (paymentMethod === "PayMongo") {
+          // Generate/retrieve PM reference number
+          let currentRef = refInput.value.trim();
+          if (!currentRef.startsWith("PM-")) {
+            currentRef = "PM-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+            refInput.value = currentRef;
+          }
+
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          let buttonsHtml = '';
+
+          if (isMobile) {
+            buttonsHtml = `
+              <!-- GCash Secure Payment Integration -->
+              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0056e3; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(0, 86, 227, 0.15);">
+                <span style="font-weight: 900; background: #fff; color: #0056e3; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: system-ui, sans-serif;">g</span> Pay with GCash
+              </button>
+              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0f172a; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(15, 23, 42, 0.15);">
+                <span style="font-size: 14px;">📱</span> Pay with QR
+              </button>
+            `;
+          } else {
+            buttonsHtml = `
+              <!-- Desktop Secure Payment Integration -->
+              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0056e3; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(0, 86, 227, 0.15);">
+                <span style="font-size: 14px;">💻</span> Click to Pay
+              </button>
+            `;
+          }
+
+          // We render the interactive PayMongo Gateway box
+          textBox.innerHTML = `
+            <div id="paymongo-integration-container" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; width: 100%;">
+              <div style="font-size: 11px; font-weight: 800; color: #1e40af; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 14px;">💳</span> PayMongo Secure Gateway
+              </div>
+              <div id="paymongo-qr-stage" style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%;">
+                
+                <div style="font-size: 11px; color: #64748b; font-weight: 500;">
+                  Click the button below to proceed to the secure PayMongo payment portal.<br>
+                  Amount: <strong style="color: #1e293b; font-size: 12px;">₱${priceAmount.toLocaleString()}</strong>
+                </div>
+
+                ${buttonsHtml}
+              </div>
+              
+              <div id="paymongo-success-stage" style="display: none; flex-direction: column; align-items: center; gap: 6px; padding: 12px 16px; background: #f0fdf4; border: 1px dashed #bbf7d0; border-radius: 8px; width: 100%;">
+                <span style="font-size: 24px; color: #15803d; animation: bounce 1s infinite;">✅</span>
+                <div style="font-size: 12px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.05em;">Payment Successful</div>
+                <div style="font-size: 10px; color: #166534; font-weight: 600;">
+                  PayMongo secure gateway confirmed successful authorization of ₱${priceAmount.toLocaleString()} under Transaction ID: <strong style="font-family: monospace;">${currentRef}</strong>.
+                </div>
+              </div>
+            </div>
+          `;
+
+          // Configure checkout-ref input for PayMongo
+          if (refLabel) refLabel.textContent = "PayMongo Transaction Ref ID";
+          if (refInput) {
+            refInput.value = currentRef;
+            refInput.readOnly = true;
+            refInput.style.opacity = "0.85";
+            refInput.style.background = "#f1f5f9";
+          }
+
+          // If already paid, toggle stage
+          if ((window.__paymongoPaidOrders && window.__paymongoPaidOrders[currentRef]) || localStorage.getItem('gcash_success_pm_' + currentRef) === 'true') {
+            if (localStorage.getItem('gcash_success_pm_' + currentRef) === 'true') {
+              window.__paymongoPaidOrders[currentRef] = true;
+              localStorage.removeItem('gcash_success_pm_' + currentRef);
+            }
+            setTimeout(() => {
+              const qs = document.getElementById("paymongo-qr-stage");
+              const ss = document.getElementById("paymongo-success-stage");
+              if (qs) qs.style.display = "none";
+              if (ss) ss.style.display = "flex";
+              
+              // Enable Submit order instantly
+              const submitBtn = document.getElementById("checkout-submit-btn");
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+                submitBtn.style.cursor = "pointer";
+                submitBtn.textContent = "Complete Transaction";
+              }
+            }, 50);
+          }
+        } else if (paymentMethod === "QR Code") {
           let customQrs = [];
           try {
             const rawQrs =
@@ -5683,6 +5867,19 @@
             submitBtn.style.opacity = "1";
             submitBtn.style.cursor = "pointer";
           }
+        } else if (payment === "PayMongo") {
+          const refVal = refInput.value.trim();
+          const isPaid = window.__paymongoPaidOrders && window.__paymongoPaidOrders[refVal];
+          submitBtn.textContent = isPaid ? "Complete Transaction" : "Awaiting PayMongo QR Scan...";
+          if (!isPaid) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = "0.75";
+            submitBtn.style.cursor = "not-allowed";
+          } else {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+            submitBtn.style.cursor = "pointer";
+          }
         } else {
           submitBtn.textContent = "Complete Transaction";
           submitBtn.disabled = false;
@@ -5731,6 +5928,184 @@
       }
 
       // Bind QR layout helper functions globally to window for reliable iframe event hand-shaking
+      window.__paymongoPaidOrders = {};
+      window.verifyPaymongoPayment = function (refId) {
+        const qrStage = document.getElementById("paymongo-qr-stage");
+        const successStage = document.getElementById("paymongo-success-stage");
+        const submitBtn = document.getElementById("checkout-submit-btn");
+
+        if (qrStage) qrStage.style.display = "none";
+        if (successStage) successStage.style.display = "flex";
+
+        // Mark as paid
+        window.__paymongoPaidOrders[refId] = true;
+
+        // Auto-fill reference input
+        const refInput = document.getElementById("checkout-ref");
+        if (refInput) {
+          refInput.value = refId;
+          refInput.readOnly = true;
+        }
+
+        // Enable Submit order instantly
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = "1";
+          submitBtn.style.cursor = "pointer";
+          submitBtn.textContent = "Complete Transaction";
+        }
+      };
+
+      window.openGcashPortal = function (refId, amount) {
+        // Save the current checkout state to localStorage so we can restore on redirect back
+        localStorage.setItem("__gcash_pending_cart", JSON.stringify(cart));
+        const formValues = {
+          name: document.getElementById("checkout-name")?.value || "",
+          phone: document.getElementById("checkout-phone")?.value || "",
+          address: document.getElementById("checkout-address")?.value || "",
+          fbProfile: document.getElementById("checkout-fb")?.value || "",
+          rentDays: document.getElementById("checkout-rent-days")?.value || "",
+          rentDaysPromo: document.getElementById("checkout-rent-days-promo")?.value || "",
+          deliveryOption: document.getElementById("checkout-delivery-option")?.value || "",
+          checkoutType: document.getElementById("checkout-title")?.textContent?.includes("Rent") || document.getElementById("checkout-type")?.value === "rent" ? "rent" : "buy",
+          carModel: document.getElementById("checkout-car-model")?.value || "",
+          carPrice: document.getElementById("checkout-car-price")?.value || "",
+          startDate: document.getElementById("checkout-rent-start-date")?.value || "",
+          endDate: document.getElementById("checkout-rent-end-date")?.value || "",
+        };
+        localStorage.setItem("__gcash_pending_form", JSON.stringify(formValues));
+
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        // Get the PayMongo Secret Key or Public Key configured by the user
+        const secretKey = localStorage.getItem("lmk_store_paymongo_secret_key");
+        const publicKey = localStorage.getItem("lmk_store_paymongo_public_key");
+        const authKey = secretKey || publicKey || "pk_live_49dA5CMJPUp92HnDhXhGrrCq";
+
+        if (!authKey) {
+          alert("PayMongo Key is not configured in Settings.");
+          return;
+        }
+
+        // Show loading state on the GCash button
+        const gcashBtns = Array.from(document.querySelectorAll("button")).filter(btn => btn.getAttribute("onclick") && btn.getAttribute("onclick").includes("openGcashPortal"));
+        gcashBtns.forEach(btn => {
+          btn.disabled = true;
+          btn.style.opacity = "0.7";
+          btn.innerHTML = `<span>⏳</span> Connecting to PayMongo...`;
+        });
+
+        // PayMongo expects the amount in cents (integer)
+        const cents = Math.round(amount * 100);
+
+        // Redirect URLs
+        const currentUrl = window.location.origin + window.location.pathname;
+        const successUrl = `${currentUrl}?gcash_success=true&ref=${refId}&amount=${amount}`;
+        const failedUrl = `${currentUrl}?gcash_failed=true&ref=${refId}`;
+
+        if (!supabaseClient) {
+          alert("Supabase client is not initialized. Please check your settings.");
+          gcashBtns.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            if (isMobile) {
+              if (btn.textContent.includes("QR")) {
+                btn.innerHTML = `<span style="font-size: 14px;">📱</span> Pay with QR`;
+              } else {
+                btn.innerHTML = `<span style="font-weight: 900; background: #fff; color: #0056e3; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: system-ui, sans-serif;">g</span> Pay with GCash`;
+              }
+            } else {
+              btn.innerHTML = `<span style="font-size: 14px;">💻</span> Click to Pay`;
+            }
+          });
+          return;
+        }
+
+        let turnstileToken = null;
+        if (typeof turnstile !== "undefined" && typeof turnstileWidgetId !== "undefined" && turnstileWidgetId !== null) {
+          turnstileToken = turnstile.getResponse(turnstileWidgetId);
+        }
+
+        const payload = {
+          authKey: authKey, // Pass the store's specific PayMongo key to the secure edge function
+          turnstileToken: turnstileToken,
+          data: {
+            attributes: {
+              type: "gcash",
+              amount: cents,
+              currency: "PHP",
+              redirect: {
+                success: successUrl,
+                failed: failedUrl
+              }
+            }
+          }
+        };
+
+        // Create GCash Source securely via Supabase Edge Function
+        supabaseClient.functions.invoke("create-paymongo-source", {
+          body: payload
+        })
+        .then(({ data, error }) => {
+          if (error) {
+            throw new Error(error.message || "Failed to contact secure payment gateway");
+          }
+          if (data && data.errors) {
+            throw new Error(data.errors?.[0]?.detail || "Failed to initiate GCash Source with PayMongo");
+          }
+          return data;
+        })
+        .then(data => {
+          const checkoutUrl = data.data?.attributes?.redirect?.checkout_url;
+          if (!checkoutUrl) {
+            throw new Error("Invalid response from PayMongo (no checkout URL).");
+          }
+
+          if (!isMobile) {
+            // DESKTOP: Open the live PayMongo checkout portal in a popup
+            if (!window.__gcashCheckInterval) {
+              window.__gcashCheckInterval = setInterval(() => {
+                const isPaid = localStorage.getItem('gcash_success_pm_' + refId);
+                if (isPaid === 'true') {
+                  clearInterval(window.__gcashCheckInterval);
+                  window.__gcashCheckInterval = null;
+                  localStorage.removeItem('gcash_success_pm_' + refId);
+                  window.verifyPaymongoPayment(refId);
+                }
+              }, 1000);
+            }
+            window.open(checkoutUrl, 'GCash_Payment_Live', 'width=420,height=720,left=200,top=100');
+            
+            // Re-enable button in case they close the popup and want to try again
+            gcashBtns.forEach(btn => {
+              btn.disabled = false;
+              btn.style.opacity = "1";
+              btn.innerHTML = `<span style="font-size: 14px;">💻</span> Click to Pay`;
+            });
+          } else {
+            // MOBILE: Redirect the entire window to PayMongo
+            window.location.href = checkoutUrl;
+          }
+        })
+        .catch(err => {
+          console.error("PayMongo GCash Source Error:", err);
+          alert("PayMongo Integration Error:\n" + err.message + "\n\nPlease double check your PayMongo Keys in your settings.");
+          gcashBtns.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            if (isMobile) {
+              if (btn.textContent.includes("QR")) {
+                btn.innerHTML = `<span style="font-size: 14px;">📱</span> Pay with QR`;
+              } else {
+                btn.innerHTML = `<span style="font-weight: 900; background: #fff; color: #0056e3; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: system-ui, sans-serif;">g</span> Pay with GCash`;
+              }
+            } else {
+              btn.innerHTML = `<span style="font-size: 14px;">💻</span> Click to Pay`;
+            }
+          });
+        });
+      };
+
       window.openQRZoomModal = function (title, imgUrl, description) {
         document.getElementById("qr-zoom-title").textContent = title;
         document.getElementById("qr-zoom-img").src = imgUrl;
@@ -6505,10 +6880,11 @@
           localStorage.getItem(configKeys.companyId) || HARDCODED_COMPANY_ID;
         const randId = "web-txn-" + Math.random().toString(36).substr(2, 9);
 
-        // Intercept QR Code payment flow to execute direct database logging, email invoice sending, and direct Shopee checkout redirect
-        if (type !== "rent" && payment === "QR Code") {
-          const orderId =
-            "QR-SHP-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+        // Intercept QR Code / PayMongo payment flow to execute direct database logging, email invoice sending, and direct Shopee checkout redirect
+        if (type !== "rent" && (payment === "QR Code" || payment === "PayMongo")) {
+          const orderId = payment === "PayMongo" ? refNum : (
+            "QR-SHP-" + Math.random().toString(36).substr(2, 9).toUpperCase()
+          );
 
           const submitBtnInside = document.getElementById(
             "checkout-submit-btn"
@@ -6532,7 +6908,7 @@
               })
               .join(", ");
 
-            const orderRemarks = `🛍️ WEB ORDER VIA DIRECT QR + SHOPEE SHIPPING.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: Scan QR Code (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)\nCart details: ${cart
+            const orderRemarks = `🛍️ WEB ORDER VIA ${payment}.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: ${payment} (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)\nCart details: ${cart
               .map((i) => `${i.name} (x${i.qty})`)
               .join(", ")}`;
 
@@ -6547,11 +6923,11 @@
                     facebook: fbProfile,
                     address: address,
                     fulfillment: fulfillment,
-                    payment_method: "QR Code",
+                    payment_method: payment,
                     reference_num: refNum,
                     total_price: totalPrice,
                     order_type: "cart",
-                    status: "pending",
+                    status: payment === "PayMongo" ? "payment_confirmed" : "pending",
                     items: cart.map((i) => ({
                       id: i.id,
                       name: i.name,
@@ -6581,7 +6957,7 @@
             const duration = document.getElementById(
               "checkout-car-duration"
             ).value;
-            const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel} during ${duration}.\nFulfillment: ${fulfillment}\nDelivery/Address: ${address}\nFB Contact: ${fbProfile}\nPayment Gateway: Scan QR Code (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)`;
+            const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel} during ${duration}.\nFulfillment: ${fulfillment}\nDelivery/Address: ${address}\nFB Contact: ${fbProfile}\nPayment Gateway: ${payment} (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)`;
 
             if (supabaseClient) {
               try {
@@ -6594,13 +6970,13 @@
                     facebook: fbProfile,
                     address: address,
                     fulfillment: fulfillment,
-                    payment_method: "QR Code",
+                    payment_method: payment,
                     reference_num: refNum,
                     total_price: totalPrice,
                     order_type: "rent",
                     car_model: carModel,
                     duration: duration,
-                    status: "pending",
+                    status: payment === "PayMongo" ? "payment_confirmed" : "pending",
                     items: [
                       {
                         name: carModel,
@@ -6643,7 +7019,7 @@
             fbProfile: fbProfile,
             address: address,
             fulfillment: fulfillment,
-            payment: "QR Code",
+            payment: payment,
             refNum: refNum,
             totalPrice: totalPrice,
             orderId: orderId,
@@ -6657,162 +7033,6 @@
             totalPrice,
             writeSuccessful
           );
-          return;
-        }
-
-        // Intercept PayMongo checkout flow to execute the integrated sandbox/webhook orchestration
-        if (type !== "rent" && payment === "PayMongo") {
-          const orderId =
-            "PM-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-
-          const onPaymongoPaid = async () => {
-            // Resume checkout submission standard steps
-            const submitBtnInside = document.getElementById(
-              "checkout-submit-btn"
-            );
-            submitBtnInside.textContent = "Processing Transaction...";
-            submitBtnInside.disabled = true;
-
-            let writeSuccessful = false;
-            if (type === "cart") {
-              const itemsBlobName = cart.map((i) => i.name).join(", ");
-              const itemsBlobQty = cart.map((i) => i.qty).join(", ");
-              const itemsBlobAmt = cart.map((i) => i.price).join(", ");
-
-              const orderRemarks = `🛍️ WEB ORDER VIA PayMongo.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: PayMongo Sandbox Webhook\nReference payment ID: ${orderId}\nCart details: ${cart
-                .map((i) => `${i.name} (x${i.qty})`)
-                .join(", ")}`;
-
-              if (supabaseClient) {
-                try {
-                  let insertPayload = {
-                    company_id: activeCompanyId,
-                    customer_name: customerName,
-                    phone: phone,
-                    facebook: fbProfile,
-                    address: address,
-                    fulfillment: fulfillment,
-                    payment_method: "PayMongo",
-                    reference_num: orderId,
-                    total_price: totalPrice,
-                    order_type: "cart",
-                    status: "payment_confirmed",
-                    items: cart.map((i) => ({
-                      id: i.id,
-                      name: i.name,
-                      price: i.price,
-                      qty: i.qty,
-                      image: i.image,
-                    })),
-                    created_at: new Date().toISOString(),
-                  };
-
-                  let { error } = await supabaseClient
-                    .from("website_orders")
-                    .insert(insertPayload);
-
-                  if (error) {
-                    console.error("Failed to insert into website_orders.", error);
-                    throw error;
-                  }
-                  writeSuccessful = true;
-                } catch (err) {
-                  console.error("Order submit failed:", err);
-                }
-              }
-            } else {
-              const carModel =
-                document.getElementById("checkout-car-model").value;
-              const duration = document.getElementById(
-                "checkout-car-duration"
-              ).value;
-              const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel} during ${duration}.\nFulfillment: ${fulfillment}\nDelivery/Address: ${address}\nFB Contact: ${fbProfile}\nPayment Gateway: PayMongo Sandbox Webhook\nReference payment ID: ${orderId}`;
-
-              if (supabaseClient) {
-                try {
-                  let insertPayload = {
-                    company_id: activeCompanyId,
-                    customer_name: customerName,
-                    phone: phone,
-                    facebook: fbProfile,
-                    address: address,
-                    fulfillment: fulfillment,
-                    payment_method: "PayMongo",
-                    reference_num: orderId,
-                    total_price: totalPrice,
-                    order_type: "rent",
-                    car_model: carModel,
-                    duration: duration,
-                    status: "payment_confirmed",
-                    items: [
-                      {
-                        name: carModel,
-                        qty: 1,
-                        price: totalPrice,
-                        duration: duration,
-                        start_date: document.getElementById("checkout-rent-start-date").value,
-                        end_date: document.getElementById("checkout-rent-end-date").value,
-                        driver_option: document.getElementById("checkout-rent-driver-option").value,
-                        distance_limit: document.getElementById("checkout-rent-distance-limit").value || "300",
-                        plate_number: document.getElementById("checkout-rent-plate-number").value || "TBD",
-                        operator_name: document.getElementById("checkout-rent-operator-name").value || "Nica Lmk Corp",
-                        operator_address: document.getElementById("checkout-rent-operator-address").value || "Cavite City",
-                      },
-                    ],
-                    created_at: new Date().toISOString(),
-                  };
-
-                  let { error } = await supabaseClient
-                    .from("website_orders")
-                    .insert(insertPayload);
-                    
-                  if (error) {
-                    console.error("Failed to insert into website_orders.", error);
-                    throw error;
-                  }
-                  writeSuccessful = true;
-                } catch (err) {
-                  console.error("Reservation submit failed:", err);
-                }
-              }
-            }
-
-            // Clean cart locally
-            if (type === "cart") {
-              cart = [];
-              updateCartUI();
-            }
-
-            // Reset submit button as complete
-            submitBtnInside.textContent = "Complete Transaction";
-            submitBtnInside.disabled = false;
-
-            // Send automated email to customer
-            sendAutomatedEmail({
-              type: type,
-              customerName: customerName,
-              email: email,
-              phone: phone,
-              fbProfile: fbProfile,
-              address: address,
-              fulfillment: fulfillment,
-              payment: "PayMongo",
-              refNum: orderId,
-              totalPrice: totalPrice,
-              orderId: orderId,
-            });
-
-            // Show completed screen
-            closeCheckoutModal();
-            showCompletionPage(
-              customerName,
-              orderId,
-              totalPrice,
-              writeSuccessful
-            );
-          };
-
-          startPaymongoCheckoutFlow(orderId, totalPrice, onPaymongoPaid);
           return;
         }
 
