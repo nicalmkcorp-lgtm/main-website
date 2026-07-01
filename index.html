@@ -6555,6 +6555,11 @@
           return;
         }
 
+        if (!data.email || data.email.trim() === "") {
+          console.warn("📧 Customer email is empty. Skipping automated email receipt.");
+          return;
+        }
+
         const serviceId = localStorage.getItem("lmk_store_emailjs_service_id") || "YOUR_EMAILJS_SERVICE_ID";
         const templateId = localStorage.getItem("lmk_store_emailjs_template_id") || "YOUR_EMAILJS_TEMPLATE_ID";
         const publicKey = localStorage.getItem("lmk_store_emailjs_public_key") || "YOUR_EMAILJS_PUBLIC_KEY";
@@ -6574,11 +6579,6 @@
           );
           return;
         }
-
-        // Initialize EmailJS with Public Key
-        emailjs.init({
-          publicKey: publicKey,
-        });
 
         // Formulate order details text
         let orderDetails = "";
@@ -6628,7 +6628,7 @@
 
         try {
           console.log("📧 Sending automated email to customer via EmailJS...", templateParams);
-          const response = await emailjs.send(serviceId, templateId, templateParams);
+          const response = await emailjs.send(serviceId, templateId, templateParams, { publicKey: publicKey });
           console.log("📧 Email successfully sent! Status:", response.status, response.text);
         } catch (error) {
           console.error("📧 EmailJS failed to send email:", error);
