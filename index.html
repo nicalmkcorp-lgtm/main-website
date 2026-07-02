@@ -3399,6 +3399,16 @@
 
       // Init app
       window.addEventListener("DOMContentLoaded", async () => {
+        if (!HARDCODED_COMPANY_ID) {
+          document.body.innerHTML = \`
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#111827;color:#fff;font-family:system-ui, sans-serif;text-align:center;">
+              <h1 style="font-size:24px;margin-bottom:12px;font-weight:600;">Lmk storefront Website<br>failed to load,</h1>
+              <p style="color:#9ca3af;font-size:16px;">please try again later</p>
+            </div>
+          \`;
+          return;
+        }
+
         // 1. Process URL search credentials if any are deep linked
         processUrlParams();
 
@@ -3470,7 +3480,6 @@
           }
         };
 
-        checkAndSave("company", configKeys.companyId);
         checkAndSave("supabaseUrl", configKeys.supabaseUrl);
         checkAndSave("supabase_url", configKeys.supabaseUrl);
         checkAndSave("supabaseKey", configKeys.supabaseKey);
@@ -3640,16 +3649,11 @@
 
       // Dynamic products / rent retrieval from Supabase
       async function loadMerchantCatalog(isManualRefresh = false) {
-        const activeCompanyId =
-          localStorage.getItem(configKeys.companyId) || HARDCODED_COMPANY_ID;
+        const activeCompanyId = HARDCODED_COMPANY_ID;
 
         // Render cached data immediately to keep performance blazing-fast with zero layout shift
-        if (loadedRentals && Object.keys(loadedRentals).length > 0) {
-          renderDynamicCarCollection();
-        }
-        if (loadedProducts && loadedProducts.length > 0) {
-          renderDynamicStoreCollection();
-        }
+        renderDynamicCarCollection();
+        renderDynamicStoreCollection();
 
         if (!supabaseClient) {
           console.log(
@@ -3787,33 +3791,32 @@
           }
 
           let carRenderNeeded = false;
-          if (newRentals) {
-            const rentalsChanged =
-              JSON.stringify(newRentals) !== JSON.stringify(loadedRentals);
-            if (rentalsChanged) {
-              loadedRentals = newRentals;
-              carRenderNeeded = true;
-            }
-            localStorage.setItem(
-              "lmk_cached_rentals",
-              JSON.stringify(loadedRentals)
-            );
+          if (!newRentals) newRentals = {};
+          
+          const rentalsChanged =
+            JSON.stringify(newRentals) !== JSON.stringify(loadedRentals);
+          if (rentalsChanged) {
+            loadedRentals = newRentals;
+            carRenderNeeded = true;
           }
+          localStorage.setItem(
+            "lmk_cached_rentals",
+            JSON.stringify(loadedRentals)
+          );
 
-          if (newPhotos) {
-            const photosChanged =
-              JSON.stringify(newPhotos) !== JSON.stringify(loadedRentTabPhotos);
-            if (photosChanged) {
-              loadedRentTabPhotos = newPhotos;
-              carRenderNeeded = true;
-            }
-            localStorage.setItem(
-              "lmk_cached_rent_photos",
-              JSON.stringify(loadedRentTabPhotos)
-            );
+          if (!newPhotos) newPhotos = {};
+          const photosChanged =
+            JSON.stringify(newPhotos) !== JSON.stringify(loadedRentTabPhotos);
+          if (photosChanged) {
+            loadedRentTabPhotos = newPhotos;
+            carRenderNeeded = true;
           }
+          localStorage.setItem(
+            "lmk_cached_rent_photos",
+            JSON.stringify(loadedRentTabPhotos)
+          );
 
-          if (carRenderNeeded) {
+          if (carRenderNeeded || Object.keys(loadedRentals).length === 0) {
             renderDynamicCarCollection();
           }
 
@@ -3829,22 +3832,22 @@
             prodQuery = prodQuery.eq("tab", boundItemGoodsTable);
           }
 
-          const { data: products, error: prodErr } = await prodQuery;
+          let { data: products, error: prodErr } = await prodQuery;
 
           if (prodErr) throw prodErr;
+          if (!products) products = [];
 
-          if (products && products.length > 0) {
-            const productsChanged =
-              JSON.stringify(products) !== JSON.stringify(loadedProducts);
-            if (productsChanged) {
-              loadedProducts = products;
-              renderDynamicStoreCollection();
-            }
-            localStorage.setItem(
-              "lmk_cached_products",
-              JSON.stringify(loadedProducts)
-            );
-          } else {
+          const productsChanged =
+            JSON.stringify(products) !== JSON.stringify(loadedProducts);
+          if (productsChanged || products.length === 0) {
+            loadedProducts = products;
+            renderDynamicStoreCollection();
+          }
+          localStorage.setItem(
+            "lmk_cached_products",
+            JSON.stringify(loadedProducts)
+          );
+          if (products.length === 0) {
             console.log(
               "No items found in 'itemgoods_records' for company:",
               activeCompanyId
@@ -3878,9 +3881,16 @@
         const staticGrid = document.getElementById("static-cars-grid");
         const dynamicGrid = document.getElementById("dynamic-cars-grid");
 
-        if (!loadedRentals || Object.keys(loadedRentals).length === 0) return;
-
+        if (staticGrid) staticGrid.style.display = "none";
         dynamicGrid.innerHTML = "";
+
+        if (!loadedRentals || Object.keys(loadedRentals).length === 0) {
+          dynamicGrid.style.display = "flex";
+          dynamicGrid.style.justifyContent = "center";
+          dynamicGrid.innerHTML = \`<div style="grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:'Cormorant Garamond', serif; font-size: 22px;">No car listing</div>\`;
+          return;
+        }
+
         let i = 1;
 
         for (const [tabName, rentConfig] of Object.entries(loadedRentals)) {
@@ -3944,11 +3954,11 @@
         }
 
         if (dynamicGrid.children.length > 0) {
-          staticGrid.style.display = "none";
           dynamicGrid.style.display = "grid";
         } else {
-          staticGrid.style.display = "grid";
-          dynamicGrid.style.display = "none";
+          dynamicGrid.style.display = "flex";
+          dynamicGrid.style.justifyContent = "center";
+          dynamicGrid.innerHTML = \`<div style="grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:'Cormorant Garamond', serif; font-size: 22px;">No car listing</div>\`;
         }
       }
 
@@ -4015,7 +4025,7 @@
 
         if (totalItems === 0) {
           dynamicGrid.innerHTML =
-            "<div style=\"grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:'Cormorant Garamond', serif; font-size: 22px;\">No products currently loaded under this sector.</div>";
+            "<div style=\"grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:'Cormorant Garamond', serif; font-size: 22px;\">No item listing</div>";
           if (pagContainer) {
             pagContainer.style.display = "none";
           }
@@ -6020,7 +6030,7 @@
 
         const payload = {
           authKey: authKey, // This will act as fallback if Edge Function doesn't have PAYMONGO_SECRET_KEY
-          companyId: localStorage.getItem("lmk_store_company_id"),
+          companyId: HARDCODED_COMPANY_ID,
           turnstileToken: turnstileToken,
           data: {
             attributes: {
@@ -6911,8 +6921,7 @@
         window.__checkoutConfirmed = false;
         localStorage.setItem("__last_checkout_time", Date.now().toString());
 
-        const activeCompanyId =
-          localStorage.getItem(configKeys.companyId) || HARDCODED_COMPANY_ID;
+        const activeCompanyId = HARDCODED_COMPANY_ID;
         const randId = "web-txn-" + Math.random().toString(36).substr(2, 9);
 
         // Intercept QR Code / PayMongo payment flow to execute direct database logging, email invoice sending, and direct Shopee checkout redirect
@@ -7367,8 +7376,7 @@
       ) {
         // Trigger notification
         if (dbSuccess && supabaseClient) {
-          const activeCompanyId =
-            localStorage.getItem(configKeys.companyId) || HARDCODED_COMPANY_ID;
+          const activeCompanyId = HARDCODED_COMPANY_ID;
           const type =
             document.getElementById("checkout-type")?.value || "Order";
           supabaseClient.functions
