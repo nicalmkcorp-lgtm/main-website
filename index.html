@@ -6060,24 +6060,32 @@
         if (supabaseClient) {
           requestPromise = supabaseClient.functions.invoke("create-paymongo-source", {
             body: payload
-          }).then(({ data, error }) => {
+          }).then(async ({ data, error }) => {
             if (error) {
-              console.warn("Edge function failed, falling back to direct PayMongo API call...", error);
-              throw error; // Trigger fallback
+              console.warn("Edge function error object:", error);
+              let errMsg = error.message || "Unknown error";
+              
+              // Extract inner JSON error if available (for FunctionsHttpError)
+              if (error.context && typeof error.context.json === 'function') {
+                 try {
+                    const inner = await error.context.json();
+                    if (inner && inner.error && inner.error.message) {
+                       errMsg = inner.error.message;
+                    }
+                 } catch(e) {}
+              }
+              
+              if (errMsg === "Failed to fetch") {
+                throw new Error("Could not connect to the PayMongo Edge Function. The function may not be deployed, or there is a network issue.");
+              }
+              
+              throw new Error(errMsg);
+            }
+            
+            if (data && data.error) {
+              throw new Error(data.error.message || "Failed to create PayMongo checkout session");
             }
             return data;
-          }).catch((err) => {
-             // Fallback to direct fetch
-             const encodedKey = btoa(authKey + ":");
-             return fetch("https://api.paymongo.com/v1/checkout_sessions", {
-               method: "POST",
-               headers: {
-                 "Accept": "application/json",
-                 "Content-Type": "application/json",
-                 "Authorization": "Basic " + encodedKey
-               },
-               body: JSON.stringify({ data: payload.data })
-             }).then(res => res.json());
           });
         } else {
            // No Supabase client, use direct fetch
