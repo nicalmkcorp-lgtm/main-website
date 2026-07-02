@@ -6022,30 +6022,32 @@
           turnstileToken = turnstile.getResponse(turnstileWidgetId);
         }
 
-        const payload = {
-          authKey: authKey, // Pass the store's specific PayMongo key to the secure edge function
-          turnstileToken: turnstileToken,
-          data: {
-            attributes: {
-              type: "gcash",
-              amount: cents,
-              currency: "PHP",
-              redirect: {
-                success: successUrl,
-                failed: failedUrl
+        const encodedKey = btoa(authKey + ":");
+
+        // Create GCash Source directly via PayMongo API
+        fetch("https://api.paymongo.com/v1/sources", {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Basic " + encodedKey
+          },
+          body: JSON.stringify({
+            data: {
+              attributes: {
+                type: "gcash",
+                amount: cents,
+                currency: "PHP",
+                redirect: {
+                  success: successUrl,
+                  failed: failedUrl
+                }
               }
             }
-          }
-        };
-
-        // Create GCash Source securely via Supabase Edge Function
-        supabaseClient.functions.invoke("create-paymongo-source", {
-          body: payload
+          })
         })
-        .then(({ data, error }) => {
-          if (error) {
-            throw new Error(error.message || "Failed to contact secure payment gateway");
-          }
+        .then(response => response.json())
+        .then(data => {
           if (data && data.errors) {
             throw new Error(data.errors?.[0]?.detail || "Failed to initiate GCash Source with PayMongo");
           }
