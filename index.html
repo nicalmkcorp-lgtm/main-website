@@ -5974,13 +5974,12 @@
 
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        // Get the PayMongo Secret Key or Public Key configured by the user
-        const secretKey = localStorage.getItem("lmk_store_paymongo_secret_key");
+        // Get the PayMongo Public Key configured by the user from website_configs (stored in localStorage)
         const publicKey = localStorage.getItem("lmk_store_paymongo_public_key");
-        const authKey = secretKey || publicKey || "pk_live_49dA5CMJPUp92HnDhXhGrrCq";
+        const authKey = publicKey;
 
         if (!authKey) {
-          alert("PayMongo Key is not configured in Settings.");
+          alert("PayMongo Public Key is not configured in Settings.");
           return;
         }
 
@@ -6021,6 +6020,7 @@
 
         const payload = {
           authKey: authKey, // This will act as fallback if Edge Function doesn't have PAYMONGO_SECRET_KEY
+          companyId: localStorage.getItem("lmk_store_company_id"),
           turnstileToken: turnstileToken,
           data: {
             attributes: {
@@ -6044,14 +6044,47 @@
           }
         };
 
-        // Create PayMongo Checkout Session securely via Supabase Edge Function
-        supabaseClient.functions.invoke("create-paymongo-source", {
-          body: payload
-        })
-        .then(({ data, error }) => {
-          if (error) {
-            throw new Error(error.message || "Failed to contact secure payment gateway");
-          }
+        // Create PayMongo Checkout Session
+        // Try securely via Supabase Edge Function first, fallback to direct API call if unavailable
+        let requestPromise;
+        if (supabaseClient) {
+          requestPromise = supabaseClient.functions.invoke("create-paymongo-source", {
+            body: payload
+          }).then(({ data, error }) => {
+            if (error) {
+              console.warn("Edge function failed, falling back to direct PayMongo API call...", error);
+              throw error; // Trigger fallback
+            }
+            return data;
+          }).catch((err) => {
+             // Fallback to direct fetch
+             const encodedKey = btoa(authKey + ":");
+             return fetch("https://api.paymongo.com/v1/checkout_sessions", {
+               method: "POST",
+               headers: {
+                 "Accept": "application/json",
+                 "Content-Type": "application/json",
+                 "Authorization": "Basic " + encodedKey
+               },
+               body: JSON.stringify({ data: payload.data })
+             }).then(res => res.json());
+          });
+        } else {
+           // No Supabase client, use direct fetch
+           const encodedKey = btoa(authKey + ":");
+           requestPromise = fetch("https://api.paymongo.com/v1/checkout_sessions", {
+             method: "POST",
+             headers: {
+               "Accept": "application/json",
+               "Content-Type": "application/json",
+               "Authorization": "Basic " + encodedKey
+             },
+             body: JSON.stringify({ data: payload.data })
+           }).then(res => res.json());
+        }
+
+        requestPromise
+        .then(data => {
           if (data && data.errors) {
             throw new Error(data.errors?.[0]?.detail || "Failed to initiate Checkout Session with PayMongo");
           }
