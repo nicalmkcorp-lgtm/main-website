@@ -6022,39 +6022,46 @@
           turnstileToken = turnstile.getResponse(turnstileWidgetId);
         }
 
-        const encodedKey = btoa(authKey + ":");
-
-        // Create GCash Source directly via PayMongo API
-        fetch("https://api.paymongo.com/v1/sources", {
-          method: "POST",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Basic " + encodedKey
-          },
-          body: JSON.stringify({
-            data: {
-              attributes: {
-                type: "gcash",
-                amount: cents,
-                currency: "PHP",
-                redirect: {
-                  success: successUrl,
-                  failed: failedUrl
+        const payload = {
+          authKey: authKey, // This will act as fallback if Edge Function doesn't have PAYMONGO_SECRET_KEY
+          turnstileToken: turnstileToken,
+          data: {
+            attributes: {
+              send_email_receipt: false,
+              show_description: true,
+              show_line_items: true,
+              description: "Booking Reference: " + refId,
+              line_items: [
+                {
+                  currency: "PHP",
+                  amount: cents,
+                  name: "Order " + refId,
+                  quantity: 1
                 }
-              }
+              ],
+              payment_method_types: ["card", "paymaya", "gcash", "grab_pay", "dob"],
+              success_url: successUrl,
+              cancel_url: failedUrl,
+              reference_number: refId
             }
-          })
+          }
+        };
+
+        // Create PayMongo Checkout Session securely via Supabase Edge Function
+        supabaseClient.functions.invoke("create-paymongo-source", {
+          body: payload
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(({ data, error }) => {
+          if (error) {
+            throw new Error(error.message || "Failed to contact secure payment gateway");
+          }
           if (data && data.errors) {
-            throw new Error(data.errors?.[0]?.detail || "Failed to initiate GCash Source with PayMongo");
+            throw new Error(data.errors?.[0]?.detail || "Failed to initiate Checkout Session with PayMongo");
           }
           return data;
         })
         .then(data => {
-          const checkoutUrl = data.data?.attributes?.redirect?.checkout_url;
+          const checkoutUrl = data.data?.attributes?.checkout_url || data.data?.attributes?.redirect?.checkout_url;
           if (!checkoutUrl) {
             throw new Error("Invalid response from PayMongo (no checkout URL).");
           }
