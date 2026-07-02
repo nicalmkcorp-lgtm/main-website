@@ -3400,12 +3400,12 @@
       // Init app
       window.addEventListener("DOMContentLoaded", async () => {
         if (!HARDCODED_COMPANY_ID) {
-          document.body.innerHTML = \`
+          document.body.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#111827;color:#fff;font-family:system-ui, sans-serif;text-align:center;">
               <h1 style="font-size:24px;margin-bottom:12px;font-weight:600;">Lmk storefront Website<br>failed to load,</h1>
               <p style="color:#9ca3af;font-size:16px;">please try again later</p>
             </div>
-          \`;
+          `;
           return;
         }
 
@@ -3887,7 +3887,7 @@
         if (!loadedRentals || Object.keys(loadedRentals).length === 0) {
           dynamicGrid.style.display = "flex";
           dynamicGrid.style.justifyContent = "center";
-          dynamicGrid.innerHTML = \`<div style="grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:'Cormorant Garamond', serif; font-size: 22px;">No car listing</div>\`;
+          dynamicGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:'Cormorant Garamond', serif; font-size: 22px;">No car listing</div>`;
           return;
         }
 
@@ -3958,7 +3958,7 @@
         } else {
           dynamicGrid.style.display = "flex";
           dynamicGrid.style.justifyContent = "center";
-          dynamicGrid.innerHTML = \`<div style="grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:'Cormorant Garamond', serif; font-size: 22px;">No car listing</div>\`;
+          dynamicGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #6b6557; padding: 40px; font-family:'Cormorant Garamond', serif; font-size: 22px;">No car listing</div>`;
         }
       }
 
