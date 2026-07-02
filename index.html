@@ -3600,12 +3600,28 @@
 
       // Initialize Supabase Client
       function initSupabaseConnection() {
-        let url =
-          localStorage.getItem(configKeys.supabaseUrl) ||
-          HARDCODED_SUPABASE_URL;
-        let key =
-          localStorage.getItem(configKeys.supabaseKey) ||
-          HARDCODED_SUPABASE_ANON_KEY;
+        let url = localStorage.getItem(configKeys.supabaseUrl);
+        let key = localStorage.getItem(configKeys.supabaseKey);
+
+        // Fallback to React Dashboard's internal settings if not explicitly saved for the storefront yet
+        if (!url || !key) {
+          try {
+            const rawSettings = localStorage.getItem("lmk_store_settings");
+            if (rawSettings) {
+              const settings = JSON.parse(rawSettings);
+              if (settings && settings.supabaseUrl && settings.supabaseAnonKey) {
+                url = settings.supabaseUrl;
+                key = settings.supabaseAnonKey;
+                localStorage.setItem(configKeys.supabaseUrl, url);
+                localStorage.setItem(configKeys.supabaseKey, key);
+              }
+            }
+          } catch(e) {}
+        }
+
+        // Final fallback to hardcoded defaults
+        url = url || HARDCODED_SUPABASE_URL;
+        key = key || HARDCODED_SUPABASE_ANON_KEY;
 
         if (url && key) {
           try {
@@ -6075,8 +6091,9 @@
                  } catch(e) {}
               }
               
-              if (errMsg === "Failed to fetch") {
-                throw new Error("Could not connect to the PayMongo Edge Function. The function may not be deployed, or there is a network issue.");
+              if (errMsg === "Failed to send a request to the Edge Function" || errMsg === "Failed to fetch") {
+                const currentUrl = localStorage.getItem(configKeys.supabaseUrl) || HARDCODED_SUPABASE_URL;
+                throw new Error("Could not connect to the PayMongo Edge Function at " + currentUrl + ".\n\nThe browser blocked the request because the Edge Function 'create-paymongo-source' is likely NOT DEPLOYED at this URL.\n\nIf you deployed it to your OWN Supabase project, you MUST update 'HARDCODED_SUPABASE_URL' in website.html to match your project URL.");
               }
               
               throw new Error(errMsg);
