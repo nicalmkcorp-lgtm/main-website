@@ -2520,7 +2520,7 @@
             </div>
 
             <div class="form-group" id="checkout-email-group">
-              <label for="checkout-email">Email Address (Optional)</label>
+              <label for="checkout-email" id="checkout-email-label">Email Address (Optional)</label>
               <input
                 type="email"
                 id="checkout-email"
@@ -4509,6 +4509,13 @@
           "Delivery Address / Pickup Location";
         document.getElementById("checkout-address").placeholder =
           "House No, Street, Barangay, Cavite";
+        
+        if (document.getElementById("checkout-email-label")) {
+          document.getElementById("checkout-email-label").textContent = "Email Address (Optional)";
+        }
+        if (document.getElementById("checkout-email")) {
+          document.getElementById("checkout-email").required = false;
+        }
 
         // Hide address group for item checkout
         document.getElementById("checkout-address-group").style.display = "none";
@@ -5527,6 +5534,13 @@
           "Renter Address";
         document.getElementById("checkout-address").placeholder =
           "Renter's Complete Address";
+
+        if (document.getElementById("checkout-email-label")) {
+          document.getElementById("checkout-email-label").textContent = "Email Address";
+        }
+        if (document.getElementById("checkout-email")) {
+          document.getElementById("checkout-email").required = true;
+        }
 
         // Ensure address group is visible for car renting
         document.getElementById("checkout-address-group").style.display = "block";
@@ -6965,6 +6979,17 @@
         const email = document.getElementById("checkout-email")
           ? document.getElementById("checkout-email").value.trim()
           : "";
+        
+        if (type === "rent" && !email) {
+          showToast("⚠️ Email Address is required.");
+          const emailInput = document.getElementById("checkout-email");
+          if (emailInput) {
+            emailInput.focus();
+            emailInput.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+          return;
+        }
+
         const phone = document.getElementById("checkout-phone").value.trim();
         const fbProfile = document.getElementById("checkout-fb").value.trim();
         const address = document
