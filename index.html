@@ -4858,7 +4858,12 @@
               }
 
               if (start && end) {
-                ranges.push({ start: new Date(start), end: new Date(end) });
+                const isConfirmed = order.status === "confirmed";
+                ranges.push({
+                  start: new Date(start),
+                  end: new Date(end),
+                  status: isConfirmed ? "confirmed" : "pending"
+                });
               }
             });
           }
@@ -4889,6 +4894,7 @@
                 ranges.push({
                   start: new Date(rec.date),
                   end: new Date(rec.end_date),
+                  status: "confirmed"
                 });
               }
             });
@@ -4900,13 +4906,16 @@
         return ranges;
       }
 
-      function isDateBooked(date, ranges) {
+      function getDateBookingStatus(date, ranges) {
+        if (!ranges || ranges.length === 0) return null;
         const checkTime = new Date(
           date.getFullYear(),
           date.getMonth(),
           date.getDate()
         ).getTime();
-        return ranges.some((range) => {
+
+        let foundStatus = null;
+        for (const range of ranges) {
           const rangeStart = new Date(
             range.start.getFullYear(),
             range.start.getMonth(),
@@ -4917,8 +4926,19 @@
             range.end.getMonth(),
             range.end.getDate()
           ).getTime();
-          return checkTime >= rangeStart && checkTime <= rangeEnd;
-        });
+
+          if (checkTime >= rangeStart && checkTime <= rangeEnd) {
+            if (range.status === "confirmed") {
+              return "confirmed";
+            }
+            foundStatus = "pending";
+          }
+        }
+        return foundStatus;
+      }
+
+      function isDateBooked(date, ranges) {
+        return getDateBookingStatus(date, ranges) !== null;
       }
 
       function renderCalendar(
@@ -5024,7 +5044,8 @@
           // Days of month
           for (let day = 1; day <= daysInMonth; day++) {
             const dateObj = new Date(currentYear, currentMonth, day);
-            const isBooked = isDateBooked(dateObj, ranges);
+            const bookingStatus = getDateBookingStatus(dateObj, ranges);
+            const isBooked = bookingStatus !== null;
             const isToday = dateObj.getTime() === todayMidnight;
             const yyyy = dateObj.getFullYear();
             const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
@@ -5043,15 +5064,29 @@
             `;
 
             let dayClass = "";
+            let tooltipTitle = "Available";
 
             if (isBooked) {
-              dayStyle += `
-                background: repeating-linear-gradient(45deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.15) 3px, rgba(239, 68, 68, 0.3) 3px, rgba(239, 68, 68, 0.3) 6px);
-                color: #ff6b6b;
-                text-decoration: line-through;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-                cursor: not-allowed;
-              `;
+              if (bookingStatus === "confirmed") {
+                dayStyle += `
+                  background: repeating-linear-gradient(45deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.15) 3px, rgba(239, 68, 68, 0.3) 3px, rgba(239, 68, 68, 0.3) 6px);
+                  color: #ff6b6b;
+                  text-decoration: line-through;
+                  border: 1px solid rgba(239, 68, 68, 0.3);
+                  cursor: not-allowed;
+                `;
+                tooltipTitle = "Already confirmed reservation";
+              } else {
+                // pending
+                dayStyle += `
+                  background: repeating-linear-gradient(45deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.15) 3px, rgba(249, 115, 22, 0.3) 3px, rgba(249, 115, 22, 0.3) 6px);
+                  color: #fb923c;
+                  text-decoration: line-through;
+                  border: 1px solid rgba(249, 115, 22, 0.3);
+                  cursor: not-allowed;
+                `;
+                tooltipTitle = "Pending reservation";
+              }
               dayClass = "day-booked";
             } else {
               dayStyle += `
@@ -5079,9 +5114,7 @@
             }
 
             html += `
-              <div class="cal-day ${dayClass}${selectionClass}" style="${dayStyle}" title="${
-              isBooked ? "Already booked/reserved" : "Available"
-            }" data-date="${dateStr}">
+              <div class="cal-day ${dayClass}${selectionClass}" style="${dayStyle}" title="${tooltipTitle}" data-date="${dateStr}">
                 ${day}
               </div>
             `;
@@ -5089,12 +5122,15 @@
 
           html += `
               </div>
-              <div style="display:flex; justify-content:center; gap:16px; font-size:11px; margin-top:12px; color:var(--muted);">
+              <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:16px; font-size:11px; margin-top:12px; color:var(--muted);">
                 <div style="display:flex; align-items:center; gap:6px;">
                   <span style="display:inline-block; width:12px; height:12px; background:rgba(255, 255, 255, 0.04); border-radius:2px;"></span> Available
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
-                  <span style="display:inline-block; width:12px; height:12px; background:repeating-linear-gradient(45deg, rgba(239,68,68,0.15), rgba(239,68,68,0.15) 2px, rgba(239,68,68,0.3) 2px, rgba(239,68,68,0.3) 4px); border:1px solid rgba(239,68,68,0.3); border-radius:2px;"></span> Booked
+                  <span style="display:inline-block; width:12px; height:12px; background:repeating-linear-gradient(45deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.15) 2px, rgba(249, 115, 22, 0.3) 2px, rgba(249, 115, 22, 0.3) 4px); border:1px solid rgba(249, 115, 22, 0.3); border-radius:2px;"></span> Pending Reservation
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span style="display:inline-block; width:12px; height:12px; background:repeating-linear-gradient(45deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.15) 2px, rgba(239, 68, 68, 0.3) 2px, rgba(239, 68, 68, 0.3) 4px); border:1px solid rgba(239, 68, 68, 0.3); border-radius:2px;"></span> Confirmed Booking
                 </div>
               </div>
             </div>
