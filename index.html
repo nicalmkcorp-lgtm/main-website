@@ -1083,7 +1083,6 @@
           id="dynamic-cat-tabs"
           style="display: none; margin-bottom: 24px"
         ></div>
-
         <div class="garments-grid" id="static-garments-grid">
           <div class="product reveal d1">
             <div class="ph">
@@ -4072,12 +4071,6 @@
         const dynamicTabs = document.getElementById("dynamic-cat-tabs");
         const staticGrid = document.getElementById("static-garments-grid");
         const dynamicGrid = document.getElementById("dynamic-garments-grid");
-        const noteBox = document.getElementById("bundled-items-note-box");
-
-        // Show prominent note box for bundled items
-        if (noteBox) {
-          noteBox.style.display = "block";
-        }
 
         // 1. Get unique active item goods tabs (categories)
         const tabs = [
@@ -4394,9 +4387,8 @@
           }" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'">
         <div class="cart-item-info">
           <div class="cart-item-name">${item.name}</div>
-          <div style="font-size: 10px; font-weight: bold; color: var(--gold); background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); padding: 4px 8px; border-radius: 6px; align-self: flex-start; display: inline-flex; flex-direction: column; gap: 2px; margin: 4px 0 8px 0; font-family: 'Space Grotesk', sans-serif; max-width: 100%;">
+          <div style="font-size: 10px; font-weight: bold; color: var(--gold); background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); padding: 4px 8px; border-radius: 6px; align-self: flex-start; display: inline-flex; gap: 2px; margin: 4px 0 8px 0; font-family: 'Space Grotesk', sans-serif; max-width: 100%;">
             <span>📁 Category: <strong style="color: var(--gold); font-weight: 800;">${itemCategory}</strong></span>
-            <span>💼 Sales Target: <strong style="color: var(--gold); font-weight: 800;">${itemSalesTab}</strong></span>
           </div>
           <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px;">
             <div style="font-size: 13px; color: var(--muted);">list price: ₱${item.price.toLocaleString()}</div>
