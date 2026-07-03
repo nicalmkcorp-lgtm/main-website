@@ -1081,8 +1081,29 @@
         <div
           class="cat-tabs"
           id="dynamic-cat-tabs"
-          style="display: none; margin-bottom: 40px"
+          style="display: none; margin-bottom: 24px"
         ></div>
+        <div
+          id="bundled-items-note-box"
+          style="
+            display: none;
+            background: rgba(212, 175, 55, 0.08);
+            border-left: 3px solid var(--gold);
+            padding: 12px 20px;
+            margin-bottom: 30px;
+            font-size: 13px;
+            color: var(--gold);
+            font-family: 'Space Grotesk', sans-serif;
+            border-radius: 0 8px 8px 0;
+            line-height: 1.5;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+          "
+        >
+          <strong>⚠️ Note:</strong> Random, Assorted, No choosing of colors, for all bundled items,
+        </div>
         <div class="garments-grid" id="static-garments-grid">
           <div class="product reveal d1">
             <div class="ph">
@@ -3794,6 +3815,12 @@
                   localStorage.setItem(configKeys.paymongoPublicKey, cfg.value);
                 } else if (cfg.key === "paymongoSecretKey" && cfg.value) {
                   localStorage.setItem(configKeys.paymongoSecretKey, cfg.value);
+                } else if (cfg.key === "itemgoods_tabs_website" && cfg.value) {
+                  localStorage.setItem("itemgoods_tabs_website", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
+                } else if (cfg.key === "sales_tabs_website" && cfg.value) {
+                  localStorage.setItem("sales_tabs_website", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
+                } else if (cfg.key === "salesBindings" && cfg.value) {
+                  localStorage.setItem("salesBindings", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
                 }
               });
             }
@@ -4000,18 +4027,86 @@
         }
       }
 
+      // Helper to map a product to its bound website-active Sales Tab
+      function getSalesTabForProduct(product) {
+        if (!product || !product.tab) return "Products";
+        
+        let bindings = {};
+        try {
+          const rawBindings = localStorage.getItem("salesBindings");
+          if (rawBindings) {
+            bindings = JSON.parse(rawBindings);
+          }
+        } catch(e) {}
+
+        const salesTab = Object.keys(bindings).find(key => bindings[key] === product.tab);
+        return salesTab || product.tab;
+      }
+
+      // Check if a product's Item Goods catalog tab is active on the website
+      function isProductActiveOnWebsite(product) {
+        if (!product || !product.tab) return false;
+        
+        let activeItemGoodsTabs = [];
+        try {
+          // Check itemgoods_tabs_website config first
+          const rawItemGoodsTabs = localStorage.getItem("itemgoods_tabs_website");
+          if (rawItemGoodsTabs) {
+            const parsed = JSON.parse(rawItemGoodsTabs);
+            activeItemGoodsTabs = Object.keys(parsed).filter(k => parsed[k] === true || parsed[k] === "true");
+          } else {
+            // fallback to legacy sales_tabs_website
+            const rawSalesTabs = localStorage.getItem("sales_tabs_website");
+            if (rawSalesTabs) {
+              const parsed = JSON.parse(rawSalesTabs);
+              const activeSalesTabs = Object.keys(parsed).filter(k => parsed[k] === true || parsed[k] === "true");
+              // Map legacy sales tabs to their bound product tab
+              let bindings = {};
+              try {
+                const rawBindings = localStorage.getItem("salesBindings");
+                if (rawBindings) {
+                  bindings = JSON.parse(rawBindings);
+                }
+              } catch(e) {}
+              activeSalesTabs.forEach(salesTab => {
+                const bound = bindings[salesTab];
+                if (bound) {
+                  activeItemGoodsTabs.push(bound);
+                }
+              });
+            }
+          }
+        } catch(e) {}
+
+        // If nothing is configured or checked, show all by default
+        if (activeItemGoodsTabs.length === 0) {
+          return true;
+        }
+
+        return activeItemGoodsTabs.includes(product.tab);
+      }
+
       // Render dynamic products / garments
       function renderDynamicStoreCollection() {
         const staticTabs = document.getElementById("static-cat-tabs");
         const dynamicTabs = document.getElementById("dynamic-cat-tabs");
         const staticGrid = document.getElementById("static-garments-grid");
         const dynamicGrid = document.getElementById("dynamic-garments-grid");
+        const noteBox = document.getElementById("bundled-items-note-box");
 
-        // 1. Get unique tabs (categories)
+        // Show prominent note box for bundled items
+        if (noteBox) {
+          noteBox.style.display = "block";
+        }
+
+        // 1. Get unique active item goods tabs (categories)
         const tabs = [
           "ALL",
           ...new Set(
-            loadedProducts.map((item) => item.tab || "Products").filter(Boolean)
+            loadedProducts
+              .filter(p => isProductActiveOnWebsite(p))
+              .map((item) => item.tab || "Products")
+              .filter(Boolean)
           ),
         ];
 
@@ -4049,10 +4144,13 @@
         const dynamicGrid = document.getElementById("dynamic-garments-grid");
         dynamicGrid.innerHTML = "";
 
+        // Filter products that are active on the website
+        const activeProducts = loadedProducts.filter(p => isProductActiveOnWebsite(p));
+
         const allFilteredItems =
           category === "ALL"
-            ? loadedProducts
-            : loadedProducts.filter((p) => p.tab === category);
+            ? activeProducts
+            : activeProducts.filter((p) => p.tab === category);
 
         const totalItems = allFilteredItems.length;
         const totalPages = Math.ceil(totalItems / PRODUCTS_PER_PAGE);
@@ -4232,6 +4330,7 @@
             ? resellerAmount
             : price;
         const existingIndex = cart.findIndex((item) => item.id === id);
+        const prodTab = product ? product.tab : "";
         if (existingIndex !== -1) {
           cart[existingIndex].qty++;
         } else {
@@ -4242,6 +4341,7 @@
             resellerAmount: finalPrice,
             image,
             qty: 1,
+            tab: prodTab,
           });
         }
 
@@ -4306,12 +4406,18 @@
 
           const cartRow = document.createElement("div");
           cartRow.className = "cart-item-row";
+          const itemCategory = item.tab || "Products";
+          const itemSalesTab = getSalesTabForProduct(item);
           cartRow.innerHTML = `
         <img src="${item.image}" alt="${
             item.name
           }" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'">
         <div class="cart-item-info">
           <div class="cart-item-name">${item.name}</div>
+          <div style="font-size: 10px; font-weight: bold; color: var(--gold); background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); padding: 4px 8px; border-radius: 6px; align-self: flex-start; display: inline-flex; flex-direction: column; gap: 2px; margin: 4px 0 8px 0; font-family: 'Space Grotesk', sans-serif; max-width: 100%;">
+            <span>📁 Category: <strong style="color: var(--gold); font-weight: 800;">${itemCategory}</strong></span>
+            <span>💼 Sales Target: <strong style="color: var(--gold); font-weight: 800;">${itemSalesTab}</strong></span>
+          </div>
           <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px;">
             <div style="font-size: 13px; color: var(--muted);">list price: ₱${item.price.toLocaleString()}</div>
             <div class="cart-item-price" style="font-weight: 500; font-size: 14px; color: var(--gold);">Total: ₱${(
@@ -6990,6 +7096,7 @@
                           : i.price,
                       qty: i.qty,
                       image: i.image,
+                      tab: i.tab || "",
                     })),
                     created_at: new Date().toISOString(),
                   });
