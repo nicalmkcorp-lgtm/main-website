@@ -5952,7 +5952,7 @@
 
           if (refLabel) refLabel.textContent = "Payment Reference Trans ID";
           if (refInput) {
-            if (refInput.value === "INTEGRATED-PAYMENT") refInput.value = "";
+            if (refInput.value === "INTEGRATED-PAYMENT" || refInput.value.startsWith("PM-")) refInput.value = "";
             refInput.style.background = "";
             refInput.style.color = "";
             if (!hasQrs) {
