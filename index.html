@@ -3273,7 +3273,19 @@
             }
             break;
           case "shopee":
-            schemeUrl = fallbackUrl.replace(/^https?:\/\//i, "shopeeedl://");
+            // Shopee app uses "shopee://" on iOS and "shopeemobile://" on Android.
+            // Using the correct platform-specific scheme ensures perfect app launch.
+            const isIOS = /iPhone|iPad|iPod/i.test(ua);
+            const shopeeScheme = isIOS ? "shopee://" : "shopeemobile://";
+            // For standard URLs like https://shopee.ph/cart..., the custom scheme
+            // works natively without the "shopee.ph/" domain in front of "cart".
+            // For short links (s.shopee.ph or ph.shp.ee), keeping the host allows
+            // the app's internal domain router to resolve them correctly.
+            if (fallbackUrl.includes("shopee.ph/cart")) {
+              schemeUrl = fallbackUrl.replace(/^https?:\/\/(www\.)?shopee\.ph\//i, shopeeScheme);
+            } else {
+              schemeUrl = fallbackUrl.replace(/^https?:\/\//i, shopeeScheme);
+            }
             break;
           case "messenger":
             const parts = fallbackUrl.split("?")[0].split("/");
