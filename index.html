@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="shortcut icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-<meta name="apple-mobile-web-app-title" content="MyWebSite" />
-<link rel="manifest" href="/site.webmanifest" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Nica Lmk Corp — Drive · Borrow · Wear</title>
@@ -3714,118 +3708,87 @@
           return;
         }
 
-        // Determine if background request is actually necessary
-        const now = Date.now();
-        const cacheTimestamp = localStorage.getItem(
-          "lmk_catalog_cache_timestamp"
-        );
-        const cacheAgeMs = cacheTimestamp
-          ? now - parseInt(cacheTimestamp)
-          : Infinity;
-        const fiveMinutesMs = 5 * 60 * 1000;
+        let configsFetched = false;
+        let newRentals = null;
+        let newPhotos = null;
 
-        // If we have cached catalogs, and they are not stale (less than 5 minutes old),
-        // and this is NOT a manual save/refresh, we don't need to do any network requests!
-        if (
-          !isManualRefresh &&
-          cacheAgeMs < fiveMinutesMs &&
-          loadedProducts.length > 0
-        ) {
-          console.log(
-            "Using fresh catalog cache from local workspace (skipping Supabase fetch)."
+        // 1. Fetch Config details (website_configs) ALWAYS on page load/checkout to make sure QR codes and payment accounts reflect instantly
+        try {
+          const { data: webConfigs, error: webConfigsErr } =
+            await supabaseClient
+              .from("website_configs")
+              .select("*")
+              .eq("company_id", activeCompanyId);
+
+          if (!webConfigsErr && webConfigs && webConfigs.length > 0) {
+            configsFetched = true;
+            console.log(
+              "Loaded configurations from website_configs:",
+              webConfigs
+            );
+            webConfigs.forEach((cfg) => {
+              if (cfg.key === "rentBannerSettings" && cfg.value) {
+                newRentals = cfg.value;
+              } else if (cfg.key === "rentTabPhotos" && cfg.value) {
+                newPhotos = cfg.value;
+              } else if (cfg.key === "gcashNum" && cfg.value) {
+                localStorage.setItem(configKeys.gcashNum, cfg.value);
+              } else if (cfg.key === "gcashName" && cfg.value) {
+                localStorage.setItem(configKeys.gcashName, cfg.value);
+              } else if (cfg.key === "bdoNum" && cfg.value) {
+                localStorage.setItem(configKeys.bdoNum, cfg.value);
+              } else if (cfg.key === "bdoName" && cfg.value) {
+                localStorage.setItem(configKeys.bdoName, cfg.value);
+              } else if (cfg.key === "shopeeUrl" && cfg.value) {
+                localStorage.setItem(configKeys.shopeeUrl, cfg.value);
+              } else if (cfg.key === "shopeeShippingUrl" && cfg.value) {
+                localStorage.setItem(configKeys.shopeeShippingUrl, cfg.value);
+              } else if (cfg.key === "sales_table" && cfg.value) {
+                localStorage.setItem(configKeys.salesTable, cfg.value);
+              } else if (cfg.key === "itemgoods_table" && cfg.value) {
+                localStorage.setItem(configKeys.itemGoodsTable, cfg.value);
+              } else if (cfg.key === "checkoutQrs" && cfg.value) {
+                const qrsVal =
+                  typeof cfg.value === "string"
+                    ? cfg.value
+                    : JSON.stringify(cfg.value);
+                localStorage.setItem(configKeys.checkoutQrs, qrsVal);
+              } else if (cfg.key === "turnstileSiteKey" && cfg.value) {
+                localStorage.setItem(configKeys.turnstileSiteKey, cfg.value);
+              } else if (cfg.key === "turnstileSecretKey" && cfg.value) {
+                localStorage.setItem(
+                  configKeys.turnstileSecretKey,
+                  cfg.value
+                );
+              } else if (cfg.key === "emailjsServiceId" && cfg.value) {
+                localStorage.setItem(configKeys.emailjsServiceId, cfg.value);
+              } else if (cfg.key === "emailjsTemplateId" && cfg.value) {
+                localStorage.setItem(configKeys.emailjsTemplateId, cfg.value);
+              } else if (cfg.key === "emailjsPublicKey" && cfg.value) {
+                localStorage.setItem(configKeys.emailjsPublicKey, cfg.value);
+              } else if (cfg.key === "paymongoPublicKey" && cfg.value) {
+                localStorage.setItem(configKeys.paymongoPublicKey, cfg.value);
+              } else if (cfg.key === "paymongoSecretKey" && cfg.value) {
+                localStorage.setItem(configKeys.paymongoSecretKey, cfg.value);
+              } else if (cfg.key === "itemgoods_tabs_website" && cfg.value) {
+                localStorage.setItem("itemgoods_tabs_website", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
+              } else if (cfg.key === "sales_tabs_website" && cfg.value) {
+                localStorage.setItem("sales_tabs_website", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
+              } else if (cfg.key === "salesBindings" && cfg.value) {
+                localStorage.setItem("salesBindings", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
+              }
+            });
+          }
+        } catch (err) {
+          console.warn(
+            "Could not query website_configs table, falling back:",
+            err
           );
-          return;
         }
 
-        // Only show fetching toast if we don't have cached data or if it is a manual refresh
-        const showToastNotification =
-          isManualRefresh || !loadedProducts || loadedProducts.length === 0;
-
-        try {
-          if (showToastNotification) {
-            showToast("loading data...");
-          }
-
-          let configsFetched = false;
-          let newRentals = null;
-          let newPhotos = null;
-
-          // 1. Fetch Config details (website_configs)
+        // Fallback: If website_configs was empty, query legacy app_config for rentBannerSettings
+        if (!configsFetched) {
           try {
-            const { data: webConfigs, error: webConfigsErr } =
-              await supabaseClient
-                .from("website_configs")
-                .select("*")
-                .eq("company_id", activeCompanyId);
-
-            if (!webConfigsErr && webConfigs && webConfigs.length > 0) {
-              configsFetched = true;
-              console.log(
-                "Loaded configurations from website_configs:",
-                webConfigs
-              );
-              webConfigs.forEach((cfg) => {
-                if (cfg.key === "rentBannerSettings" && cfg.value) {
-                  newRentals = cfg.value;
-                } else if (cfg.key === "rentTabPhotos" && cfg.value) {
-                  newPhotos = cfg.value;
-                } else if (cfg.key === "gcashNum" && cfg.value) {
-                  localStorage.setItem(configKeys.gcashNum, cfg.value);
-                } else if (cfg.key === "gcashName" && cfg.value) {
-                  localStorage.setItem(configKeys.gcashName, cfg.value);
-                } else if (cfg.key === "bdoNum" && cfg.value) {
-                  localStorage.setItem(configKeys.bdoNum, cfg.value);
-                } else if (cfg.key === "bdoName" && cfg.value) {
-                  localStorage.setItem(configKeys.bdoName, cfg.value);
-                } else if (cfg.key === "shopeeUrl" && cfg.value) {
-                  localStorage.setItem(configKeys.shopeeUrl, cfg.value);
-                } else if (cfg.key === "shopeeShippingUrl" && cfg.value) {
-                  localStorage.setItem(configKeys.shopeeShippingUrl, cfg.value);
-                } else if (cfg.key === "sales_table" && cfg.value) {
-                  localStorage.setItem(configKeys.salesTable, cfg.value);
-                } else if (cfg.key === "itemgoods_table" && cfg.value) {
-                  localStorage.setItem(configKeys.itemGoodsTable, cfg.value);
-                } else if (cfg.key === "checkoutQrs" && cfg.value) {
-                  const qrsVal =
-                    typeof cfg.value === "string"
-                      ? cfg.value
-                      : JSON.stringify(cfg.value);
-                  localStorage.setItem(configKeys.checkoutQrs, qrsVal);
-                } else if (cfg.key === "turnstileSiteKey" && cfg.value) {
-                  localStorage.setItem(configKeys.turnstileSiteKey, cfg.value);
-                } else if (cfg.key === "turnstileSecretKey" && cfg.value) {
-                  localStorage.setItem(
-                    configKeys.turnstileSecretKey,
-                    cfg.value
-                  );
-                } else if (cfg.key === "emailjsServiceId" && cfg.value) {
-                  localStorage.setItem(configKeys.emailjsServiceId, cfg.value);
-                } else if (cfg.key === "emailjsTemplateId" && cfg.value) {
-                  localStorage.setItem(configKeys.emailjsTemplateId, cfg.value);
-                } else if (cfg.key === "emailjsPublicKey" && cfg.value) {
-                  localStorage.setItem(configKeys.emailjsPublicKey, cfg.value);
-                } else if (cfg.key === "paymongoPublicKey" && cfg.value) {
-                  localStorage.setItem(configKeys.paymongoPublicKey, cfg.value);
-                } else if (cfg.key === "paymongoSecretKey" && cfg.value) {
-                  localStorage.setItem(configKeys.paymongoSecretKey, cfg.value);
-                } else if (cfg.key === "itemgoods_tabs_website" && cfg.value) {
-                  localStorage.setItem("itemgoods_tabs_website", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
-                } else if (cfg.key === "sales_tabs_website" && cfg.value) {
-                  localStorage.setItem("sales_tabs_website", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
-                } else if (cfg.key === "salesBindings" && cfg.value) {
-                  localStorage.setItem("salesBindings", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
-                }
-              });
-            }
-          } catch (err) {
-            console.warn(
-              "Could not query website_configs table, falling back:",
-              err
-            );
-          }
-
-          // Fallback: If website_configs was empty, query legacy app_config for rentBannerSettings
-          if (!configsFetched) {
             const { data: configRecords, error: configErr } =
               await supabaseClient
                 .from("app_config")
@@ -3846,11 +3809,15 @@
                 newPhotos = photosRec.value;
               }
             }
+          } catch (e) {
+            console.warn("Could not load from app_config legacy table:", e);
           }
+        }
 
-          let carRenderNeeded = false;
+        // Apply and cache rentals and tab photos instantly
+        let carRenderNeeded = false;
+        if (configsFetched || newRentals) {
           if (!newRentals) newRentals = {};
-          
           const rentalsChanged =
             JSON.stringify(newRentals) !== JSON.stringify(loadedRentals);
           if (rentalsChanged) {
@@ -3861,7 +3828,9 @@
             "lmk_cached_rentals",
             JSON.stringify(loadedRentals)
           );
+        }
 
+        if (configsFetched || newPhotos) {
           if (!newPhotos) newPhotos = {};
           const photosChanged =
             JSON.stringify(newPhotos) !== JSON.stringify(loadedRentTabPhotos);
@@ -3873,9 +3842,42 @@
             "lmk_cached_rent_photos",
             JSON.stringify(loadedRentTabPhotos)
           );
+        }
 
-          if (carRenderNeeded || Object.keys(loadedRentals).length === 0) {
-            renderDynamicCarCollection();
+        if (carRenderNeeded || Object.keys(loadedRentals).length === 0) {
+          renderDynamicCarCollection();
+        }
+
+        // Determine if background request is actually necessary for the heavy products query
+        const now = Date.now();
+        const cacheTimestamp = localStorage.getItem(
+          "lmk_catalog_cache_timestamp"
+        );
+        const cacheAgeMs = cacheTimestamp
+          ? now - parseInt(cacheTimestamp)
+          : Infinity;
+        const fiveMinutesMs = 5 * 60 * 1000;
+
+        // If we have cached catalogs, and they are not stale (less than 5 minutes old),
+        // and this is NOT a manual save/refresh, we don't need to do any network requests for catalogs!
+        if (
+          !isManualRefresh &&
+          cacheAgeMs < fiveMinutesMs &&
+          loadedProducts.length > 0
+        ) {
+          console.log(
+            "Using fresh catalog cache from local workspace (skipping Supabase products fetch)."
+          );
+          return;
+        }
+
+        // Only show fetching toast if we don't have cached data or if it is a manual refresh
+        const showToastNotification =
+          isManualRefresh || !loadedProducts || loadedProducts.length === 0;
+
+        try {
+          if (showToastNotification) {
+            showToast("loading data...");
           }
 
           // 2. Fetch products / itemgoods_records
@@ -5847,6 +5849,7 @@
             refInput.readOnly = true;
             refInput.style.opacity = "0.85";
             refInput.style.background = "#f1f5f9";
+            refInput.style.color = "#0f172a";
           }
 
           // If already paid, toggle stage
@@ -5938,6 +5941,8 @@
           if (refLabel) refLabel.textContent = "Payment Reference Trans ID";
           if (refInput) {
             if (refInput.value === "INTEGRATED-PAYMENT") refInput.value = "";
+            refInput.style.background = "";
+            refInput.style.color = "";
             if (!hasQrs) {
               refInput.readOnly = true;
               refInput.style.opacity = "0.5";
