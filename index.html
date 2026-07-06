@@ -7530,12 +7530,12 @@
         }
       }
 
-      // Helper to convert standard Shopee product URLs to direct buy/checkout URLs
+      // Helper to convert standard Shopee product URLs to direct product URLs
       function getShopeeCheckoutUrl(url) {
         if (!url) return url;
-        // Check if it is already a direct checkout/cart URL
-        if (url.includes("buy_now_item_list")) {
-          return url;
+        // If it is already a direct product link, return it
+        if (url.includes("/product/")) {
+          return url.split("?")[0]; // remove extra queries to be safe
         }
 
         // Match standard product URLs, e.g.:
@@ -7546,7 +7546,7 @@
         if (matchI) {
           const shopId = matchI[1];
           const itemId = matchI[2];
-          return `https://shopee.ph/cart?buy_now_item_list=${shopId}-${itemId}-1`;
+          return `https://shopee.ph/product/${shopId}/${itemId}`;
         }
 
         return url;
