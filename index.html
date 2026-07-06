@@ -4577,7 +4577,10 @@
         document.getElementById("checkout-car-price").value = totalPrice;
 
         const refInput = document.getElementById("checkout-ref");
-        if (refInput) refInput.value = "";
+        if (refInput) {
+          refInput.value = "";
+          delete refInput.dataset.pmRef;
+        }
 
         updatePaymentDetails();
 
@@ -5662,7 +5665,10 @@
         currentActiveRanges = [];
 
         const refInput = document.getElementById("checkout-ref");
-        if (refInput) refInput.value = "";
+        if (refInput) {
+          refInput.value = "";
+          delete refInput.dataset.pmRef;
+        }
 
         // Render Calendar inside the Checkout Modal
         const calContainer = document.getElementById(
@@ -5797,11 +5803,11 @@
         );
 
         if (paymentMethod === "PayMongo") {
-          // Generate/retrieve PM reference number
-          let currentRef = refInput.value.trim();
+          // Generate PM reference number if not already present in the UI
+          let currentRef = refInput.dataset.pmRef || "";
           if (!currentRef.startsWith("PM-")) {
             currentRef = "PM-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-            refInput.value = currentRef;
+            refInput.dataset.pmRef = currentRef;
           }
 
           const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -5849,10 +5855,12 @@
             </div>
           `;
 
+          const isPaidPM = (window.__paymongoPaidOrders && window.__paymongoPaidOrders[currentRef]) || localStorage.getItem('gcash_success_pm_' + currentRef) === 'true';
+
           // Configure checkout-ref input for PayMongo
           if (refLabel) refLabel.textContent = "PayMongo Transaction Ref ID";
           if (refInput) {
-            refInput.value = currentRef;
+            refInput.value = isPaidPM ? currentRef : "";
             refInput.readOnly = true;
             refInput.style.opacity = "0.85";
             refInput.style.background = "#f1f5f9";
@@ -5860,7 +5868,7 @@
           }
 
           // If already paid, toggle stage
-          if ((window.__paymongoPaidOrders && window.__paymongoPaidOrders[currentRef]) || localStorage.getItem('gcash_success_pm_' + currentRef) === 'true') {
+          if (isPaidPM) {
             if (localStorage.getItem('gcash_success_pm_' + currentRef) === 'true') {
               window.__paymongoPaidOrders[currentRef] = true;
               localStorage.removeItem('gcash_success_pm_' + currentRef);
