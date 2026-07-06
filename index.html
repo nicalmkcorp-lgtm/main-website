@@ -3268,18 +3268,18 @@
             }
             break;
           case "shopee":
-            // Shopee app uses "shopee://" on iOS and "shopeemobile://" on Android.
-            // Using the correct platform-specific scheme ensures perfect app launch.
             const isIOS = /iPhone|iPad|iPod/i.test(ua);
-            const shopeeScheme = isIOS ? "shopee://" : "shopeemobile://";
-            // For standard URLs like https://shopee.ph/cart..., the custom scheme
-            // works natively without the "shopee.ph/" domain in front of "cart".
-            // For short links (s.shopee.ph or ph.shp.ee), keeping the host allows
-            // the app's internal domain router to resolve them correctly.
-            if (fallbackUrl.includes("shopee.ph/cart")) {
-              schemeUrl = fallbackUrl.replace(/^https?:\/\/(www\.)?shopee\.ph\//i, shopeeScheme);
+            const isAndroid = /Android/i.test(ua);
+            if (isAndroid) {
+              const rawUrl = fallbackUrl.replace(/^https?:\/\//i, "");
+              schemeUrl = "intent://" + rawUrl + "#Intent;scheme=https;package=com.shopee.ph;S.browser_fallback_url=" + encodeURIComponent(fallbackUrl) + ";end";
             } else {
-              schemeUrl = fallbackUrl.replace(/^https?:\/\//i, shopeeScheme);
+              const shopeeScheme = isIOS ? "shopee://" : "shopeemobile://";
+              if (fallbackUrl.includes("shopee.ph/cart")) {
+                schemeUrl = fallbackUrl.replace(/^https?:\/\/(www\.)?shopee\.ph\//i, shopeeScheme);
+              } else {
+                schemeUrl = fallbackUrl.replace(/^https?:\/\//i, shopeeScheme);
+              }
             }
             break;
           case "messenger":
@@ -3317,6 +3317,11 @@
 
         // Try triggering the custom app scheme URL
         window.location.href = schemeUrl;
+
+        if (schemeUrl.startsWith("intent://")) {
+          // Android Intent URLs handle their own fallback
+          return;
+        }
 
         // Fallback to web URL if app launch fails (doesn't trigger tab hide)
         setTimeout(function () {
