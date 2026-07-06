@@ -2567,23 +2567,18 @@
               <!-- Dynamic Payment Merchant Box -->
               <div class="payment-instructions" id="payment-prompt-box">
                 <strong>Send Payment to Merchant:</strong><br />
-                <span id="payment-gateway-text"
-                  >GCash: 0917-000-0001 (LMK CORP STORE)</span
-                ><br />
-                <small
-                  >Settle the total amount then input the reference code below
-                  to synchronize your booking transaction.</small
+                <div class="form-group" style="margin-top: 12px; margin-bottom: 12px;">
+                  <label for="checkout-ref">Payment Reference Trans ID</label>
+                  <input
+                    type="text"
+                    id="checkout-ref"
+                    required
+                    placeholder="InstaPay / GCash Ref No."
+                  />
+                </div>
+                <div id="payment-gateway-text" style="margin-top: 12px;"
+                  >GCash: 0917-000-0001 (LMK CORP STORE)</div
                 >
-              </div>
-
-              <div class="form-group">
-                <label for="checkout-ref">Payment Reference Trans ID</label>
-                <input
-                  type="text"
-                  id="checkout-ref"
-                  required
-                  placeholder="InstaPay / GCash Ref No."
-                />
               </div>
             </div>
 
@@ -5930,7 +5925,7 @@
 
             textBox.innerHTML = `
               <div style="font-weight: 600; color: var(--ink); margin-bottom: 6px;">Scan QR Code to Pay: ₱${priceAmount.toLocaleString()}</div>
-              <div style="font-size:11px; color:var(--muted); margin-bottom:12px; line-height:1.4;">Select an uploaded QR option below to pay. Click any QR code to zoom. Settle the amount and input the completed payment's Reference Transaction ID below.</div>
+              <div style="font-size:11px; color:var(--muted); margin-bottom:12px; line-height:1.4;">Select an uploaded QR option below to pay. Click any QR code to zoom. Settle the amount and input the completed payment's Reference Transaction ID above.</div>
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 8px;">
                 ${qrsHtml}
               </div>
