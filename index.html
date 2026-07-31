@@ -587,6 +587,37 @@
       .product {
         cursor: pointer;
       }
+      @keyframes imgSkeletonShimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      .img-skeleton {
+        position: relative;
+        background: linear-gradient(90deg, #e8e1d2 25%, #f6f1e7 50%, #e8e1d2 75%) !important;
+        background-size: 200% 100% !important;
+        animation: imgSkeletonShimmer 1.5s infinite linear !important;
+      }
+
+      .car .img.img-skeleton {
+        background: linear-gradient(90deg, #181612 25%, #2a2620 50%, #181612 75%) !important;
+        background-size: 200% 100% !important;
+        animation: imgSkeletonShimmer 1.5s infinite linear !important;
+      }
+
+      .img-skeleton img {
+        opacity: 0;
+        transition: opacity 0.4s ease-in-out;
+      }
+
+      .img-skeleton img.loaded, img.img-loaded {
+        opacity: 1 !important;
+      }
+
       .product .ph {
         aspect-ratio: 3/4;
         overflow: hidden;
@@ -3223,7 +3254,7 @@
       // paste your Supabase URL and public anon key below (highly recommended!).
       const HARDCODED_SUPABASE_URL = "https://mjserver.lmk-corp-sys.com";
       const HARDCODED_SUPABASE_ANON_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIn0.r3bp4XSuKP7bIHwIQWVvo-8KRiVPC94Tajiw6Gz8leQ";
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIn0.tmnQgLmN6LaGJzNCb4fUNrneMYs2TGU4Ib4QFpEsNYY";
       const HARDCODED_COMPANY_ID = "nikalmkcorp"; // Default company ID slug which determines what catalog is loaded
 
       // Native App Deep Linking Helper with Smart Web Fallback
@@ -3372,30 +3403,13 @@
         emailjsPublicKey: "lmk_store_emailjs_public_key",
       };
 
-      // Live retrieved catalogs (loaded from cache on startup if available)
+      // Live retrieved catalogs (always fetched fresh from Supabase)
       let loadedProducts = [];
       let loadedRentals = {};
       let loadedRentTabPhotos = {};
       let currentProductPage = 1;
       const PRODUCTS_PER_PAGE = 12;
       let currentProductCategory = "ALL";
-
-      try {
-        const cachedProducts = localStorage.getItem("lmk_cached_products");
-        if (cachedProducts) {
-          loadedProducts = JSON.parse(cachedProducts);
-        }
-        const cachedRentals = localStorage.getItem("lmk_cached_rentals");
-        if (cachedRentals) {
-          loadedRentals = JSON.parse(cachedRentals);
-        }
-        const cachedPhotos = localStorage.getItem("lmk_cached_rent_photos");
-        if (cachedPhotos) {
-          loadedRentTabPhotos = JSON.parse(cachedPhotos);
-        }
-      } catch (e) {
-        console.warn("Could not load cached catalogs:", e);
-      }
 
       // Standard Default fallbacks if Supabase is unconfigured (For pristine testing)
       const defaultGCashNum = "0917-000-0001";
@@ -3642,28 +3656,9 @@
 
       // Initialize Supabase Client
       function initSupabaseConnection() {
-        let url = localStorage.getItem(configKeys.supabaseUrl);
-        let key = localStorage.getItem(configKeys.supabaseKey);
-
-        // Fallback to React Dashboard's internal settings if not explicitly saved for the storefront yet
-        if (!url || !key) {
-          try {
-            const rawSettings = localStorage.getItem("lmk_store_settings");
-            if (rawSettings) {
-              const settings = JSON.parse(rawSettings);
-              if (settings && settings.supabaseUrl && settings.supabaseAnonKey) {
-                url = settings.supabaseUrl;
-                key = settings.supabaseAnonKey;
-                localStorage.setItem(configKeys.supabaseUrl, url);
-                localStorage.setItem(configKeys.supabaseKey, key);
-              }
-            }
-          } catch(e) {}
-        }
-
-        // Final fallback to hardcoded defaults
-        url = url || HARDCODED_SUPABASE_URL;
-        key = key || HARDCODED_SUPABASE_ANON_KEY;
+        // ALWAYS use hardcoded Supabase credentials directly (bypassing local storage overrides)
+        const url = HARDCODED_SUPABASE_URL;
+        const key = HARDCODED_SUPABASE_ANON_KEY;
 
         if (url && key) {
           try {
@@ -3860,32 +3855,8 @@
           renderDynamicCarCollection();
         }
 
-        // Determine if background request is actually necessary for the heavy products query
-        const now = Date.now();
-        const cacheTimestamp = localStorage.getItem(
-          "lmk_catalog_cache_timestamp"
-        );
-        const cacheAgeMs = cacheTimestamp
-          ? now - parseInt(cacheTimestamp)
-          : Infinity;
-        const fiveMinutesMs = 5 * 60 * 1000;
-
-        // If we have cached catalogs, and they are not stale (less than 5 minutes old),
-        // and this is NOT a manual save/refresh, we don't need to do any network requests for catalogs!
-        if (
-          !isManualRefresh &&
-          cacheAgeMs < fiveMinutesMs &&
-          loadedProducts.length > 0
-        ) {
-          console.log(
-            "Using fresh catalog cache from local workspace (skipping Supabase products fetch)."
-          );
-          return;
-        }
-
-        // Only show fetching toast if we don't have cached data or if it is a manual refresh
-        const showToastNotification =
-          isManualRefresh || !loadedProducts || loadedProducts.length === 0;
+        // Always fetch fresh catalog data directly from Supabase (bypassing local cache)
+        const showToastNotification = isManualRefresh;
 
         try {
           if (showToastNotification) {
@@ -4002,7 +3973,7 @@
           const carCard = document.createElement("article");
           carCard.className = `car reveal d${(i % 4) + 1} in`; // Inject in class to run observer instantly
           carCard.innerHTML = `
-        <div class="img"><img alt="${modelName}" src="${carImgSrc}"></div>
+        <div class="img img-skeleton"><img alt="${modelName}" src="${carImgSrc}" onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="this.onerror=null; this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');"></div>
         <div class="body">
           <h3>${modelName}</h3>
           <div class="meta">${features}</div>
@@ -4183,7 +4154,7 @@
 
         itemsToRender.forEach((item, index) => {
           // Build storage public image if it exists, otherwise fall back to premium default images.
-          const url = localStorage.getItem(configKeys.supabaseUrl);
+          const url = HARDCODED_SUPABASE_URL;
           let imgPath =
             "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=80"; // standard default placeholder
 
@@ -4245,11 +4216,11 @@
           }
 
           prodElement.innerHTML = `
-        <div class="ph">
+        <div class="ph img-skeleton">
           ${tagHtml}
           <img alt="${
             item.name
-          }" src="${imgPath}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'">
+          }" src="${imgPath}" onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'; this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');">
         </div>
         <h3>${item.name || "Atelier Item"}</h3>
         <p style="font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.05em">${
@@ -4848,13 +4819,7 @@
         syncHiddenToSplit();
       }
 
-      // Cache of fetched booked ranges to avoid double-fetching if called in quick succession
-      let carBookedRangesCache = {};
-
       async function fetchBookedRanges(carModel) {
-        if (carBookedRangesCache[carModel]) {
-          return carBookedRangesCache[carModel];
-        }
         if (!supabaseClient) {
           console.warn("Supabase client not initialized yet.");
           return [];
@@ -4940,7 +4905,6 @@
         } catch (err) {
           console.error("Error fetching booked ranges:", err);
         }
-        carBookedRangesCache[carModel] = ranges;
         return ranges;
       }
 
@@ -6240,7 +6204,7 @@
               }
               
               if (errMsg === "Failed to send a request to the Edge Function" || errMsg === "Failed to fetch") {
-                const currentUrl = localStorage.getItem(configKeys.supabaseUrl) || HARDCODED_SUPABASE_URL;
+                const currentUrl = HARDCODED_SUPABASE_URL;
                 throw new Error("Could not connect to the PayMongo Edge Function at " + currentUrl + ".\n\nThe browser blocked the request because the Edge Function 'create-paymongo-source' is likely NOT DEPLOYED at this URL.\n\nIf you deployed it to your OWN Supabase project, you MUST update 'HARDCODED_SUPABASE_URL' in website.html to match your project URL.");
               }
               
