@@ -2311,6 +2311,37 @@
       </div>
     </div>
 
+    <!-- Item Gallery Photo Popup Modal -->
+    <div id="gallery-modal-overlay" class="modal-overlay" style="z-index: 1000;" onclick="closeGalleryModal()">
+      <div class="modal-box gallery-modal-box" style="max-width: 680px; width: 95%; background: #12110d; border: 1px solid var(--gold); border-radius: 20px; padding: 24px; position: relative;" onclick="event.stopPropagation()">
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 18px;">
+          <div>
+            <h3 id="gallery-modal-title" style="font-size: 22px; color: var(--gold); font-family: 'Cormorant Garamond', serif; letter-spacing: 0.05em; margin: 0;">Item Gallery</h3>
+            <p id="gallery-modal-subtitle" style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.15em; margin-top: 2px;">Photo Catalog</p>
+          </div>
+          <button class="close-btn" onclick="closeGalleryModal()" style="background: transparent; border: none; color: var(--gold); font-size: 26px; cursor: pointer;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 0;">
+          <!-- Main Display Image Box -->
+          <div id="gallery-main-container" class="img-skeleton" style="position: relative; width: 100%; height: 380px; background: #0b0a08; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line);">
+            <img id="gallery-main-img" src="" alt="Gallery Photo" style="max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.3s ease;" onload="this.style.opacity='1'; if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="if(this.parentElement) this.parentElement.classList.remove('img-skeleton'); this.style.opacity='0.5';" />
+            
+            <!-- Navigation Arrows -->
+            <button id="gallery-prev-btn" onclick="navigateGallery(-1)" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); color: var(--gold); border: 1px solid var(--gold); width: 38px; height: 38px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: 0.2s;" title="Previous Photo">‹</button>
+            <button id="gallery-next-btn" onclick="navigateGallery(1)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); color: var(--gold); border: 1px solid var(--gold); width: 38px; height: 38px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: 0.2s;" title="Next Photo">›</button>
+
+            <!-- Counter Badge -->
+            <span id="gallery-counter" style="position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.75); color: var(--ink); border: 1px solid var(--line); font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.1em; backdrop-filter: blur(4px);">1 / 1</span>
+          </div>
+
+          <!-- Thumbnails Strip -->
+          <div id="gallery-thumbnails-strip" style="display: flex; gap: 10px; overflow-x: auto; margin-top: 14px; padding-bottom: 6px;">
+            <!-- Thumbnails rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 3. Checkout Modal -->
     <div id="checkout-modal-overlay" class="modal-overlay">
       <div class="modal-box">
@@ -3919,6 +3950,136 @@
         }
       }
 
+      // --- Item Gallery Photo Popup Logic ---
+      let currentGalleryPhotos = [];
+      let currentGalleryIndex = 0;
+
+      function parseGalleryPhotos(input) {
+        if (!input) return [];
+        if (Array.isArray(input)) return input.filter(Boolean);
+        if (typeof input === "string") {
+          if (input.trim().startsWith("[")) {
+            try {
+              const parsed = JSON.parse(input);
+              if (Array.isArray(parsed) && parsed.length > 0) return parsed.filter(Boolean);
+            } catch (e) {}
+          }
+          return [input];
+        }
+        return [];
+      }
+
+      function openGalleryModal(title, subtitle, photos) {
+        currentGalleryPhotos = parseGalleryPhotos(photos);
+        if (currentGalleryPhotos.length === 0) {
+          currentGalleryPhotos = ["https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=80"];
+        }
+        currentGalleryIndex = 0;
+
+        document.getElementById("gallery-modal-title").textContent = title || "Item Gallery";
+        document.getElementById("gallery-modal-subtitle").textContent = subtitle || "Photo Catalog";
+
+        updateGalleryModalView();
+
+        const overlay = document.getElementById("gallery-modal-overlay");
+        if (overlay) overlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeGalleryModal() {
+        const overlay = document.getElementById("gallery-modal-overlay");
+        if (overlay) overlay.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+
+      function updateGalleryModalView() {
+        const mainImg = document.getElementById("gallery-main-img");
+        const mainContainer = document.getElementById("gallery-main-container");
+        const counter = document.getElementById("gallery-counter");
+        const prevBtn = document.getElementById("gallery-prev-btn");
+        const nextBtn = document.getElementById("gallery-next-btn");
+        const strip = document.getElementById("gallery-thumbnails-strip");
+
+        const currentUrl = currentGalleryPhotos[currentGalleryIndex];
+
+        if (mainContainer) mainContainer.classList.add("img-skeleton");
+        if (mainImg) {
+          mainImg.style.opacity = "0";
+          mainImg.src = currentUrl;
+        }
+
+        if (counter) counter.textContent = `${currentGalleryIndex + 1} / ${currentGalleryPhotos.length}`;
+
+        if (currentGalleryPhotos.length <= 1) {
+          if (prevBtn) prevBtn.style.display = "none";
+          if (nextBtn) nextBtn.style.display = "none";
+          if (strip) strip.style.display = "none";
+        } else {
+          if (prevBtn) prevBtn.style.display = "flex";
+          if (nextBtn) nextBtn.style.display = "flex";
+          if (strip) {
+            strip.style.display = "flex";
+            strip.innerHTML = "";
+            currentGalleryPhotos.forEach((photo, idx) => {
+              const thumb = document.createElement("div");
+              thumb.style.width = "64px";
+              thumb.style.height = "64px";
+              thumb.style.flexShrink = "0";
+              thumb.style.borderRadius = "8px";
+              thumb.style.overflow = "hidden";
+              thumb.style.cursor = "pointer";
+              thumb.style.border = idx === currentGalleryIndex ? "2px solid var(--gold)" : "1px solid var(--line)";
+              thumb.style.opacity = idx === currentGalleryIndex ? "1" : "0.5";
+              thumb.style.transition = "0.2s";
+              thumb.onclick = () => {
+                currentGalleryIndex = idx;
+                updateGalleryModalView();
+              };
+
+              thumb.innerHTML = `<img src="${photo}" style="width:100%; height:100%; object-fit:cover;" />`;
+              strip.appendChild(thumb);
+            });
+          }
+        }
+      }
+
+      function navigateGallery(direction) {
+        if (currentGalleryPhotos.length === 0) return;
+        currentGalleryIndex = (currentGalleryIndex + direction + currentGalleryPhotos.length) % currentGalleryPhotos.length;
+        updateGalleryModalView();
+      }
+
+      function openGalleryModalForRent(tabName, modelName) {
+        const rentPhotos = loadedRentTabPhotos && loadedRentTabPhotos[tabName];
+        let photos = parseGalleryPhotos(rentPhotos);
+        if (photos.length === 0) {
+          photos = ["https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907649938.png"];
+        }
+        openGalleryModal(modelName, `Car Rental Gallery · ${tabName}`, photos);
+      }
+
+      function openGalleryModalForProduct(productId) {
+        const product = loadedProducts.find(p => String(p.id) === String(productId));
+        if (!product) return;
+
+        const url = HARDCODED_SUPABASE_URL;
+        const defaultPath = "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=80";
+
+        let photos = parseGalleryPhotos(product.images || product.image);
+        if (photos.length === 0) {
+          photos = [defaultPath];
+        } else {
+          photos = photos.map(img => {
+            if (!img) return defaultPath;
+            if (img.startsWith("http")) return img;
+            if (url) return `${url}/storage/v1/object/public/item%20pictures/pictures/${img}`;
+            return img;
+          });
+        }
+
+        openGalleryModal(product.name || "Item Listing", `${product.tab || "Products"} · Photo Gallery`, photos);
+      }
+
       // Render dynamic cars
       function renderDynamicCarCollection() {
         const staticGrid = document.getElementById("static-cars-grid");
@@ -3959,8 +4120,8 @@
             "Rent package configured for direct Cavite travel. High-tier maintenance.";
 
           // Get image from the corresponding rent tab photo banner
-          const photoBase64 =
-            loadedRentTabPhotos && loadedRentTabPhotos[tabName];
+          const photoData = loadedRentTabPhotos && loadedRentTabPhotos[tabName];
+          const parsedRentPhotos = parseGalleryPhotos(photoData);
 
           // Default placeholder if photo doesn't exist
           const defaultImg =
@@ -3968,12 +4129,16 @@
               ? "https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907649938.png"
               : "https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907740417.png";
 
-          const carImgSrc = photoBase64 ? photoBase64 : defaultImg;
+          const carImgSrc = parsedRentPhotos[0] || defaultImg;
+          const photoBadgeText = parsedRentPhotos.length > 1 ? `📷 ${parsedRentPhotos.length} Photos` : `🔍 View Gallery`;
 
           const carCard = document.createElement("article");
           carCard.className = `car reveal d${(i % 4) + 1} in`; // Inject in class to run observer instantly
           carCard.innerHTML = `
-        <div class="img img-skeleton"><img alt="${modelName}" src="${carImgSrc}" onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="this.onerror=null; this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');"></div>
+        <div class="img img-skeleton" style="cursor: pointer; position: relative;" onclick="openGalleryModalForRent('${tabName}', '${modelName.replace(/'/g, "\\'")}')" title="Click to view photo gallery">
+          <img alt="${modelName}" src="${carImgSrc}" onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="this.onerror=null; this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');">
+          <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: var(--gold); border: 1px solid var(--gold); font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.1em; pointer-events: none; backdrop-filter: blur(4px);">${photoBadgeText}</span>
+        </div>
         <div class="body">
           <h3>${modelName}</h3>
           <div class="meta">${features}</div>
@@ -4158,6 +4323,8 @@
           let imgPath =
             "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=80"; // standard default placeholder
 
+          const parsedItemPhotos = parseGalleryPhotos(item.images || item.image);
+
           if (item.image) {
             if (item.image.startsWith("http")) {
               imgPath = item.image;
@@ -4165,6 +4332,8 @@
               imgPath = `${url}/storage/v1/object/public/item%20pictures/pictures/${item.image}`;
             }
           }
+
+          const photoBadgeText = parsedItemPhotos.length > 1 ? `📷 ${parsedItemPhotos.length} Photos` : `🔍 View Gallery`;
 
           const price = parseFloat(item.price || 0);
           const resellerAmount =
@@ -4216,11 +4385,12 @@
           }
 
           prodElement.innerHTML = `
-        <div class="ph img-skeleton">
+        <div class="ph img-skeleton" style="cursor: pointer; position: relative;" onclick="openGalleryModalForProduct('${item.id}')" title="Click to view photo gallery">
           ${tagHtml}
           <img alt="${
             item.name
           }" src="${imgPath}" onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'; this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');">
+          <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: var(--gold); border: 1px solid var(--gold); font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.1em; pointer-events: none; backdrop-filter: blur(4px);">${photoBadgeText}</span>
         </div>
         <h3>${item.name || "Atelier Item"}</h3>
         <p style="font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.05em">${
@@ -7678,7 +7848,13 @@
         const topModal = activeModals[activeModals.length - 1];
         const id = topModal.id;
         
-        if (id === 'checkout-modal-overlay') {
+        if (id === 'gallery-modal-overlay') {
+          if (typeof closeGalleryModal === 'function') {
+            closeGalleryModal();
+          } else {
+            topModal.classList.remove('active');
+          }
+        } else if (id === 'checkout-modal-overlay') {
           if (typeof closeCheckoutModal === 'function') {
             closeCheckoutModal();
           } else {
