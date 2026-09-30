@@ -420,7 +420,7 @@
       }
       .car h3 {
         font-size: 26px;
-        margin-bottom: 4px;
+        margin-bottom: 16px;
       }
       .car .meta {
         font-size: 12px;
@@ -909,9 +909,9 @@
             </div>
             <div class="body">
               <h3>Toyota Avanza 2025</h3>
-              <div class="meta">MPV · Auto · 7 seats</div>
+              <div class="meta">Features - MPV · Auto · 7 seats</div>
               <p style="color: var(--muted); font-size: 14px">
-                It features FWD, a spacious cabin, and top-tier trims.
+                Description - It features FWD, a spacious cabin, and top-tier trims.
               </p>
               <div
                 class="price"
@@ -944,9 +944,9 @@
             </div>
             <div class="body">
               <h3>Toyota Wigo 2026</h3>
-              <div class="meta">5 Door Hatchback · 5 seats</div>
+              <div class="meta">Features - 5 Door Hatchback · 5 seats</div>
               <p style="color: var(--muted); font-size: 14px">
-                offering great urban maneuverability and excellent fuel
+                Description - offering great urban maneuverability and excellent fuel
                 efficiency.
               </p>
               <div
@@ -4110,11 +4110,20 @@
           const p12 = (rentConfig.price12h || "1699").replace(/,/g, "");
           const p24 = (rentConfig.price24h || "2499").replace(/,/g, "");
           const pDriver = (rentConfig.priceDriver || "1000").replace(/,/g, "");
-          const features =
+          const rawFeatures =
             rentConfig.features || `${color} · Aircon · Automatic`;
-          const description =
+          const features =
+            /^features\s*[-:]/i.test(rawFeatures.trim())
+              ? rawFeatures
+              : `Features - ${rawFeatures}`;
+
+          const rawDescription =
             rentConfig.description ||
             "Rent package configured for direct Cavite travel. High-tier maintenance.";
+          const description =
+            /^description\s*[-:]/i.test(rawDescription.trim())
+              ? rawDescription
+              : `Description - ${rawDescription}`;
 
           // Get image from the corresponding rent tab photo banner or rentConfig.rentPhotos
           const photoData = (rentConfig.rentPhotos && rentConfig.rentPhotos.length > 0)
