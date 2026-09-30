@@ -3409,8 +3409,8 @@
 
       // Storage settings keys
       const configKeys = {
-        supabaseUrl: "https://mjserver.nica-lmk-corp.com",
-        supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIn0.tmnQgLmN6LaGJzNCb4fUNrneMYs2TGU4Ib4QFpEsNYY",
+        supabaseUrl: "lmk_store_supabase_url",
+        supabaseKey: "lmk_store_supabase_key",
         companyId: "lmk_store_company_id",
         gcashNum: "lmk_store_gcash_num",
         gcashName: "lmk_store_gcash_name",
@@ -3765,8 +3765,8 @@
               webConfigs
             );
             webConfigs.forEach((cfg) => {
-              if (cfg.key === "rentBannerSettings" && cfg.value) {
-                newRentals = cfg.value;
+              if (cfg.key === "rentStorefrontCatalog" && cfg.value) {
+                newRentals = typeof cfg.value === "string" ? JSON.parse(cfg.value) : cfg.value;
               } else if (cfg.key === "rentTabPhotos" && cfg.value) {
                 newPhotos = cfg.value;
               } else if (cfg.key === "gcashNum" && cfg.value) {
@@ -3824,7 +3824,7 @@
           );
         }
 
-        // Fallback: If website_configs was empty, query legacy app_config for rentBannerSettings
+        // Fallback: If website_configs was empty or offline, query app_config for rentTabPhotos only
         if (!configsFetched) {
           try {
             const { data: configRecords, error: configErr } =
@@ -3834,12 +3834,6 @@
                 .eq("company_id", activeCompanyId);
 
             if (!configErr && configRecords) {
-              const bannerRec = configRecords.find(
-                (r) => r.key === "rentBannerSettings"
-              );
-              if (bannerRec && bannerRec.value) {
-                newRentals = bannerRec.value;
-              }
               const photosRec = configRecords.find(
                 (r) => r.key === "rentTabPhotos"
               );
@@ -4050,7 +4044,10 @@
       }
 
       function openGalleryModalForRent(tabName, modelName) {
-        const rentPhotos = loadedRentTabPhotos && loadedRentTabPhotos[tabName];
+        const item = loadedRentals && loadedRentals[tabName];
+        const rentPhotos = (item && item.rentPhotos && item.rentPhotos.length > 0)
+          ? item.rentPhotos
+          : (loadedRentTabPhotos && loadedRentTabPhotos[tabName]);
         let photos = parseGalleryPhotos(rentPhotos);
         if (photos.length === 0) {
           photos = ["https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907649938.png"];
@@ -4119,8 +4116,10 @@
             rentConfig.description ||
             "Rent package configured for direct Cavite travel. High-tier maintenance.";
 
-          // Get image from the corresponding rent tab photo banner
-          const photoData = loadedRentTabPhotos && loadedRentTabPhotos[tabName];
+          // Get image from the corresponding rent tab photo banner or rentConfig.rentPhotos
+          const photoData = (rentConfig.rentPhotos && rentConfig.rentPhotos.length > 0)
+            ? rentConfig.rentPhotos
+            : (loadedRentTabPhotos && loadedRentTabPhotos[tabName]);
           const parsedRentPhotos = parseGalleryPhotos(photoData);
 
           // Default placeholder if photo doesn't exist
