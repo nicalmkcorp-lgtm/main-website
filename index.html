@@ -3418,17 +3418,13 @@
         bdoName: "lmk_store_bdo_name",
         shopeeUrl: "lmk_store_shopee_url",
         shopeePartnerId: "lmk_store_shopee_partner_id",
-        shopeePartnerKey: "lmk_store_shopee_partner_key",
         shopeeShopId: "lmk_store_shopee_shop_id",
-        shopeeAccessToken: "lmk_store_shopee_access_token",
         paymongoPublicKey: "lmk_store_paymongo_public_key",
-        paymongoSecretKey: "lmk_store_paymongo_secret_key",
         shopeeShippingUrl: "lmk_store_shopee_shipping_url",
         salesTable: "lmk_store_sales_table",
         itemGoodsTable: "lmk_store_itemgoods_table",
         checkoutQrs: "lmk_store_checkout_qrs",
         turnstileSiteKey: "lmk_store_turnstile_site_key",
-        turnstileSecretKey: "lmk_store_turnstile_secret_key",
         emailjsServiceId: "lmk_store_emailjs_service_id",
         emailjsTemplateId: "lmk_store_emailjs_template_id",
         emailjsPublicKey: "lmk_store_emailjs_public_key",
@@ -3750,21 +3746,27 @@
         let newRentals = null;
         let newPhotos = null;
 
-        // 1. Fetch Config details (website_configs) ALWAYS on page load/checkout to make sure QR codes and payment accounts reflect instantly
+        // 1. Fetch Config details securely via PostgreSQL RPC (get_public_store_config)
+        // Sanitizes private keys and ensures smart company resolution
         try {
           const { data: webConfigs, error: webConfigsErr } =
-            await supabaseClient
-              .from("website_configs")
-              .select("*")
-              .or(`company_id.eq.${activeCompanyId},company_id.eq.nikalmkcorp,company_id.eq.nicalmkcorp,company_id.eq.default`);
+            await supabaseClient.rpc("get_public_store_config", {
+              p_company_id: activeCompanyId,
+            });
 
-          if (!webConfigsErr && webConfigs && webConfigs.length > 0) {
+          if (!webConfigsErr && webConfigs && typeof webConfigs === "object") {
             configsFetched = true;
             console.log(
-              "Loaded configurations from website_configs:",
+              "Loaded secure configurations via RPC (get_public_store_config):",
               webConfigs
             );
-            webConfigs.forEach((cfg) => {
+
+            // Handle object map returned from RPC or array fallback
+            const configEntries = Array.isArray(webConfigs)
+              ? webConfigs
+              : Object.entries(webConfigs).map(([key, value]) => ({ key, value }));
+
+            configEntries.forEach((cfg) => {
               if (cfg.key === "rentStorefrontCatalog" && cfg.value) {
                 newRentals = typeof cfg.value === "string" ? JSON.parse(cfg.value) : cfg.value;
               } else if (cfg.key === "rentTabPhotos" && cfg.value) {
@@ -3793,11 +3795,6 @@
                 localStorage.setItem(configKeys.checkoutQrs, qrsVal);
               } else if (cfg.key === "turnstileSiteKey" && cfg.value) {
                 localStorage.setItem(configKeys.turnstileSiteKey, cfg.value);
-              } else if (cfg.key === "turnstileSecretKey" && cfg.value) {
-                localStorage.setItem(
-                  configKeys.turnstileSecretKey,
-                  cfg.value
-                );
               } else if (cfg.key === "emailjsServiceId" && cfg.value) {
                 const cleanVal = String(cfg.value).trim();
                 localStorage.setItem(configKeys.emailjsServiceId, cleanVal);
@@ -3816,8 +3813,6 @@
                 }
               } else if (cfg.key === "paymongoPublicKey" && cfg.value) {
                 localStorage.setItem(configKeys.paymongoPublicKey, cfg.value);
-              } else if (cfg.key === "paymongoSecretKey" && cfg.value) {
-                localStorage.setItem(configKeys.paymongoSecretKey, cfg.value);
               } else if (cfg.key === "itemgoods_tabs_website" && cfg.value) {
                 localStorage.setItem("itemgoods_tabs_website", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
               } else if (cfg.key === "sales_tabs_website" && cfg.value) {
@@ -3829,31 +3824,9 @@
           }
         } catch (err) {
           console.warn(
-            "Could not query website_configs table, falling back:",
+            "Could not query get_public_store_config RPC, operating with cached config:",
             err
           );
-        }
-
-        // Fallback: If website_configs was empty or offline, query app_config for rentTabPhotos only
-        if (!configsFetched) {
-          try {
-            const { data: configRecords, error: configErr } =
-              await supabaseClient
-                .from("app_config")
-                .select("*")
-                .eq("company_id", activeCompanyId);
-
-            if (!configErr && configRecords) {
-              const photosRec = configRecords.find(
-                (r) => r.key === "rentTabPhotos"
-              );
-              if (photosRec && photosRec.value) {
-                newPhotos = photosRec.value;
-              }
-            }
-          } catch (e) {
-            console.warn("Could not load from app_config legacy table:", e);
-          }
         }
 
         // Apply and cache rentals and tab photos instantly
@@ -3870,6 +3843,28 @@
             "lmk_cached_rentals",
             JSON.stringify(loadedRentals)
           );
+        }
+
+        // Also fetch active rental fleet via get_public_rental_fleet RPC if no custom rentStorefrontCatalog was set
+        if (!newRentals || Object.keys(newRentals).length === 0) {
+          try {
+            const { data: rentalFleet, error: fleetErr } = await supabaseClient.rpc("get_public_rental_fleet", {
+              p_company_id: activeCompanyId,
+            });
+            if (!fleetErr && rentalFleet && Array.isArray(rentalFleet) && rentalFleet.length > 0) {
+              const fleetMap = {};
+              rentalFleet.forEach(car => {
+                const tabKey = car.tab || "Default Fleet";
+                if (!fleetMap[tabKey]) fleetMap[tabKey] = [];
+                fleetMap[tabKey].push(car);
+              });
+              loadedRentals = fleetMap;
+              carRenderNeeded = true;
+              localStorage.setItem("lmk_cached_rentals", JSON.stringify(loadedRentals));
+            }
+          } catch (e) {
+            console.warn("Could not load rental fleet via RPC:", e);
+          }
         }
 
         if (configsFetched || newPhotos) {
@@ -3890,7 +3885,7 @@
           renderDynamicCarCollection();
         }
 
-        // Always fetch fresh catalog data directly from Supabase (bypassing local cache)
+        // Always fetch fresh catalog data securely via get_public_store_catalog RPC
         const showToastNotification = isManualRefresh;
 
         try {
@@ -3898,19 +3893,17 @@
             showToast("loading data...");
           }
 
-          // 2. Fetch products / itemgoods_records
+          // 2. Fetch products securely via get_public_store_catalog RPC
           const boundItemGoodsTable =
             localStorage.getItem(configKeys.itemGoodsTable) || "";
-          let prodQuery = supabaseClient
-            .from("itemgoods_records")
-            .select("*")
-            .eq("company", activeCompanyId);
 
-          if (boundItemGoodsTable) {
-            prodQuery = prodQuery.eq("tab", boundItemGoodsTable);
-          }
-
-          let { data: products, error: prodErr } = await prodQuery;
+          let { data: products, error: prodErr } = await supabaseClient.rpc(
+            "get_public_store_catalog",
+            {
+              p_company_id: activeCompanyId,
+              p_tab: boundItemGoodsTable || null,
+            }
+          );
 
           if (prodErr) throw prodErr;
           if (!products) products = [];
@@ -3927,7 +3920,7 @@
           );
           if (products.length === 0) {
             console.log(
-              "No items found in 'itemgoods_records' for company:",
+              "No items found via 'get_public_store_catalog' for company:",
               activeCompanyId
             );
           }
@@ -5014,84 +5007,27 @@
         }
         const ranges = [];
         try {
-          // 1. Fetch from website_orders
-          const { data: orders, error: ordersErr } = await supabaseClient
-            .from("website_orders")
-            .select("*")
-            .eq("order_type", "rent")
-            .eq("car_model", carModel);
+          const { data: bookedRows, error: rpcErr } = await supabaseClient.rpc(
+            "get_rental_booked_ranges",
+            {
+              p_company_id: HARDCODED_COMPANY_ID,
+              p_car_model: carModel || "",
+            }
+          );
 
-          if (orders) {
-            orders.forEach((order) => {
-              if (order.status === "declined" || order.status === "cancelled") {
-                return;
-              }
-              let start = null;
-              let end = null;
-
-              if (
-                order.items &&
-                Array.isArray(order.items) &&
-                order.items.length > 0
-              ) {
-                const item = order.items[0];
-                if (item.start_date) start = item.start_date;
-                if (item.end_date) end = item.end_date;
-              }
-
-              if (!start && order.created_at) {
-                start = order.created_at;
-                const durHours = order.duration === "12hr" ? 12 : 24;
-                const future = new Date(
-                  new Date(start).getTime() + durHours * 60 * 60 * 1000
-                );
-                end = future.toISOString();
-              }
-
-              if (start && end) {
-                const isConfirmed = order.status === "confirmed";
+          if (!rpcErr && bookedRows && Array.isArray(bookedRows)) {
+            bookedRows.forEach((row) => {
+              if (row.start_date && row.end_date) {
                 ranges.push({
-                  start: new Date(start),
-                  end: new Date(end),
-                  status: isConfirmed ? "confirmed" : "pending"
-                });
-              }
-            });
-          }
-
-          // 2. Fetch from rent_records
-          const { data: rentRecs, error: rentErr } = await supabaseClient
-            .from("rent_records")
-            .select("*")
-            .eq("company", activeCompanyId)
-            .eq("type", "rent");
-
-          if (rentRecs) {
-            rentRecs.forEach((rec) => {
-              if (
-                rec.status === "cancelled" ||
-                rec.status === "deleted" ||
-                rec.status === "finished"
-              ) {
-                return;
-              }
-              const matchesCar =
-                (rec.remarks &&
-                  rec.remarks.toLowerCase().includes(carModel.toLowerCase())) ||
-                (rec.name &&
-                  rec.name.toLowerCase().includes(carModel.toLowerCase()));
-
-              if (matchesCar && rec.date && rec.end_date) {
-                ranges.push({
-                  start: new Date(rec.date),
-                  end: new Date(rec.end_date),
+                  start: new Date(row.start_date),
+                  end: new Date(row.end_date),
                   status: "confirmed"
                 });
               }
             });
           }
         } catch (err) {
-          console.error("Error fetching booked ranges:", err);
+          console.error("Error fetching booked ranges via RPC:", err);
         }
         return ranges;
       }
@@ -6345,7 +6281,7 @@
         }
 
         const payload = {
-          authKey: authKey, // This will act as fallback if Edge Function doesn't have PAYMONGO_SECRET_KEY
+          publicKey: authKey, // PayMongo Public Key
           companyId: HARDCODED_COMPANY_ID,
           turnstileToken: turnstileToken,
           data: {
@@ -7370,38 +7306,41 @@
 
             if (supabaseClient) {
               try {
-                const { error } = await supabaseClient
-                  .from("website_orders")
-                  .insert({
-                    company_id: activeCompanyId,
-                    customer_name: customerName,
-                    phone: phone,
-                    facebook: fbProfile,
-                    address: address,
-                    fulfillment: fulfillment,
-                    payment_method: payment,
-                    reference_num: refNum,
-                    total_price: totalPrice,
-                    order_type: "cart",
-                    status: payment === "PayMongo" ? "payment_confirmed" : "pending",
-                    items: cartSnapshot.map((i) => ({
-                      id: i.id,
-                      name: i.name,
-                      price:
-                        i.resellerAmount !== undefined &&
-                        i.resellerAmount !== null
-                          ? i.resellerAmount
-                          : i.price,
-                      qty: i.qty,
-                      image: i.image,
-                      tab: i.tab || "",
-                    })),
-                    created_at: new Date().toISOString(),
-                  });
+                const insertPayload = {
+                  company_id: activeCompanyId,
+                  customer_name: customerName,
+                  phone: phone,
+                  facebook: fbProfile,
+                  address: address,
+                  fulfillment: fulfillment,
+                  payment_method: payment,
+                  reference_number: refNum,
+                  total_price: totalPrice,
+                  order_type: "cart",
+                  status: payment === "PayMongo" ? "payment_confirmed" : "pending",
+                  items: cartSnapshot.map((i) => ({
+                    id: i.id,
+                    name: i.name,
+                    price:
+                      i.resellerAmount !== undefined &&
+                      i.resellerAmount !== null
+                        ? i.resellerAmount
+                        : i.price,
+                    qty: i.qty,
+                    image: i.image,
+                    tab: i.tab || "",
+                  })),
+                  created_at: new Date().toISOString(),
+                };
 
-                if (error) {
-                  console.error("Failed to insert into website_orders.", error);
-                  throw error;
+                const { data: res, error } = await supabaseClient.rpc(
+                  "submit_public_store_order",
+                  { p_order: insertPayload }
+                );
+
+                if (error || (res && res.success === false)) {
+                  console.error("Failed to submit order via RPC.", error || res);
+                  throw (error || new Error(res?.error || "Order submission failed"));
                 }
                 writeSuccessful = true;
               } catch (err) {
@@ -7415,36 +7354,39 @@
 
             if (supabaseClient) {
               try {
-                const { error } = await supabaseClient
-                  .from("website_orders")
-                  .insert({
-                    company_id: activeCompanyId,
-                    customer_name: customerName,
-                    phone: phone,
-                    facebook: fbProfile,
-                    address: address,
-                    fulfillment: fulfillment,
-                    payment_method: payment,
-                    reference_num: refNum,
-                    total_price: totalPrice,
-                    order_type: "rent",
-                    car_model: carModel,
-                    duration: duration,
-                    status: payment === "PayMongo" ? "payment_confirmed" : "pending",
-                    items: [
-                      {
-                        name: carModel,
-                        qty: 1,
-                        price: totalPrice,
-                        duration: duration,
-                      },
-                    ],
-                    created_at: new Date().toISOString(),
-                  });
+                const insertPayload = {
+                  company_id: activeCompanyId,
+                  customer_name: customerName,
+                  phone: phone,
+                  facebook: fbProfile,
+                  address: address,
+                  fulfillment: fulfillment,
+                  payment_method: payment,
+                  reference_number: refNum,
+                  total_price: totalPrice,
+                  order_type: "rent",
+                  car_model: carModel,
+                  duration: duration,
+                  status: payment === "PayMongo" ? "payment_confirmed" : "pending",
+                  items: [
+                    {
+                      name: carModel,
+                      qty: 1,
+                      price: totalPrice,
+                      duration: duration,
+                    },
+                  ],
+                  created_at: new Date().toISOString(),
+                };
 
-                if (error) {
-                  console.error("Failed to insert into website_orders.", error);
-                  throw error;
+                const { data: res, error } = await supabaseClient.rpc(
+                  "submit_public_store_order",
+                  { p_order: insertPayload }
+                );
+
+                if (error || (res && res.success === false)) {
+                  console.error("Failed to submit rental order via RPC.", error || res);
+                  throw (error || new Error(res?.error || "Rental order submission failed"));
                 }
                 writeSuccessful = true;
               } catch (err) {
@@ -7511,7 +7453,6 @@
 
           if (supabaseClient) {
             try {
-              // Attempt inserting into public.website_orders as temporary container
               let insertPayload = {
                 company_id: activeCompanyId,
                 customer_name: customerName,
@@ -7520,7 +7461,7 @@
                 address: address,
                 fulfillment: fulfillment,
                 payment_method: payment,
-                reference_num: refNum,
+                reference_number: refNum,
                 total_price: totalPrice,
                 order_type: "cart",
                 status: "pending",
@@ -7534,13 +7475,14 @@
                 created_at: new Date().toISOString(),
               };
 
-              let { error } = await supabaseClient
-                .from("website_orders")
-                .insert(insertPayload);
+              let { data: res, error } = await supabaseClient.rpc(
+                "submit_public_store_order",
+                { p_order: insertPayload }
+              );
 
-              if (error) {
-                console.error("Failed to insert into website_orders. Please ensure the table has order_type, car_model, and duration columns.", error);
-                throw error;
+              if (error || (res && res.success === false)) {
+                console.error("Failed to submit order via RPC.", error || res);
+                throw (error || new Error(res?.error || "Order submission failed"));
               }
               submitCompleted = true;
               triggerWebsiteOrderNotification(
@@ -7583,7 +7525,7 @@
                 address: address,
                 fulfillment: "Rental Reservation",
                 payment_method: "Deferred / Staff Confirmation",
-                reference_num: "PENDING_CONFIRMATION",
+                reference_number: "PENDING_CONFIRMATION",
                 total_price: finalRentTotal,
                 order_type: "rent",
                 car_model: carModel,
@@ -7606,14 +7548,14 @@
                 created_at: new Date().toISOString(),
               };
 
-              // Attempt inserting into website_orders table
-              let { error } = await supabaseClient
-                .from("website_orders")
-                .insert(insertPayload);
+              let { data: res, error } = await supabaseClient.rpc(
+                "submit_public_store_order",
+                { p_order: insertPayload }
+              );
                 
-              if (error) {
-                console.error("Failed to insert into website_orders. Please ensure the table has order_type, car_model, and duration columns.", error);
-                throw error;
+              if (error || (res && res.success === false)) {
+                console.error("Failed to submit rental reservation via RPC.", error || res);
+                throw (error || new Error(res?.error || "Rental reservation failed"));
               }
               submitCompleted = true;
               triggerWebsiteOrderNotification(
