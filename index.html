@@ -7712,6 +7712,25 @@
         fbLink = "",
         msgText = ""
       ) {
+        // Trigger notification
+        if (dbSuccess && supabaseClient) {
+          const activeCompanyId = HARDCODED_COMPANY_ID;
+          const type =
+            document.getElementById("checkout-type")?.value || "Order";
+          supabaseClient.functions
+            .invoke("send-website-order-notification", {
+              body: {
+                record: {
+                  company_id: activeCompanyId,
+                  customer_name: customerName,
+                  reference_num: orderId,
+                  order_type: type,
+                },
+              },
+            })
+            .catch((e) => console.warn("FCM push invoke failed:", e));
+        }
+
         const oldOverlay = document.getElementById("success-overlay");
         if (oldOverlay) oldOverlay.remove();
 
