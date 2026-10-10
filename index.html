@@ -6831,6 +6831,32 @@
         }, 2200);
       };
 
+      async function triggerWebsiteOrderNotification(
+        companyId,
+        customerName,
+        refNum,
+        type
+      ) {
+        if (!supabaseClient) return;
+        try {
+          await supabaseClient.functions.invoke(
+            "send-website-order-notification",
+            {
+              body: {
+                record: {
+                  company_id: companyId,
+                  customer_name: customerName,
+                  reference_num: refNum,
+                  order_type: type,
+                },
+              },
+            }
+          );
+        } catch (e) {
+          console.error("Failed to invoke notification webhook:", e);
+        }
+      }
+
       async function sendAutomatedEmail(data) {
         if (typeof emailjs === "undefined") {
           console.warn("📧 EmailJS SDK is not loaded. Cannot send automated email.");
@@ -7459,6 +7485,12 @@
                 throw (error || new Error(res?.error || "Order submission failed"));
               }
               submitCompleted = true;
+              triggerWebsiteOrderNotification(
+                activeCompanyId,
+                customerName,
+                refNum,
+                type
+              );
             } catch (err) {
               console.error("Order submit failed:", err);
               submitCompleted = false;
@@ -7526,6 +7558,12 @@
                 throw (error || new Error(res?.error || "Rental reservation failed"));
               }
               submitCompleted = true;
+              triggerWebsiteOrderNotification(
+                activeCompanyId,
+                customerName,
+                refNum,
+                type
+              );
             } catch (err) {
               console.error("Reservation submit failed:", err);
               submitCompleted = false;
