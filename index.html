@@ -4996,6 +4996,8 @@
           ).textContent = `₱${total.toLocaleString()}`;
         }
         document.getElementById("rent-calc-total").dataset.rawTotal = total;
+        document.getElementById("rent-calc-total").dataset.driverFee = driverTotal;
+        document.getElementById("rent-calc-total").dataset.driverOption = driverOption;
 
         syncHiddenToSplit();
       }
@@ -6832,23 +6834,29 @@
       };
 
       async function triggerWebsiteOrderNotification(
-        companyId,
+        companyIdOrPayload,
         customerName,
         refNum,
         type
       ) {
         if (!supabaseClient) return;
         try {
+          let recordPayload = {};
+          if (typeof companyIdOrPayload === "object" && companyIdOrPayload !== null) {
+            recordPayload = { ...companyIdOrPayload };
+          } else {
+            recordPayload = {
+              company_id: companyIdOrPayload,
+              customer_name: customerName,
+              reference_num: refNum,
+              order_type: type,
+            };
+          }
           await supabaseClient.functions.invoke(
             "send-website-order-notification",
             {
               body: {
-                record: {
-                  company_id: companyId,
-                  customer_name: customerName,
-                  reference_num: refNum,
-                  order_type: type,
-                },
+                record: recordPayload,
               },
             }
           );
@@ -7190,11 +7198,29 @@
         const operatorNameVal = (document.getElementById("checkout-rent-operator-name") && document.getElementById("checkout-rent-operator-name").value) || "Nica Lmk Corp";
         const operatorAddressVal = (document.getElementById("checkout-rent-operator-address") && document.getElementById("checkout-rent-operator-address").value) || "Cavite City";
 
+        let driverFeeVal = 0;
+        if (driverOptionVal === "with_driver") {
+          const rawDriverFee = document.getElementById("rent-calc-total")?.dataset?.driverFee;
+          if (rawDriverFee !== undefined && rawDriverFee !== null && !isNaN(parseFloat(rawDriverFee))) {
+            driverFeeVal = parseFloat(rawDriverFee);
+          } else {
+            const startD = new Date(sDateVal);
+            const endD = new Date(eDateVal);
+            let diffHours = 24;
+            if (!isNaN(startD.getTime()) && !isNaN(endD.getTime()) && endD > startD) {
+              diffHours = Math.max(1, (endD - startD) / (1000 * 60 * 60));
+            }
+            const driverPrice = parseFloat(document.getElementById("checkout-driver-price")?.value || 1000);
+            driverFeeVal = Math.ceil(diffHours / 12) * driverPrice;
+          }
+        }
+
         const rentalDetails = {
           carModel: carModelVal,
           sDate: sDateVal,
           eDate: eDateVal,
           driverOption: driverOptionVal,
+          driverFee: driverFeeVal,
           plateNumber: plateNumberVal,
           distanceLimit: distanceLimitVal,
           operatorName: operatorNameVal,
@@ -7207,16 +7233,24 @@
               item.resellerAmount !== undefined && item.resellerAmount !== null
                 ? parseFloat(item.resellerAmount)
                 : parseFloat(item.price);
-            return sum + priceVal * item.qty;
+            return sum + (isNaN(priceVal) ? 0 : priceVal) * (item.qty || 1);
           }, 0);
         } else if (type === "rent") {
-          totalPrice = parseFloat(
-            document.getElementById("rent-calc-total")?.dataset?.rawTotal ||
-              document
-                .getElementById("rent-calc-total")
-                ?.textContent?.replace(/[^0-9.]/g, "") ||
-              totalPrice
-          );
+          const rawTotalData = document.getElementById("rent-calc-total")?.dataset?.rawTotal;
+          if (rawTotalData && !isNaN(parseFloat(rawTotalData)) && parseFloat(rawTotalData) > 0) {
+            totalPrice = parseFloat(rawTotalData);
+          } else {
+            const rentElem = document.getElementById("rent-calc-total");
+            let textToParse = "";
+            if (rentElem) {
+              const clone = rentElem.cloneNode(true);
+              const span = clone.querySelector("span");
+              if (span) span.remove();
+              textToParse = clone.textContent.replace(/[^0-9.]/g, "");
+            }
+            const parsed = parseFloat(textToParse);
+            totalPrice = !isNaN(parsed) && parsed > 0 ? parsed : totalPrice;
+          }
         }
 
         // Anti-spam protection: 30-second cooldown between final submissions
@@ -7343,6 +7377,30 @@
                   throw (error || new Error(res?.error || "Order submission failed"));
                 }
                 writeSuccessful = true;
+                triggerWebsiteOrderNotification({
+                  company_id: activeCompanyId,
+                  customer_name: customerName,
+                  phone: phone,
+                  facebook: fbProfile,
+                  address: address,
+                  fulfillment: fulfillment,
+                  payment_method: payment,
+                  reference_num: refNum || orderId,
+                  total_price: totalPrice,
+                  order_type: "cart",
+                  items: cartSnapshot.map((i) => ({
+                    id: i.id,
+                    name: i.name,
+                    price:
+                      i.resellerAmount !== undefined &&
+                      i.resellerAmount !== null
+                        ? i.resellerAmount
+                        : i.price,
+                    qty: i.qty,
+                    image: i.image,
+                    tab: i.tab || "",
+                  })),
+                });
               } catch (err) {
                 console.error("Order submit failed:", err);
               }
@@ -7374,6 +7432,10 @@
                       qty: 1,
                       price: totalPrice,
                       duration: duration,
+                      driver_option: driverOptionVal,
+                      driver_fee: driverFeeVal,
+                      start_date: sDateVal,
+                      end_date: eDateVal,
                     },
                   ],
                   created_at: new Date().toISOString(),
@@ -7389,6 +7451,34 @@
                   throw (error || new Error(res?.error || "Rental order submission failed"));
                 }
                 writeSuccessful = true;
+                triggerWebsiteOrderNotification({
+                  company_id: activeCompanyId,
+                  customer_name: customerName,
+                  phone: phone,
+                  facebook: fbProfile,
+                  address: address,
+                  fulfillment: fulfillment,
+                  payment_method: payment,
+                  reference_num: refNum || orderId,
+                  total_price: totalPrice,
+                  order_type: "rent",
+                  car_model: carModel,
+                  duration: duration,
+                  driver_option: driverOptionVal,
+                  driver_fee: driverFeeVal,
+                  items: [
+                    {
+                      name: carModel,
+                      qty: 1,
+                      price: totalPrice,
+                      duration: duration,
+                      driver_option: driverOptionVal,
+                      driver_fee: driverFeeVal,
+                      start_date: sDateVal,
+                      end_date: eDateVal,
+                    },
+                  ],
+                });
               } catch (err) {
                 console.error("Reservation submit failed:", err);
               }
@@ -7485,12 +7575,25 @@
                 throw (error || new Error(res?.error || "Order submission failed"));
               }
               submitCompleted = true;
-              triggerWebsiteOrderNotification(
-                activeCompanyId,
-                customerName,
-                refNum,
-                type
-              );
+              triggerWebsiteOrderNotification({
+                company_id: activeCompanyId,
+                customer_name: customerName,
+                phone: phone,
+                facebook: fbProfile,
+                address: address,
+                fulfillment: fulfillment,
+                payment_method: payment,
+                reference_num: refNum,
+                total_price: totalPrice,
+                order_type: "cart",
+                items: cartSnapshot.map((i) => ({
+                  id: i.id,
+                  name: i.name,
+                  price: i.price,
+                  qty: i.qty,
+                  image: i.image,
+                })),
+              });
             } catch (err) {
               console.error("Order submit failed:", err);
               submitCompleted = false;
@@ -7539,6 +7642,7 @@
                     start_date: sDate,
                     end_date: eDate,
                     driver_option: driverOption,
+                    driver_fee: driverFeeVal,
                     distance_limit: distanceLimit,
                     plate_number: plateNumber,
                     operator_name: operatorName,
@@ -7558,12 +7662,37 @@
                 throw (error || new Error(res?.error || "Rental reservation failed"));
               }
               submitCompleted = true;
-              triggerWebsiteOrderNotification(
-                activeCompanyId,
-                customerName,
-                refNum,
-                type
-              );
+              triggerWebsiteOrderNotification({
+                company_id: activeCompanyId,
+                customer_name: customerName,
+                phone: phone,
+                facebook: fbProfile,
+                address: address,
+                fulfillment: "Rental Reservation",
+                payment_method: "Deferred / Staff Confirmation",
+                reference_num: "PENDING_CONFIRMATION",
+                total_price: finalRentTotal,
+                order_type: "rent",
+                car_model: carModel,
+                duration: durationText,
+                driver_option: driverOption,
+                driver_fee: driverFeeVal,
+                items: [
+                  {
+                    name: carModel,
+                    qty: 1,
+                    price: finalRentTotal,
+                    start_date: sDate,
+                    end_date: eDate,
+                    driver_option: driverOption,
+                    driver_fee: driverFeeVal,
+                    distance_limit: distanceLimit,
+                    plate_number: plateNumber,
+                    operator_name: operatorName,
+                    operator_address: operatorAddress,
+                  },
+                ],
+              });
             } catch (err) {
               console.error("Reservation submit failed:", err);
               submitCompleted = false;
