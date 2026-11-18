@@ -3,6 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <title>Nica Lmk Corp — Drive · Borrow · Wear</title>
     <script
       src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
@@ -2135,17 +2137,12 @@
 
     <!-- SUPABASE CLIENT SDK VIA CDN -->
     <script
-      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"
       crossorigin="anonymous"
     ></script>
     <!-- EMAILJS SDK VIA CDN -->
     <script
-      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
-      crossorigin="anonymous"
-    ></script>
-    <!-- CRYPTO-JS FOR SHOPEE SECURITY HMAC ENCRYPTION -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"
       crossorigin="anonymous"
     ></script>
 
@@ -2783,510 +2780,51 @@
       </div>
     </div>
 
-    <!-- PayMongo SECURE CHECKOUT INTEGRATION OVERLAY -->
-    <div
-      id="paymongo-modal-overlay"
-      class="modal-overlay"
-      style="
-        z-index: 1500;
-        display: none;
-        background: rgba(0, 31, 31, 0.75);
-        backdrop-filter: blur(4px);
-      "
-    >
-      <div
-        class="modal-box"
-        style="
-          max-width: 440px;
-          text-align: left;
-          padding: 24px;
-          position: relative;
-          border-top: 5px solid #00bfa6;
-          border-radius: 12px;
-          background: #00293c;
-          color: #ffffff;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-        "
-      >
-        <div
-          class="modal-header"
-          style="
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 12px;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          "
-        >
-          <h3
-            style="
-              font-size: 15px;
-              font-weight: 800;
-              text-transform: uppercase;
-              letter-spacing: 0.06em;
-              margin: 0;
-              color: #00bfa6;
-              display: flex;
-              align-items: center;
-              gap: 8px;
-            "
-          >
-            <span style="font-size: 20px">💳</span> PayMongo Secure Checkout
-          </h3>
-          <button
-            class="close-btn"
-            type="button"
-            onclick="closePaymongoModal()"
-            style="
-              color: #ffffff;
-              font-size: 24px;
-              background: none;
-              border: none;
-              cursor: pointer;
-            "
-          >
-            &times;
-          </button>
-        </div>
-
-        <div class="modal-body" style="padding: 0">
-          <div
-            style="
-              background: rgba(0, 191, 166, 0.08);
-              border: 1px solid rgba(0, 191, 166, 0.2);
-              padding: 14px;
-              border-radius: 8px;
-              margin-bottom: 18px;
-              border-left: 4px solid #00bfa6;
-            "
-          >
-            <div
-              style="
-                font-size: 11px;
-                font-weight: 700;
-                color: #00bfa6;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-              "
-            >
-              Merchant: LMK CORP
-            </div>
-            <div
-              id="paymongo-order-title"
-              style="
-                font-size: 13px;
-                font-weight: 700;
-                color: #ffffff;
-                margin-top: 4px;
-              "
-            >
-              Order #Loading...
-            </div>
-            <div
-              id="paymongo-order-price"
-              style="
-                font-size: 18px;
-                font-weight: 800;
-                color: #00bfa6;
-                margin-top: 2px;
-              "
-            >
-              ₱0.00
-            </div>
-          </div>
-
-          <div id="paymongo-interactive-form">
-            <p
-              style="
-                font-size: 12px;
-                color: #a0aec0;
-                margin-bottom: 16px;
-                line-height: 1.4;
-              "
-            >
-              Select your payment option inside PayMongo Secure Gateway
-              to complete checkout.
-            </p>
-
-            <div class="form-group" style="margin-bottom: 12px">
-              <label
-                style="
-                  color: #a0aec0;
-                  font-size: 10px;
-                  font-weight: 800;
-                  text-transform: uppercase;
-                "
-                >Pay via PayMongo Wallet / GCash / Card</label
-              >
-              <select
-                id="paymongo-payment-source"
-                style="
-                  width: 100%;
-                  background: #0b1d28;
-                  color: #ffffff;
-                  border: 1px solid rgba(255, 255, 255, 0.2);
-                  border-radius: 6px;
-                  padding: 10px;
-                  font-size: 12px;
-                  font-weight: bold;
-                  outline: none;
-                  margin-top: 4px;
-                "
-              >
-                <option value="wallet">
-                  PayMongo Wallet (Instant authorization)
-                </option>
-                <option value="gcash">GCash Wallet (Automatic Redirect)</option>
-                <option value="card">Visa/Mastercard Credit Card</option>
-              </select>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 16px">
-              <label
-                style="
-                  color: #a0aec0;
-                  font-size: 10px;
-                  font-weight: 800;
-                  text-transform: uppercase;
-                "
-                >PayMongo Verified Account Holder Name</label
-              >
-              <input
-                type="text"
-                id="paymongo-auth-name"
-                placeholder="Juan Dela Cruz"
-                style="
-                  width: 100%;
-                  background: #0b1d28;
-                  color: #ffffff;
-                  border: 1px solid rgba(255, 255, 255, 0.2);
-                  border-radius: 6px;
-                  padding: 10px;
-                  font-size: 12px;
-                  margin-top: 4px;
-                  font-weight: bold;
-                "
-                required
-              />
-            </div>
-
-            <div
-              style="
-                font-size: 11px;
-                font-weight: 700;
-                color: #a0aec0;
-                margin-bottom: 8px;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-              "
-            >
-              Gateway Connection Status:
-            </div>
-
-            <div
-              id="paymongo-progress-logs"
-              style="
-                background: #0b1d28;
-                color: #a0aec0;
-                font-family: monospace;
-                font-size: 11px;
-                padding: 12px;
-                border-radius: 6px;
-                line-height: 1.5;
-                max-height: 120px;
-                overflow-y: auto;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                margin-bottom: 16px;
-              "
-            >
-              <div style="color: #00bfa6">
-                [system] Initializing safe tunnel...
-              </div>
-              <div>[system] Keys validated successfully.</div>
-              <div>[system] Ready for user authorization.</div>
-            </div>
-
-            <button
-              type="button"
-              id="paymongo-authorize-btn"
-              onclick="executePaymongoPaymentFlow()"
-              style="
-                width: 100%;
-                background: #00bfa6;
-                color: #00293c;
-                font-weight: 800;
-                font-size: 12px;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                padding: 14px;
-                border-radius: 6px;
-                border: none;
-                cursor: pointer;
-                transition: all 0.2s;
-              "
-              onmouseover="this.style.background='#05e0c2'"
-              onmouseout="this.style.background='#00BFA6'"
-            >
-              Authorize & Pay ₱0.00
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SHOPEE OPEN API HUBS & SANDBOX INTEG OVERLAY -->
-    <div
-      id="shopee-modal-overlay"
-      class="modal-overlay"
-      style="z-index: 1500; display: none; background: rgba(0, 0, 0, 0.6)"
-    >
-      <div
-        class="modal-box"
-        style="
-          max-width: 440px;
-          text-align: left;
-          padding: 24px;
-          position: relative;
-          border-top: 5px solid #ee4d2d;
-          border-radius: 8px;
-        "
-      >
-        <div
-          class="modal-header"
-          style="
-            border-bottom: 1px solid #edf2f7;
-            padding-bottom: 12px;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          "
-        >
-          <h3
-            style="
-              font-size: 16px;
-              font-weight: 800;
-              text-transform: uppercase;
-              letter-spacing: 0.06em;
-              margin: 0;
-              color: #ee4d2d;
-              display: flex;
-              align-items: center;
-              gap: 8px;
-            "
-          >
-            <span style="font-size: 20px">🛍️</span> Shopee Open API Direct Link
-          </h3>
-          <button class="close-btn" type="button" onclick="closeShopeeModal()">
-            &times;
-          </button>
-        </div>
-
-        <div class="modal-body" style="padding: 0">
-          <div
-            style="
-              background: #fffaf9;
-              border: 1px solid #fcebeb;
-              padding: 12px;
-              border-radius: 6px;
-              margin-bottom: 16px;
-              border-left: 4px solid #ee4d2d;
-            "
-          >
-            <div style="font-size: 12px; font-weight: 700; color: #ee4d2d">
-              Active Transient Checkout Transaction
-            </div>
-            <div
-              id="shopee-order-title"
-              style="
-                font-size: 13px;
-                font-weight: 600;
-                color: var(--ink);
-                margin-top: 4px;
-              "
-            >
-              Order #Loading payment link...
-            </div>
-            <div
-              id="shopee-order-price"
-              style="
-                font-size: 15px;
-                font-weight: 800;
-                color: #ee4d2d;
-                margin-top: 2px;
-              "
-            >
-              ₱0.00
-            </div>
-          </div>
-
-          <div
-            style="
-              font-size: 12px;
-              font-weight: 700;
-              color: var(--ink);
-              margin-bottom: 8px;
-              text-transform: uppercase;
-              letter-spacing: 0.03em;
-            "
-          >
-            API Transaction Logs:
-          </div>
-          <div
-            style="
-              background: #1a202c;
-              color: #a0aec0;
-              font-family: 'Courier New', monospace;
-              font-size: 11px;
-              padding: 12px;
-              border-radius: 6px;
-              line-height: 1.5;
-              max-height: 150px;
-              overflow-y: auto;
-              margin-bottom: 16px;
-              box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
-              border: 1px solid #2d3748;
-            "
-            id="shopee-logs"
-          >
-            [system] Initializing Shopee Open API v2 integration...<br />
-          </div>
-
-          <!-- Action Area -->
-          <div
-            id="shopee-real-redirect"
-            style="display: none; text-align: center; padding: 12px 0"
-          >
-            <p
-              style="
-                font-size: 12px;
-                color: var(--muted);
-                margin-bottom: 12px;
-                line-height: 1.5;
-              "
-            >
-              Your Shopee custom payment link is active and indexed on your
-              storefront.
-            </p>
-            <a
-              id="shopee-redirect-link"
-              href="#"
-              target="_blank"
-              rel="noopener"
-              class="btn-primary"
-              style="
-                background: #ee4d2d;
-                border-color: #ee4d2d;
-                font-size: 12px;
-                padding: 12px 24px;
-                text-decoration: none;
-                display: inline-block;
-                font-weight: bold;
-                color: white;
-              "
-              >👉 GO TO SHOPEE PAYMENT PAGE</a
-            >
-          </div>
-
-          <div
-            id="shopee-simulated-payment"
-            style="
-              display: none;
-              background: #f7fafc;
-              border: 1px dashed #cbd5e0;
-              padding: 16px;
-              border-radius: 6px;
-              text-align: center;
-            "
-          >
-            <div
-              style="
-                font-size: 11px;
-                font-weight: 600;
-                color: var(--ink);
-                text-transform: uppercase;
-                margin-bottom: 4px;
-                letter-spacing: 0.03em;
-              "
-            >
-              Sandbox Developer Integration Mode
-            </div>
-            <p
-              style="
-                font-size: 11px;
-                color: #4a5568;
-                line-height: 1.4;
-                margin-bottom: 12px;
-              "
-            >
-              Mock/Simulated Shopee storefront created. Click below to mimic
-              Shopee's instant webhook authorization response.
-            </p>
-
-            <button
-              type="button"
-              id="shopee-simulate-btn"
-              class="btn-primary"
-              onclick="simulateShopeePaymentCompletion()"
-              style="
-                background: #48bb78;
-                border-color: #48bb78;
-                color: white;
-                width: 100%;
-                font-size: 12px;
-                font-weight: 700;
-                padding: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 6px;
-              "
-            >
-              <span>🟢</span> Simulate Paid Webhook Notification
-            </button>
-          </div>
-
-          <!-- Footer Guidance -->
-          <div
-            style="
-              font-size: 10px;
-              color: var(--muted);
-              line-height: 1.4;
-              margin-top: 16px;
-              border-top: 1px solid #edf2f7;
-              padding-top: 12px;
-            "
-          >
-            Shopee Open API standard dictates that payment links created via
-            <code
-              style="background: #f7fafc; padding: 2px 4px; border-radius: 3px"
-              >v2.product.add_item</code
-            >
-            must be immediately deleted via
-            <code
-              style="background: #f7fafc; padding: 2px 4px; border-radius: 3px"
-              >v2.product.delete_item</code
-            >
-            once checkout resolution is completed to prevent inventory
-            leakage.<br /><br />
-            <strong>Production Safeguards Active:</strong> A 15-minute Edge
-            Function cron job runs periodically to cull abandoned unpaid Shopee
-            product listings via API to maintain perfect shop tidiness.
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- CORE CLIENT STORE ENGINE SCRIPTS -->
     <script>
-      // HARDCODED SUPABASE CREDENTIALS FOR STABLE PUBLIC STOREFRONT USE:
-      // If you want your public storefront to connect instantly without local storage setup,
-      // paste your Supabase URL and public anon key below (highly recommended!).
       const HARDCODED_SUPABASE_URL = "https://mjserver.lmk-corp-sys.com";
       const HARDCODED_SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIn0.tmnQgLmN6LaGJzNCb4fUNrneMYs2TGU4Ib4QFpEsNYY";
-      const HARDCODED_COMPANY_ID = "nikalmkcorp"; // Default company ID slug which determines what catalog is loaded
+      const HARDCODED_COMPANY_ID = "nikalmkcorp";
+
+      // Strict HTML & URL sanitization helpers (prevents stored/DOM XSS)
+      function escapeHtml(value) {
+        if (value === null || value === undefined) return "";
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function sanitizeUrl(rawUrl, allowDataImage = false) {
+        if (!rawUrl || typeof rawUrl !== "string") return "";
+        const trimmed = rawUrl.trim();
+        if (!trimmed) return "";
+        if (allowDataImage && /^data:image\/(png|jpeg|jpg|webp|gif);base64,[a-zA-Z0-9+/=]+$/i.test(trimmed)) {
+          return trimmed;
+        }
+        try {
+          const parsed = new URL(trimmed, window.location.origin);
+          if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+            return parsed.href;
+          }
+        } catch (e) {}
+        return "";
+      }
+
+      // Purge any legacy client-side secret or Supabase override keys from browser storage
+      [
+        "lmk_store_supabase_url",
+        "lmk_store_supabase_key",
+        "lmk_store_paymongo_secret_key",
+        "lmk_store_turnstile_secret_key",
+      ].forEach((k) => {
+        try {
+          localStorage.removeItem(k);
+        } catch (e) {}
+      });
 
       // Native App Deep Linking Helper with Smart Web Fallback
       window.openNativeApp = function (platform, fallbackUrl, event) {
@@ -3294,37 +2832,39 @@
           event.preventDefault();
         }
 
-        // Detect if user is on a mobile platform (iOS, Android, etc.)
+        const safeFallback = sanitizeUrl(fallbackUrl, false);
+        if (!safeFallback) return;
+
         const ua = navigator.userAgent || navigator.vendor || window.opera;
         const isMobile =
           /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
 
         if (!isMobile) {
-          window.open(fallbackUrl, "_blank");
+          window.open(safeFallback, "_blank", "noopener,noreferrer");
           return;
         }
 
         let schemeUrl = "";
 
-        switch (platform.toLowerCase()) {
+        switch (String(platform || "").toLowerCase()) {
           case "facebook":
             schemeUrl =
-              "fb://facewebmodal/f?href=" + encodeURIComponent(fallbackUrl);
+              "fb://facewebmodal/f?href=" + encodeURIComponent(safeFallback);
             break;
           case "youtube":
-            if (fallbackUrl.includes("@")) {
-              const handle = fallbackUrl.substring(fallbackUrl.indexOf("@"));
+            if (safeFallback.includes("@")) {
+              const handle = safeFallback.substring(safeFallback.indexOf("@"));
               schemeUrl = "youtube://www.youtube.com/" + handle;
             } else {
-              schemeUrl = fallbackUrl.replace(/^https?:\/\//i, "youtube://");
+              schemeUrl = safeFallback.replace(/^https?:\/\//i, "youtube://");
             }
             break;
           case "tiktok":
-            if (fallbackUrl.includes("@")) {
-              const username = fallbackUrl.substring(
-                fallbackUrl.indexOf("@") + 1
+            if (safeFallback.includes("@")) {
+              const username = safeFallback.substring(
+                safeFallback.indexOf("@") + 1
               );
-              schemeUrl = "tiktok://user?username=" + username;
+              schemeUrl = "tiktok://user?username=" + encodeURIComponent(username);
             } else {
               schemeUrl = "tiktok://";
             }
@@ -3333,33 +2873,33 @@
             const isIOS = /iPhone|iPad|iPod/i.test(ua);
             const isAndroid = /Android/i.test(ua);
             if (isAndroid) {
-              const rawUrl = fallbackUrl.replace(/^https?:\/\//i, "");
-              schemeUrl = "intent://" + rawUrl + "#Intent;scheme=https;package=com.shopee.ph;S.browser_fallback_url=" + encodeURIComponent(fallbackUrl) + ";end";
+              const rawUrl = safeFallback.replace(/^https?:\/\//i, "");
+              schemeUrl = "intent://" + rawUrl + "#Intent;scheme=https;package=com.shopee.ph;S.browser_fallback_url=" + encodeURIComponent(safeFallback) + ";end";
             } else {
               const shopeeScheme = isIOS ? "shopee://" : "shopeemobile://";
-              if (fallbackUrl.includes("shopee.ph/cart")) {
-                schemeUrl = fallbackUrl.replace(/^https?:\/\/(www\.)?shopee\.ph\//i, shopeeScheme);
+              if (safeFallback.includes("shopee.ph/cart")) {
+                schemeUrl = safeFallback.replace(/^https?:\/\/(www\.)?shopee\.ph\//i, shopeeScheme);
               } else {
-                schemeUrl = fallbackUrl.replace(/^https?:\/\//i, shopeeScheme);
+                schemeUrl = safeFallback.replace(/^https?:\/\//i, shopeeScheme);
               }
             }
             break;
           case "messenger":
-            const parts = fallbackUrl.split("?")[0].split("/");
+            const parts = safeFallback.split("?")[0].split("/");
             const id = parts[parts.length - 1] || parts[parts.length - 2];
-            const queryParams = fallbackUrl.includes("?")
-              ? "?" + fallbackUrl.split("?")[1]
+            const queryParams = safeFallback.includes("?")
+              ? "?" + safeFallback.split("?")[1]
               : "";
             if (id && /^\d+$/.test(id)) {
               schemeUrl = "fb-messenger://user/" + id + queryParams;
             } else if (id) {
-              schemeUrl = "fb-messenger://m.me/" + id + queryParams;
+              schemeUrl = "fb-messenger://m.me/" + encodeURIComponent(id) + queryParams;
             } else {
               schemeUrl = "fb-messenger://" + queryParams;
             }
             break;
           default:
-            schemeUrl = fallbackUrl;
+            schemeUrl = safeFallback;
         }
 
         let hasLeft = false;
@@ -3377,15 +2917,12 @@
         );
         window.addEventListener("pagehide", handleVisibilityChange);
 
-        // Try triggering the custom app scheme URL
         window.location.href = schemeUrl;
 
         if (schemeUrl.startsWith("intent://")) {
-          // Android Intent URLs handle their own fallback
           return;
         }
 
-        // Fallback to web URL if app launch fails (doesn't trigger tab hide)
         setTimeout(function () {
           document.removeEventListener(
             "visibilitychange",
@@ -3398,7 +2935,7 @@
           window.removeEventListener("pagehide", handleVisibilityChange);
 
           if (!hasLeft) {
-            window.open(fallbackUrl, "_blank");
+            window.open(safeFallback, "_blank", "noopener,noreferrer");
           }
         }, 1200);
       };
@@ -3407,27 +2944,25 @@
       let cart = [];
       let supabaseClient = null;
 
-      // Storage settings keys
-      const configKeys = {
-        supabaseUrl: "lmk_store_supabase_url",
-        supabaseKey: "lmk_store_supabase_key",
-        companyId: "lmk_store_company_id",
-        gcashNum: "lmk_store_gcash_num",
-        gcashName: "lmk_store_gcash_name",
-        bdoNum: "lmk_store_bdo_num",
-        bdoName: "lmk_store_bdo_name",
-        shopeeUrl: "lmk_store_shopee_url",
-        shopeePartnerId: "lmk_store_shopee_partner_id",
-        shopeeShopId: "lmk_store_shopee_shop_id",
-        paymongoPublicKey: "lmk_store_paymongo_public_key",
-        shopeeShippingUrl: "lmk_store_shopee_shipping_url",
-        salesTable: "lmk_store_sales_table",
-        itemGoodsTable: "lmk_store_itemgoods_table",
-        checkoutQrs: "lmk_store_checkout_qrs",
-        turnstileSiteKey: "lmk_store_turnstile_site_key",
-        emailjsServiceId: "lmk_store_emailjs_service_id",
-        emailjsTemplateId: "lmk_store_emailjs_template_id",
-        emailjsPublicKey: "lmk_store_emailjs_public_key",
+      // In-memory store configuration (loaded exclusively from get_public_store_config RPC)
+      const storePublicConfig = {
+        gcashNum: "",
+        gcashName: "",
+        bdoNum: "",
+        bdoName: "",
+        shopeeUrl: "",
+        shopeeShippingUrl: "https://s.shopee.ph/6L2UyUXbZQ",
+        paymongoPublicKey: "",
+        salesTable: "",
+        itemGoodsTable: "",
+        checkoutQrs: [],
+        turnstileSiteKey: "0x4AAAAAADrPa6DqP4u3WgVW",
+        emailjsServiceId: "",
+        emailjsTemplateId: "",
+        emailjsPublicKey: "",
+        itemgoodsTabsWebsite: {},
+        salesTabsWebsite: {},
+        salesBindings: {},
       };
 
       // Live retrieved catalogs (always fetched fresh from Supabase)
@@ -3549,163 +3084,200 @@
         }, 500);
       });
 
-      // Deep Link Parser
+      // URL Deep-Link Handler: strips untrusted credential overrides; never mutates localStorage
       function processUrlParams() {
         const params = new URLSearchParams(window.location.search);
-        let updated = false;
-
-        // Check parameters
-        const checkAndSave = (paramName, storageKey) => {
-          const val = params.get(paramName);
-          if (val) {
-            localStorage.setItem(storageKey, val);
-            updated = true;
-          }
-        };
-
-        checkAndSave("supabaseUrl", configKeys.supabaseUrl);
-        checkAndSave("supabase_url", configKeys.supabaseUrl);
-        checkAndSave("supabaseKey", configKeys.supabaseKey);
-        checkAndSave("supabase_key", configKeys.supabaseKey);
-        checkAndSave("supabaseAnonKey", configKeys.supabaseKey);
-        checkAndSave("gcashNum", configKeys.gcashNum);
-        checkAndSave("gcashName", configKeys.gcashName);
-        checkAndSave("bdoNum", configKeys.bdoNum);
-        checkAndSave("bdoName", configKeys.bdoName);
-        checkAndSave("shopeeUrl", configKeys.shopeeUrl);
-        checkAndSave("shopee_url", configKeys.shopeeUrl);
-        checkAndSave("sales_table", configKeys.salesTable);
-        checkAndSave("itemgoods_table", configKeys.itemGoodsTable);
-        checkAndSave("emailjsServiceId", configKeys.emailjsServiceId);
-        checkAndSave("emailjsTemplateId", configKeys.emailjsTemplateId);
-        checkAndSave("emailjsPublicKey", configKeys.emailjsPublicKey);
-
-        if (updated) {
-          showToast(
-            "🔗 Dynamic configurations mapped! Storing credentials to your local workspace..."
-          );
-          // Clean URL params to avoid leakage or messy links
-          const newUrl =
+        const sensitiveKeys = [
+          "supabaseUrl",
+          "supabase_url",
+          "supabaseKey",
+          "supabase_key",
+          "supabaseAnonKey",
+          "gcashNum",
+          "gcashName",
+          "bdoNum",
+          "bdoName",
+          "shopeeUrl",
+          "shopee_url",
+          "sales_table",
+          "itemgoods_table",
+          "emailjsServiceId",
+          "emailjsTemplateId",
+          "emailjsPublicKey",
+        ];
+        const hasUntrusted = sensitiveKeys.some((k) => params.has(k));
+        if (hasUntrusted) {
+          const cleanUrl =
             window.location.protocol +
             "//" +
             window.location.host +
             window.location.pathname +
-            (params.get("company") ? `?company=${params.get("company")}` : "");
-          window.history.replaceState({ path: newUrl }, "", newUrl);
+            (params.get("company") ? `?company=${encodeURIComponent(params.get("company"))}` : "");
+          window.history.replaceState({ path: cleanUrl }, "", cleanUrl);
         }
       }
 
-      // Restores GCash checkout form state and cart, automatically validating and verifying
-      function restoreGcashPaymentIfRedirected() {
+      async function verifyPaymongoSessionWithServer(ref, sessionId) {
+        if (!supabaseClient) return null;
+        for (let attempt = 0; attempt < 4; attempt++) {
+          try {
+            const { data, error } = await supabaseClient.functions.invoke("create-paymongo-source", {
+              body: {
+                action: "verify_session",
+                companyId: HARDCODED_COMPANY_ID,
+                ref: ref || "",
+                sessionId: sessionId || "",
+              },
+            });
+            if (!error && data && data.paid === true) {
+              return data;
+            }
+          } catch (e) {
+            console.warn("PayMongo verification check error:", e);
+          }
+          if (attempt < 3) {
+            await new Promise((r) => setTimeout(r, 1500));
+          }
+        }
+        return null;
+      }
+
+      // Restores checkout form state when returning from PayMongo checkout and verifies settlement on the server
+      async function restoreGcashPaymentIfRedirected() {
         const urlParams = new URLSearchParams(window.location.search);
-        const isSuccess = urlParams.get("gcash_success") === "true";
-        const ref = urlParams.get("ref");
+        const isReturn =
+          urlParams.get("gcash_return") === "true" ||
+          urlParams.get("gcash_success") === "true";
+        const isFailed =
+          urlParams.get("gcash_failed") === "true" ||
+          urlParams.get("gcash_cancel") === "true";
+        const ref = urlParams.get("ref") || "";
 
-        if (isSuccess && ref) {
-          if (window.opener && !window.opener.closed) {
-            // We are running inside a popup opened by the desktop site!
-            // Notify the parent window to verify the payment and close this popup.
-            localStorage.setItem('gcash_success_pm_' + ref, 'true');
-            window.close();
-            return;
-          }
-
-          const pendingCartStr = localStorage.getItem("__gcash_pending_cart");
-          const pendingFormStr = localStorage.getItem("__gcash_pending_form");
-
-          if (pendingCartStr) {
-            try {
-              const pendingCart = JSON.parse(pendingCartStr);
-              if (pendingCart && pendingCart.length > 0) {
-                cart = pendingCart;
-                updateCartUI();
-              }
-            } catch (e) {
-              console.error("Error restoring pending cart:", e);
-            }
-          }
-
-          if (pendingFormStr) {
-            try {
-              const pendingForm = JSON.parse(pendingFormStr);
-              if (pendingForm) {
-                // Open appropriate checkout modal
-                if (pendingForm.checkoutType === "rent") {
-                  openCarCheckout(pendingForm.carModel, pendingForm.carPrice, pendingForm.rentDays || "24hr");
-                } else {
-                  openOrderCheckout();
-                }
-
-                // Populate form fields once the modal elements are ready in the DOM
-                setTimeout(() => {
-                  const setVal = (id, val) => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = val || "";
-                  };
-                  setVal("checkout-name", pendingForm.name);
-                  setVal("checkout-phone", pendingForm.phone);
-                  setVal("checkout-address", pendingForm.address);
-                  setVal("checkout-fb", pendingForm.fbProfile);
-                  setVal("checkout-rent-start-date", pendingForm.startDate);
-                  setVal("checkout-rent-end-date", pendingForm.endDate);
-                  setVal("checkout-delivery-option", pendingForm.deliveryOption);
-
-                  // Set payment option to PayMongo
-                  const paymentSelect = document.getElementById("checkout-payment");
-                  if (paymentSelect) {
-                    paymentSelect.value = "PayMongo";
-                    updatePaymentDetails();
-                  }
-
-                  // Force the PayMongo UI into verified successful state instantly
-                  setTimeout(() => {
-                    window.verifyPaymongoPayment(ref);
-                    showToast("💳 PayMongo GCash payment verified successfully!");
-                  }, 250);
-
-                }, 500);
-              }
-            } catch (e) {
-              console.error("Error restoring pending form:", e);
-            }
-          }
-
-          // Clean up the URL parameters so the page looks clean and avoids accidental re-verification
-          const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + 
-            (urlParams.get("company") ? `?company=${urlParams.get("company")}` : "");
+        if (isFailed) {
+          showToast("⚠️ PayMongo payment was cancelled or not completed.");
+          const cleanUrl =
+            window.location.protocol +
+            "//" +
+            window.location.host +
+            window.location.pathname +
+            (urlParams.get("company") ? `?company=${encodeURIComponent(urlParams.get("company"))}` : "");
           window.history.replaceState({ path: cleanUrl }, "", cleanUrl);
+          return;
+        }
 
-          // Clear the pending state from localStorage
-          localStorage.removeItem("__gcash_pending_cart");
-          localStorage.removeItem("__gcash_pending_form");
+        if (!isReturn || !ref) return;
+
+        let pendingSessionId = "";
+        try {
+          const sessRaw = sessionStorage.getItem("__gcash_pending_session");
+          if (sessRaw) {
+            const parsed = JSON.parse(sessRaw);
+            if (parsed && parsed.ref === ref && parsed.sessionId) {
+              pendingSessionId = parsed.sessionId;
+            }
+          }
+        } catch (e) {}
+
+        if (window.opener && !window.opener.closed) {
+          try {
+            window.opener.postMessage(
+              { type: "paymongo_return", ref: ref, sessionId: pendingSessionId },
+              window.location.origin
+            );
+          } catch (e) {}
+          window.close();
+          return;
+        }
+
+        const pendingCartStr = sessionStorage.getItem("__gcash_pending_cart");
+        const pendingFormStr = sessionStorage.getItem("__gcash_pending_form");
+        let cartSnapshot = [];
+        let pendingForm = {};
+
+        if (pendingCartStr) {
+          try {
+            const parsedCart = JSON.parse(pendingCartStr);
+            if (Array.isArray(parsedCart)) {
+              cartSnapshot = parsedCart;
+              cart = parsedCart;
+              updateCartUI();
+            }
+          } catch (e) {}
+        }
+
+        if (pendingFormStr) {
+          try {
+            pendingForm = JSON.parse(pendingFormStr) || {};
+          } catch (e) {}
+        }
+
+        const cleanUrl =
+          window.location.protocol +
+          "//" +
+          window.location.host +
+          window.location.pathname +
+          (urlParams.get("company") ? `?company=${encodeURIComponent(urlParams.get("company"))}` : "");
+        window.history.replaceState({ path: cleanUrl }, "", cleanUrl);
+
+        showToast("🔄 Verifying PayMongo payment with server...");
+        const verifiedData = await verifyPaymongoSessionWithServer(ref, pendingSessionId);
+
+        if (verifiedData && verifiedData.paid === true) {
+          const finalPrice = Number(verifiedData.total_price || pendingForm.carPrice || 0);
+          window.__paymongoPaidOrders[ref] = true;
+
+          sendAutomatedEmail({
+            type: "cart",
+            customerName: verifiedData.customer_name || pendingForm.name || "Customer",
+            email: pendingForm.email || "",
+            phone: pendingForm.phone || "",
+            fbProfile: pendingForm.fbProfile || "",
+            address: pendingForm.address || "",
+            fulfillment: pendingForm.fulfillment || "Delivery",
+            payment: "PayMongo",
+            refNum: ref,
+            totalPrice: finalPrice,
+            orderId: verifiedData.order_id || ref,
+            cartSnapshot: cartSnapshot,
+            rentalDetails: {},
+          });
+
+          sessionStorage.removeItem("__gcash_pending_cart");
+          sessionStorage.removeItem("__gcash_pending_form");
+          sessionStorage.removeItem("__gcash_pending_session");
+          cart = [];
+          updateCartUI();
+          showCompletionPage(verifiedData.customer_name || pendingForm.name || "Customer", ref, finalPrice, true);
+        } else {
+          showToast("⚠️ Payment not yet confirmed on PayMongo. Please complete checkout or try again.");
         }
       }
 
       // Initialize Supabase Client
       function initSupabaseConnection() {
-        // ALWAYS use hardcoded Supabase credentials directly (bypassing local storage overrides)
         const url = HARDCODED_SUPABASE_URL;
         const key = HARDCODED_SUPABASE_ANON_KEY;
 
         if (url && key) {
           try {
             supabaseClient = supabase.createClient(url, key);
-            console.log("Supabase Store client linked successfully.");
           } catch (err) {
             console.error("Failed to initialize Supabase client:", err);
           }
         }
       }
 
-      // Toast System
+      // Toast System (XSS-safe textContent)
       function showToast(message) {
         const oldToast = document.querySelector(".custom-toast");
         if (oldToast) oldToast.remove();
 
         const toast = document.createElement("div");
         toast.className = "custom-toast";
-        const icon = message.startsWith("⚠️") ? "" : "🌟 ";
-        toast.innerHTML = `${icon}<span>${message}</span>`;
+        const icon = String(message || "").startsWith("⚠️") ? "" : "🌟 ";
+        const span = document.createElement("span");
+        span.textContent = `${icon}${String(message || "")}`;
+        toast.appendChild(span);
         document.body.appendChild(toast);
 
         setTimeout(() => {
@@ -3731,14 +3303,10 @@
       async function loadMerchantCatalog(isManualRefresh = false) {
         const activeCompanyId = HARDCODED_COMPANY_ID;
 
-        // Render cached data immediately to keep performance blazing-fast with zero layout shift
         renderDynamicCarCollection();
         renderDynamicStoreCollection();
 
         if (!supabaseClient) {
-          console.log(
-            "No Supabase configuration detected. Operating in static showroom fallback."
-          );
           return;
         }
 
@@ -3746,8 +3314,7 @@
         let newRentals = null;
         let newPhotos = null;
 
-        // 1. Fetch Config details securely via PostgreSQL RPC (get_public_store_config)
-        // Sanitizes private keys and ensures smart company resolution
+        // 1. Fetch public store config via allowlisted RPC (get_public_store_config)
         try {
           const { data: webConfigs, error: webConfigsErr } =
             await supabaseClient.rpc("get_public_store_config", {
@@ -3756,12 +3323,7 @@
 
           if (!webConfigsErr && webConfigs && typeof webConfigs === "object") {
             configsFetched = true;
-            console.log(
-              "Loaded secure configurations via RPC (get_public_store_config):",
-              webConfigs
-            );
 
-            // Handle object map returned from RPC or array fallback
             const configEntries = Array.isArray(webConfigs)
               ? webConfigs
               : Object.entries(webConfigs).map(([key, value]) => ({ key, value }));
@@ -3770,66 +3332,65 @@
               if (cfg.key === "rentStorefrontCatalog" && cfg.value) {
                 newRentals = typeof cfg.value === "string" ? JSON.parse(cfg.value) : cfg.value;
               } else if (cfg.key === "rentTabPhotos" && cfg.value) {
-                newPhotos = cfg.value;
+                newPhotos = typeof cfg.value === "string" ? JSON.parse(cfg.value) : cfg.value;
               } else if (cfg.key === "gcashNum" && cfg.value) {
-                localStorage.setItem(configKeys.gcashNum, cfg.value);
+                storePublicConfig.gcashNum = String(cfg.value);
               } else if (cfg.key === "gcashName" && cfg.value) {
-                localStorage.setItem(configKeys.gcashName, cfg.value);
+                storePublicConfig.gcashName = String(cfg.value);
               } else if (cfg.key === "bdoNum" && cfg.value) {
-                localStorage.setItem(configKeys.bdoNum, cfg.value);
+                storePublicConfig.bdoNum = String(cfg.value);
               } else if (cfg.key === "bdoName" && cfg.value) {
-                localStorage.setItem(configKeys.bdoName, cfg.value);
+                storePublicConfig.bdoName = String(cfg.value);
               } else if (cfg.key === "shopeeUrl" && cfg.value) {
-                localStorage.setItem(configKeys.shopeeUrl, cfg.value);
+                storePublicConfig.shopeeUrl = String(cfg.value);
               } else if (cfg.key === "shopeeShippingUrl" && cfg.value) {
-                localStorage.setItem(configKeys.shopeeShippingUrl, cfg.value);
+                storePublicConfig.shopeeShippingUrl = String(cfg.value);
               } else if (cfg.key === "sales_table" && cfg.value) {
-                localStorage.setItem(configKeys.salesTable, cfg.value);
+                storePublicConfig.salesTable = String(cfg.value);
               } else if (cfg.key === "itemgoods_table" && cfg.value) {
-                localStorage.setItem(configKeys.itemGoodsTable, cfg.value);
+                storePublicConfig.itemGoodsTable = String(cfg.value);
               } else if (cfg.key === "checkoutQrs" && cfg.value) {
-                const qrsVal =
-                  typeof cfg.value === "string"
-                    ? cfg.value
-                    : JSON.stringify(cfg.value);
-                localStorage.setItem(configKeys.checkoutQrs, qrsVal);
+                try {
+                  const parsedQrs = typeof cfg.value === "string" ? JSON.parse(cfg.value) : cfg.value;
+                  storePublicConfig.checkoutQrs = Array.isArray(parsedQrs) ? parsedQrs : [];
+                } catch (e) {
+                  storePublicConfig.checkoutQrs = [];
+                }
               } else if (cfg.key === "turnstileSiteKey" && cfg.value) {
-                localStorage.setItem(configKeys.turnstileSiteKey, cfg.value);
+                storePublicConfig.turnstileSiteKey = String(cfg.value).trim();
               } else if (cfg.key === "emailjsServiceId" && cfg.value) {
-                const cleanVal = String(cfg.value).trim();
-                localStorage.setItem(configKeys.emailjsServiceId, cleanVal);
+                storePublicConfig.emailjsServiceId = String(cfg.value).trim();
               } else if (cfg.key === "emailjsTemplateId" && cfg.value) {
-                const cleanVal = String(cfg.value).trim();
-                localStorage.setItem(configKeys.emailjsTemplateId, cleanVal);
+                storePublicConfig.emailjsTemplateId = String(cfg.value).trim();
               } else if (cfg.key === "emailjsPublicKey" && cfg.value) {
                 const cleanVal = String(cfg.value).trim();
-                localStorage.setItem(configKeys.emailjsPublicKey, cleanVal);
+                storePublicConfig.emailjsPublicKey = cleanVal;
                 if (typeof emailjs !== "undefined" && typeof emailjs.init === "function") {
                   try {
                     emailjs.init({ publicKey: cleanVal });
-                  } catch (e) {
-                    console.warn("EmailJS init:", e);
-                  }
+                  } catch (e) {}
                 }
               } else if (cfg.key === "paymongoPublicKey" && cfg.value) {
-                localStorage.setItem(configKeys.paymongoPublicKey, cfg.value);
+                storePublicConfig.paymongoPublicKey = String(cfg.value).trim();
               } else if (cfg.key === "itemgoods_tabs_website" && cfg.value) {
-                localStorage.setItem("itemgoods_tabs_website", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
+                try {
+                  storePublicConfig.itemgoodsTabsWebsite = typeof cfg.value === "string" ? JSON.parse(cfg.value) : cfg.value;
+                } catch (e) {}
               } else if (cfg.key === "sales_tabs_website" && cfg.value) {
-                localStorage.setItem("sales_tabs_website", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
+                try {
+                  storePublicConfig.salesTabsWebsite = typeof cfg.value === "string" ? JSON.parse(cfg.value) : cfg.value;
+                } catch (e) {}
               } else if (cfg.key === "salesBindings" && cfg.value) {
-                localStorage.setItem("salesBindings", typeof cfg.value === "string" ? cfg.value : JSON.stringify(cfg.value));
+                try {
+                  storePublicConfig.salesBindings = typeof cfg.value === "string" ? JSON.parse(cfg.value) : cfg.value;
+                } catch (e) {}
               }
             });
           }
         } catch (err) {
-          console.warn(
-            "Could not query get_public_store_config RPC, operating with cached config:",
-            err
-          );
+          console.warn("Could not query get_public_store_config RPC:", err);
         }
 
-        // Apply and cache rentals and tab photos instantly
         let carRenderNeeded = false;
         if (configsFetched || newRentals) {
           if (!newRentals) newRentals = {};
@@ -3839,13 +3400,9 @@
             loadedRentals = newRentals;
             carRenderNeeded = true;
           }
-          localStorage.setItem(
-            "lmk_cached_rentals",
-            JSON.stringify(loadedRentals)
-          );
+          localStorage.setItem("lmk_cached_rentals", JSON.stringify(loadedRentals));
         }
 
-        // Also fetch active rental fleet via get_public_rental_fleet RPC if no custom rentStorefrontCatalog was set
         if (!newRentals || Object.keys(newRentals).length === 0) {
           try {
             const { data: rentalFleet, error: fleetErr } = await supabaseClient.rpc("get_public_rental_fleet", {
@@ -3875,17 +3432,13 @@
             loadedRentTabPhotos = newPhotos;
             carRenderNeeded = true;
           }
-          localStorage.setItem(
-            "lmk_cached_rent_photos",
-            JSON.stringify(loadedRentTabPhotos)
-          );
+          localStorage.setItem("lmk_cached_rent_photos", JSON.stringify(loadedRentTabPhotos));
         }
 
         if (carRenderNeeded || Object.keys(loadedRentals).length === 0) {
           renderDynamicCarCollection();
         }
 
-        // Always fetch fresh catalog data securely via get_public_store_catalog RPC
         const showToastNotification = isManualRefresh;
 
         try {
@@ -3893,9 +3446,7 @@
             showToast("loading data...");
           }
 
-          // 2. Fetch products securely via get_public_store_catalog RPC
-          const boundItemGoodsTable =
-            localStorage.getItem(configKeys.itemGoodsTable) || "";
+          const boundItemGoodsTable = storePublicConfig.itemGoodsTable || "";
 
           let { data: products, error: prodErr } = await supabaseClient.rpc(
             "get_public_store_catalog",
@@ -3914,18 +3465,8 @@
             loadedProducts = products;
             renderDynamicStoreCollection();
           }
-          localStorage.setItem(
-            "lmk_cached_products",
-            JSON.stringify(loadedProducts)
-          );
-          if (products.length === 0) {
-            console.log(
-              "No items found via 'get_public_store_catalog' for company:",
-              activeCompanyId
-            );
-          }
+          localStorage.setItem("lmk_cached_products", JSON.stringify(loadedProducts));
 
-          // Save timestamp to cache
           localStorage.setItem(
             "lmk_catalog_cache_timestamp",
             Date.now().toString()
@@ -3935,14 +3476,9 @@
             showToast("✨ Catalog successfully synced and cached!");
           }
         } catch (err) {
-          console.error(
-            "Supabase catalogue load failed, utilizing robust static showroom:",
-            err
-          );
+          console.error("Supabase catalogue load failed:", err);
           if (showToastNotification) {
-            showToast(
-              "⚠️ Could not connect to database. Operating in elegant Static Showcase Mode with manual fallback."
-            );
+            showToast("⚠️ Could not connect to database. Operating in static showcase mode.");
           }
         }
       }
@@ -3997,7 +3533,7 @@
         const nextBtn = document.getElementById("gallery-next-btn");
         const strip = document.getElementById("gallery-thumbnails-strip");
 
-        const currentUrl = currentGalleryPhotos[currentGalleryIndex];
+        const currentUrl = sanitizeUrl(currentGalleryPhotos[currentGalleryIndex], true);
 
         if (mainContainer) mainContainer.classList.add("img-skeleton");
         if (mainImg) {
@@ -4028,12 +3564,16 @@
               thumb.style.border = idx === currentGalleryIndex ? "2px solid var(--gold)" : "1px solid var(--line)";
               thumb.style.opacity = idx === currentGalleryIndex ? "1" : "0.5";
               thumb.style.transition = "0.2s";
-              thumb.onclick = () => {
+              thumb.addEventListener("click", () => {
                 currentGalleryIndex = idx;
                 updateGalleryModalView();
-              };
+              });
 
-              thumb.innerHTML = `<img src="${photo}" style="width:100%; height:100%; object-fit:cover;" />`;
+              const thumbImg = document.createElement("img");
+              thumbImg.src = sanitizeUrl(photo, true);
+              thumbImg.alt = "";
+              thumbImg.style.cssText = "width:100%; height:100%; object-fit:cover;";
+              thumb.appendChild(thumbImg);
               strip.appendChild(thumb);
             });
           }
@@ -4140,34 +3680,36 @@
               ? "https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907649938.png"
               : "https://offsatjnqrvaqlcegyyi.supabase.co/storage/v1/object/public/Website%20photos/1781907740417.png";
 
-          const carImgSrc = parsedRentPhotos[0] || defaultImg;
+          const carImgSrc = sanitizeUrl(parsedRentPhotos[0] || defaultImg, true);
           const photoBadgeText = parsedRentPhotos.length > 1 ? `📷 ${parsedRentPhotos.length} Photos` : `🔍 View Gallery`;
 
           const carCard = document.createElement("article");
-          carCard.className = `car reveal d${(i % 4) + 1} in`; // Inject in class to run observer instantly
+          carCard.className = `car reveal d${(i % 4) + 1} in`;
           carCard.innerHTML = `
-        <div class="img img-skeleton" style="cursor: pointer; position: relative;" onclick="openGalleryModalForRent('${tabName}', '${modelName.replace(/'/g, "\\'")}')" title="Click to view photo gallery">
-          <img alt="${modelName}" src="${carImgSrc}" onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="this.onerror=null; this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');">
-          <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: var(--gold); border: 1px solid var(--gold); font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.1em; pointer-events: none; backdrop-filter: blur(4px);">${photoBadgeText}</span>
+        <div class="img img-skeleton js-rent-gallery" style="cursor: pointer; position: relative;" title="Click to view photo gallery">
+          <img alt="${escapeHtml(modelName)}" src="${escapeHtml(carImgSrc)}" onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="this.onerror=null; this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');">
+          <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: var(--gold); border: 1px solid var(--gold); font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.1em; pointer-events: none; backdrop-filter: blur(4px);">${escapeHtml(photoBadgeText)}</span>
         </div>
         <div class="body">
-          <h3>${modelName}</h3>
-          <div class="meta">${features}</div>
-          <p style="color:var(--muted);font-size:14px">${description}</p>
-          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p12}, '12hr', ${pDriver})">
-            <div><span class="num">₱${parseInt(
-              p12
-            ).toLocaleString()}</span> <small>/ 12hr</small></div>
+          <h3>${escapeHtml(modelName)}</h3>
+          <div class="meta">${escapeHtml(features)}</div>
+          <p style="color:var(--muted);font-size:14px">${escapeHtml(description)}</p>
+          <div class="price js-rent-book-12" style="cursor:pointer">
+            <div><span class="num">₱${(parseInt(p12, 10) || 0).toLocaleString()}</span> <small>/ 12hr</small></div>
             <small>Reserve →</small>
           </div>
-          <div class="price" style="cursor:pointer" onclick="openCarCheckout('${modelName}', ${p24}, '24hr', ${pDriver})">
-            <div><span class="num">₱${parseInt(
-              p24
-            ).toLocaleString()}</span> <small>/ 24hr</small></div>
+          <div class="price js-rent-book-24" style="cursor:pointer">
+            <div><span class="num">₱${(parseInt(p24, 10) || 0).toLocaleString()}</span> <small>/ 24hr</small></div>
             <small>Reserve →</small>
           </div>
         </div>
       `;
+          const galleryBox = carCard.querySelector(".js-rent-gallery");
+          if (galleryBox) galleryBox.addEventListener("click", () => openGalleryModalForRent(tabName, modelName));
+          const book12 = carCard.querySelector(".js-rent-book-12");
+          if (book12) book12.addEventListener("click", () => openCarCheckout(modelName, Number(p12) || 0, "12hr", Number(pDriver) || 1000));
+          const book24 = carCard.querySelector(".js-rent-book-24");
+          if (book24) book24.addEventListener("click", () => openCarCheckout(modelName, Number(p24) || 0, "24hr", Number(pDriver) || 1000));
           dynamicGrid.appendChild(carCard);
           i++;
         }
@@ -4184,55 +3726,37 @@
       // Helper to map a product to its bound website-active Sales Tab
       function getSalesTabForProduct(product) {
         if (!product || !product.tab) return "Products";
-        
-        let bindings = {};
-        try {
-          const rawBindings = localStorage.getItem("salesBindings");
-          if (rawBindings) {
-            bindings = JSON.parse(rawBindings);
-          }
-        } catch(e) {}
-
-        const salesTab = Object.keys(bindings).find(key => bindings[key] === product.tab);
+        const bindings = (storePublicConfig && storePublicConfig.salesBindings && typeof storePublicConfig.salesBindings === "object")
+          ? storePublicConfig.salesBindings
+          : {};
+        const salesTab = Object.keys(bindings).find((key) => bindings[key] === product.tab);
         return salesTab || product.tab;
       }
 
       // Check if a product's Item Goods catalog tab is active on the website
       function isProductActiveOnWebsite(product) {
         if (!product || !product.tab) return false;
-        
+
         let activeItemGoodsTabs = [];
         try {
-          // Check itemgoods_tabs_website config first
-          const rawItemGoodsTabs = localStorage.getItem("itemgoods_tabs_website");
-          if (rawItemGoodsTabs) {
-            const parsed = JSON.parse(rawItemGoodsTabs);
-            activeItemGoodsTabs = Object.keys(parsed).filter(k => parsed[k] === true || parsed[k] === "true");
+          const parsedItemGoods = storePublicConfig && storePublicConfig.itemgoodsTabsWebsite;
+          if (parsedItemGoods && typeof parsedItemGoods === "object" && Object.keys(parsedItemGoods).length > 0) {
+            activeItemGoodsTabs = Object.keys(parsedItemGoods).filter((k) => parsedItemGoods[k] === true || parsedItemGoods[k] === "true");
           } else {
-            // fallback to legacy sales_tabs_website
-            const rawSalesTabs = localStorage.getItem("sales_tabs_website");
-            if (rawSalesTabs) {
-              const parsed = JSON.parse(rawSalesTabs);
-              const activeSalesTabs = Object.keys(parsed).filter(k => parsed[k] === true || parsed[k] === "true");
-              // Map legacy sales tabs to their bound product tab
-              let bindings = {};
-              try {
-                const rawBindings = localStorage.getItem("salesBindings");
-                if (rawBindings) {
-                  bindings = JSON.parse(rawBindings);
-                }
-              } catch(e) {}
-              activeSalesTabs.forEach(salesTab => {
+            const parsedSales = storePublicConfig && storePublicConfig.salesTabsWebsite;
+            if (parsedSales && typeof parsedSales === "object" && Object.keys(parsedSales).length > 0) {
+              const activeSalesTabs = Object.keys(parsedSales).filter((k) => parsedSales[k] === true || parsedSales[k] === "true");
+              const bindings = (storePublicConfig && storePublicConfig.salesBindings && typeof storePublicConfig.salesBindings === "object")
+                ? storePublicConfig.salesBindings
+                : {};
+              activeSalesTabs.forEach((salesTab) => {
                 const bound = bindings[salesTab];
-                if (bound) {
-                  activeItemGoodsTabs.push(bound);
-                }
+                if (bound) activeItemGoodsTabs.push(bound);
               });
             }
           }
-        } catch(e) {}
+        } catch (e) {}
 
-        // If nothing is configured or checked, show all by default
         if (activeItemGoodsTabs.length === 0) {
           return true;
         }
@@ -4375,17 +3899,14 @@
           const prodElement = document.createElement("div");
           prodElement.className = `product reveal d${(index % 4) + 1} in`;
 
+          const safeImgPath = sanitizeUrl(imgPath, true);
+          const safeNameAttr = escapeHtml(item.name || "Atelier Item");
+          const safeRemarks = escapeHtml(item.remarks || "Standard production, premium garments.");
+
           const cartItem = cart.find((ci) => ci.id === item.id);
           const cartQty = cartItem ? cartItem.qty : 0;
 
-          let buttonHtml = `<button class="shop-add-btn" id="add-btn-${
-            item.id
-          }" onclick="addToCart('${
-            item.id
-          }', '${item.name.replace(
-            /'/g,
-            "\\'"
-          )}', ${price}, '${imgPath}', ${resellerAmount})">Add to Cart${
+          let buttonHtml = `<button class="shop-add-btn js-add-to-cart" id="add-btn-${escapeHtml(item.id)}">Add to Cart${
             cartQty > 0
               ? ` <span class="btn-cart-badge" style="display: inline-flex; align-items: center; justify-content: center; background: #e63946; color: white; border-radius: 50%; min-width: 18px; height: 18px; font-size: 9px; font-weight: bold; line-height: 1; padding: 2px; margin-left: 8px;">${cartQty}</span>`
               : ""
@@ -4396,23 +3917,23 @@
           }
 
           prodElement.innerHTML = `
-        <div class="ph img-skeleton" style="cursor: pointer; position: relative;" onclick="openGalleryModalForProduct('${item.id}')" title="Click to view photo gallery">
+        <div class="ph img-skeleton js-product-gallery" style="cursor: pointer; position: relative;" title="Click to view photo gallery">
           ${tagHtml}
-          <img alt="${
-            item.name
-          }" src="${imgPath}" onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'; this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');">
-          <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: var(--gold); border: 1px solid var(--gold); font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.1em; pointer-events: none; backdrop-filter: blur(4px);">${photoBadgeText}</span>
+          <img alt="${safeNameAttr}" src="${escapeHtml(safeImgPath)}" onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'; this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.remove('img-skeleton');">
+          <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: var(--gold); border: 1px solid var(--gold); font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.1em; pointer-events: none; backdrop-filter: blur(4px);">${escapeHtml(photoBadgeText)}</span>
         </div>
-        <h3>${item.name || "Atelier Item"}</h3>
-        <p style="font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.05em">${
-          item.remarks || "Standard production, premium garments."
-        }</p>
+        <h3>${safeNameAttr}</h3>
+        <p style="font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.05em">${safeRemarks}</p>
         <div class="p-meta">
-          <span style="color:${remainsColor}">${remainsMsg}</span>
+          <span style="color:${remainsColor}">${escapeHtml(remainsMsg)}</span>
           <span class="price-tag">₱${resellerAmount.toLocaleString()}</span>
         </div>
         ${buttonHtml}
       `;
+          const galleryTrigger = prodElement.querySelector(".js-product-gallery");
+          if (galleryTrigger) galleryTrigger.addEventListener("click", () => openGalleryModalForProduct(item.id));
+          const addBtn = prodElement.querySelector(".js-add-to-cart");
+          if (addBtn) addBtn.addEventListener("click", () => addToCart(item.id, item.name || "Atelier Item", price, safeImgPath, resellerAmount));
           dynamicGrid.appendChild(prodElement);
         });
 
@@ -4426,22 +3947,18 @@
               if (p === currentProductPage) {
                 pagesHtml += `<button class="btn-primary" style="padding: 8px 16px; min-width: 36px; font-size: 10px; margin: 0 4px;" disabled>${p}</button>`;
               } else {
-                pagesHtml += `<button class="btn-ghost" style="padding: 8px 16px; min-width: 36px; font-size: 10px; margin: 0 4px;" onclick="goToProductPage(${p})">${p}</button>`;
+                pagesHtml += `<button class="btn-ghost js-page-btn" data-page="${p}" style="padding: 8px 16px; min-width: 36px; font-size: 10px; margin: 0 4px;">${p}</button>`;
               }
             }
 
             const prevButtonHtml =
               currentProductPage > 1
-                ? `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px;" onclick="goToProductPage(${
-                    currentProductPage - 1
-                  })">PREV</button>`
+                ? `<button class="btn-ghost js-page-btn" data-page="${currentProductPage - 1}" style="padding: 8px 16px; font-size: 10px;">PREV</button>`
                 : `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px; opacity: 0.4; cursor: not-allowed; pointer-events: none;" disabled>PREV</button>`;
 
             const nextButtonHtml =
               currentProductPage < totalPages
-                ? `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px;" onclick="goToProductPage(${
-                    currentProductPage + 1
-                  })">NEXT</button>`
+                ? `<button class="btn-ghost js-page-btn" data-page="${currentProductPage + 1}" style="padding: 8px 16px; font-size: 10px;">NEXT</button>`
                 : `<button class="btn-ghost" style="padding: 8px 16px; font-size: 10px; opacity: 0.4; cursor: not-allowed; pointer-events: none;" disabled>NEXT</button>`;
 
             pagContainer.innerHTML = `
@@ -4454,6 +3971,12 @@
               </div>
               ${nextButtonHtml}
             `;
+            pagContainer.querySelectorAll(".js-page-btn").forEach((btn) => {
+              btn.addEventListener("click", () => {
+                const p = parseInt(btn.getAttribute("data-page") || "1", 10);
+                window.goToProductPage(p);
+              });
+            });
           } else {
             pagContainer.style.display = "none";
           }
@@ -4560,40 +4083,49 @@
           const cartRow = document.createElement("div");
           cartRow.className = "cart-item-row";
           const itemCategory = item.tab || "Products";
-          const itemSalesTab = getSalesTabForProduct(item);
+          const safeCartImg = sanitizeUrl(item.image || "", true) || "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80";
+          const safeQty = parseInt(item.qty, 10) || 1;
           cartRow.innerHTML = `
-        <img src="${item.image}" alt="${
-            item.name
-          }" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'">
+        <img src="${escapeHtml(safeCartImg)}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=700&q=80'">
         <div class="cart-item-info">
-          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-name">${escapeHtml(item.name)}</div>
           <div style="font-size: 10px; font-weight: bold; color: var(--gold); background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); padding: 4px 8px; border-radius: 6px; align-self: flex-start; display: inline-flex; gap: 2px; margin: 4px 0 8px 0; font-family: 'Space Grotesk', sans-serif; max-width: 100%;">
-            <span>📁 Category: <strong style="color: var(--gold); font-weight: 800;">${itemCategory}</strong></span>
+            <span>📁 Category: <strong style="color: var(--gold); font-weight: 800;">${escapeHtml(itemCategory)}</strong></span>
           </div>
           <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px;">
-            <div style="font-size: 13px; color: var(--muted);">list price: ₱${item.price.toLocaleString()}</div>
+            <div style="font-size: 13px; color: var(--muted);">list price: ₱${Number(item.price || 0).toLocaleString()}</div>
             <div class="cart-item-price" style="font-weight: 500; font-size: 14px; color: var(--gold);">Total: ₱${(
-              item.price * item.qty
+              Number(item.price || 0) * safeQty
             ).toLocaleString()}</div>
           </div>
           <div class="cart-item-qty-control">
-            <button onclick="changeQty('${item.id}', -1)">-</button>
+            <button type="button" class="js-qty-dec">-</button>
             <input
               type="number"
-              value="${item.qty}"
+              class="js-qty-input"
+              value="${safeQty}"
               min="1"
-              onchange="setCartItemQty('${item.id}', this.value)"
-              onclick="this.select()"
               style="width: 32px; text-align: center; background: transparent; border: none; color: var(--ink); font-size: 13px; font-family: inherit; outline: none; padding: 0; margin: 0;"
-              onkeydown="if(event.key === 'Enter') this.blur();"
             />
-            <button onclick="changeQty('${item.id}', 1)">+</button>
+            <button type="button" class="js-qty-inc">+</button>
           </div>
         </div>
-        <button class="cart-item-remove" onclick="removeCartItem('${
-          item.id
-        }')">Remove</button>
+        <button type="button" class="cart-item-remove js-cart-remove">Remove</button>
       `;
+          const decBtn = cartRow.querySelector(".js-qty-dec");
+          if (decBtn) decBtn.addEventListener("click", () => changeQty(item.id, -1));
+          const incBtn = cartRow.querySelector(".js-qty-inc");
+          if (incBtn) incBtn.addEventListener("click", () => changeQty(item.id, 1));
+          const qtyInp = cartRow.querySelector(".js-qty-input");
+          if (qtyInp) {
+            qtyInp.addEventListener("change", () => setCartItemQty(item.id, qtyInp.value));
+            qtyInp.addEventListener("click", () => qtyInp.select());
+            qtyInp.addEventListener("keydown", (ev) => {
+              if (ev.key === "Enter") qtyInp.blur();
+            });
+          }
+          const remBtn = cartRow.querySelector(".js-cart-remove");
+          if (remBtn) remBtn.addEventListener("click", () => removeCartItem(item.id));
           container.appendChild(cartRow);
         });
 
@@ -5792,24 +5324,22 @@
         if (!container) return;
 
         if (typeof turnstile === "undefined") {
-          // Wait for script to load if it's not ready yet
           setTimeout(triggerTurnstileReset, 300);
           return;
         }
+
+        const siteKey =
+          (storePublicConfig && storePublicConfig.turnstileSiteKey) ||
+          "0x4AAAAAADrPa6DqP4u3WgVW";
 
         try {
           if (turnstileWidgetId !== null) {
             turnstile.reset(turnstileWidgetId);
           } else {
-            const siteKey =
-              localStorage.getItem(configKeys.turnstileSiteKey) ||
-              "0x4AAAAAADrPa6DqP4u3WgVW";
             turnstileWidgetId = turnstile.render("#turnstile-container", {
               sitekey: siteKey,
               theme: "dark",
-              callback: function (token) {
-                console.log("Turnstile solved successfully:", token);
-              },
+              callback: function () {},
             });
           }
         } catch (e) {
@@ -5820,9 +5350,6 @@
           container.innerHTML = "";
           turnstileWidgetId = null;
           try {
-            const siteKey =
-              localStorage.getItem(configKeys.turnstileSiteKey) ||
-              "0x4AAAAAADrPa6DqP4u3WgVW";
             turnstileWidgetId = turnstile.render("#turnstile-container", {
               sitekey: siteKey,
               theme: "dark",
@@ -5868,22 +5395,12 @@
         }
       }
 
-      // Updates Payment Prompt Box with Custom or Stored Merchant Details
+      // Updates Payment Prompt Box with Stored Server Merchant Details
       function updatePaymentDetails() {
         const paymentMethod = document.getElementById("checkout-payment").value;
         const textBox = document.getElementById("payment-gateway-text");
         const refLabel = document.querySelector('label[for="checkout-ref"]');
         const refInput = document.getElementById("checkout-ref");
-
-        const gNum =
-          localStorage.getItem(configKeys.gcashNum) || defaultGCashNum;
-        const gName =
-          localStorage.getItem(configKeys.gcashName) || defaultGCashName;
-        const bNum = localStorage.getItem(configKeys.bdoNum) || defaultBdoNum;
-        const bName =
-          localStorage.getItem(configKeys.bdoName) || defaultBdoName;
-        const sUrl =
-          localStorage.getItem(configKeys.shopeeUrl) || defaultShopeeUrl;
 
         // Recalculate price if checkout type is 'cart'
         const checkoutType = document.getElementById("checkout-type").value;
@@ -5892,13 +5409,11 @@
           document.getElementById("checkout-car-price").value = totalPrice;
         }
 
-        // Get order amount
         const priceAmount = parseFloat(
           document.getElementById("checkout-car-price").value || 0
         );
 
         if (paymentMethod === "PayMongo") {
-          // Generate PM reference number if not already present in the UI
           let currentRef = refInput.dataset.pmRef || "";
           if (!currentRef.startsWith("PM-")) {
             currentRef = "PM-" + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -5906,53 +5421,43 @@
           }
 
           const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-          let buttonsHtml = '';
+          const btnBg = isMobile ? "#0056e3" : "#0f172a";
+          const btnShadow = isMobile ? "rgba(0, 86, 227, 0.15)" : "rgba(15, 23, 42, 0.15)";
 
-          if (isMobile) {
-            buttonsHtml = `
-              <!-- PayMongo Checkout Integration -->
-              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0056e3; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(0, 86, 227, 0.15);" data-btn-type="checkout">
-                <span style="font-size: 14px;">🔒</span> Proceed to Secure Checkout
-              </button>
-            `;
-          } else {
-            buttonsHtml = `
-              <!-- PayMongo Checkout Integration -->
-              <button type="button" onclick="openGcashPortal('${currentRef}', ${priceAmount})" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: #0f172a; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px rgba(15, 23, 42, 0.15);" data-btn-type="checkout">
-                <span style="font-size: 14px;">🔒</span> Proceed to Secure Checkout
-              </button>
-            `;
-          }
-
-          // We render the interactive PayMongo Gateway box
           textBox.innerHTML = `
             <div id="paymongo-integration-container" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; width: 100%;">
               <div style="font-size: 11px; font-weight: 800; color: #1e40af; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px;">
                 <span style="font-size: 14px;">💳</span> PayMongo Secure Gateway
               </div>
               <div id="paymongo-qr-stage" style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%;">
-                
                 <div style="font-size: 11px; color: #64748b; font-weight: 500;">
                   Click the button below to proceed to the secure PayMongo payment portal.<br>
                   Amount: <strong style="color: #1e293b; font-size: 12px;">₱${priceAmount.toLocaleString()}</strong>
                 </div>
-
-                ${buttonsHtml}
+                <button type="button" id="paymongo-checkout-trigger-btn" style="margin-top: 6px; font-size: 11px; font-weight: 800; background: ${btnBg}; color: #fff; border: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 4px 6px ${btnShadow};" data-btn-type="checkout">
+                  <span style="font-size: 14px;">🔒</span> Proceed to Secure Checkout
+                </button>
               </div>
-              
               <div id="paymongo-success-stage" style="display: none; flex-direction: column; align-items: center; gap: 6px; padding: 12px 16px; background: #f0fdf4; border: 1px dashed #bbf7d0; border-radius: 8px; width: 100%;">
                 <span style="font-size: 24px; color: #15803d; animation: bounce 1s infinite;">✅</span>
-                <div style="font-size: 12px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.05em;">Payment Successful</div>
+                <div style="font-size: 12px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.05em;">Payment Verified</div>
                 <div style="font-size: 10px; color: #166534; font-weight: 600;">
-                  PayMongo secure gateway confirmed successful authorization of ₱${priceAmount.toLocaleString()} under Transaction ID: <strong style="font-family: monospace;">${currentRef}</strong>.
+                  PayMongo verified settlement of ₱${priceAmount.toLocaleString()} under Transaction ID: <strong id="paymongo-verified-ref-text" style="font-family: monospace;">${escapeHtml(currentRef)}</strong>.
                 </div>
               </div>
             </div>
           `;
 
-          const isPaidPM = (window.__paymongoPaidOrders && window.__paymongoPaidOrders[currentRef]) || localStorage.getItem('gcash_success_pm_' + currentRef) === 'true';
+          const pmBtn = document.getElementById("paymongo-checkout-trigger-btn");
+          if (pmBtn) {
+            pmBtn.addEventListener("click", () => {
+              const latestRef = (refInput && refInput.dataset.pmRef) || currentRef;
+              window.openGcashPortal(latestRef, priceAmount);
+            });
+          }
 
-          // Configure checkout-ref input for PayMongo
+          const isPaidPM = Boolean(window.__paymongoPaidOrders && window.__paymongoPaidOrders[currentRef]);
+
           if (refLabel) refLabel.textContent = "PayMongo Transaction Ref ID";
           if (refInput) {
             refInput.value = isPaidPM ? currentRef : "";
@@ -5962,66 +5467,32 @@
             refInput.style.color = "#0f172a";
           }
 
-          // If already paid, toggle stage
           if (isPaidPM) {
-            if (localStorage.getItem('gcash_success_pm_' + currentRef) === 'true') {
-              window.__paymongoPaidOrders[currentRef] = true;
-              localStorage.removeItem('gcash_success_pm_' + currentRef);
-            }
             setTimeout(() => {
               const qs = document.getElementById("paymongo-qr-stage");
               const ss = document.getElementById("paymongo-success-stage");
               if (qs) qs.style.display = "none";
               if (ss) ss.style.display = "flex";
-              
-              // Enable Submit order instantly
-              const submitBtn = document.getElementById("checkout-submit-btn");
-              if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = "1";
-                submitBtn.style.cursor = "pointer";
-                submitBtn.textContent = "Complete Transaction";
-              }
             }, 50);
           }
         } else if (paymentMethod === "QR Code") {
-          let customQrs = [];
-          try {
-            const rawQrs =
-              localStorage.getItem("lmk_store_checkout_qrs") ||
-              localStorage.getItem(configKeys.checkoutQrs);
-            if (rawQrs) {
-              customQrs = JSON.parse(rawQrs);
-            }
-          } catch (e) {
-            console.warn("Failed to parse custom QRs:", e);
-          }
-
-          const hasQrs = Array.isArray(customQrs) && customQrs.length > 0;
+          const customQrs = Array.isArray(storePublicConfig.checkoutQrs) ? storePublicConfig.checkoutQrs : [];
+          const hasQrs = customQrs.length > 0;
           window.__hasQrs = hasQrs;
 
           if (hasQrs) {
-            // Render custom QR codes!
             let qrsHtml = "";
             customQrs.forEach((item, idx) => {
+              const safeLabel = escapeHtml(item?.label || "Payment QR");
+              const safeQr = escapeHtml(sanitizeUrl(item?.qr || "", true));
               qrsHtml += `
                 <div style="background:#fff; border:1px solid #edf2f7; border-top: 4px solid #1e5df6; border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-                  <div style="font-size:10px; font-weight:700; color:#1e5df6; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">${
-                    item.label
-                  }</div>
-                  <div style="cursor:pointer; position:relative;" onclick="openQRZoomModal('${
-                    item.label
-                  } Payment', '${
-                    item.qr
-                  }', '💸 Settle Total Amount of: ₱${priceAmount.toLocaleString()}\\n👤 Scan the QR code with your app to complete payment.')">
-                    <img src="${item.qr}" alt="${
-                item.label
-              }" style="width:120px; height:120px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                  <div style="font-size:10px; font-weight:700; color:#1e5df6; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.04em;">${safeLabel}</div>
+                  <div class="js-qr-zoom-trigger" data-qr-idx="${idx}" style="cursor:pointer; position:relative;">
+                    <img src="${safeQr}" alt="${safeLabel}" style="width:120px; height:120px; display:block; border-radius:3px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     <div style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:7px; padding:1px 3px; border-radius:2px; font-weight:bold;">🔍 ZOOM</div>
                   </div>
-                  <div style="font-size:11px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${
-                    item.label
-                  }">${item.label}</div>
+                  <div style="font-size:11px; font-weight:600; color:var(--ink); margin-top:6px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;" title="${safeLabel}">${safeLabel}</div>
                 </div>
               `;
             });
@@ -6033,8 +5504,20 @@
                 ${qrsHtml}
               </div>
             `;
+
+            textBox.querySelectorAll(".js-qr-zoom-trigger").forEach((el) => {
+              el.addEventListener("click", () => {
+                const idx = parseInt(el.getAttribute("data-qr-idx") || "0", 10);
+                const item = customQrs[idx];
+                if (!item) return;
+                window.openQRZoomModal(
+                  `${item.label || "Payment"} Payment`,
+                  sanitizeUrl(item.qr || "", true),
+                  `💸 Settle Total Amount of: ₱${priceAmount.toLocaleString()}\n👤 Scan the QR code with your app to complete payment.`
+                );
+              });
+            });
           } else {
-            // No custom QR codes available
             textBox.innerHTML = `
               <div style="font-weight: 600; color: var(--ink); margin-bottom: 6px;">Scan QR Code to Pay: ₱${priceAmount.toLocaleString()}</div>
               <div style="background: #fff8f8; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin-top: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
@@ -6095,8 +5578,8 @@
           }
         } else if (payment === "PayMongo") {
           const refVal = refInput.value.trim();
-          const isPaid = window.__paymongoPaidOrders && window.__paymongoPaidOrders[refVal];
-          submitBtn.textContent = isPaid ? "Complete Transaction" : "Awaiting PayMongo QR Scan...";
+          const isPaid = Boolean(window.__paymongoPaidOrders && window.__paymongoPaidOrders[refVal]);
+          submitBtn.textContent = isPaid ? "View Receipt & Shipping" : "Awaiting PayMongo Confirmation...";
           if (!isPaid) {
             submitBtn.disabled = true;
             submitBtn.style.opacity = "0.75";
@@ -6153,267 +5636,237 @@
         }
       }
 
-      // Bind QR layout helper functions globally to window for reliable iframe event hand-shaking
       window.__paymongoPaidOrders = {};
-      window.verifyPaymongoPayment = function (refId) {
+      window.__paymongoPaidTotals = {};
+      window.__gcashPollInterval = null;
+
+      window.markPaymongoOrderConfirmed = function (refId, serverTotalPrice) {
+        if (window.__gcashPollInterval) {
+          clearInterval(window.__gcashPollInterval);
+          window.__gcashPollInterval = null;
+        }
+        window.__paymongoPaidOrders[refId] = true;
+        if (serverTotalPrice !== undefined && serverTotalPrice !== null) {
+          window.__paymongoPaidTotals[refId] = Number(serverTotalPrice);
+        }
+
         const qrStage = document.getElementById("paymongo-qr-stage");
         const successStage = document.getElementById("paymongo-success-stage");
-        const submitBtn = document.getElementById("checkout-submit-btn");
-
         if (qrStage) qrStage.style.display = "none";
         if (successStage) successStage.style.display = "flex";
 
-        // Mark as paid
-        window.__paymongoPaidOrders[refId] = true;
+        const refText = document.getElementById("paymongo-verified-ref-text");
+        if (refText) refText.textContent = refId;
 
-        // Auto-fill reference input
         const refInput = document.getElementById("checkout-ref");
         if (refInput) {
+          refInput.dataset.pmRef = refId;
           refInput.value = refId;
           refInput.readOnly = true;
         }
 
-        // Enable Submit order instantly
+        const submitBtn = document.getElementById("checkout-submit-btn");
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.style.opacity = "1";
           submitBtn.style.cursor = "pointer";
-          submitBtn.textContent = "Complete Transaction";
+          submitBtn.textContent = "View Receipt & Shipping";
         }
       };
 
-      // Reset GCash / PayMongo button states when returning to the page
+      window.addEventListener("message", async function (event) {
+        if (event.origin !== window.location.origin) return;
+        const msg = event.data;
+        if (!msg || msg.type !== "paymongo_return" || !msg.ref) return;
+
+        showToast("🔄 Verifying PayMongo payment with server...");
+        const verified = await verifyPaymongoSessionWithServer(msg.ref, msg.sessionId || "");
+        if (verified && verified.paid === true) {
+          window.markPaymongoOrderConfirmed(msg.ref, verified.total_price);
+          showToast("✅ PayMongo payment verified!");
+        } else {
+          showToast("⚠️ Payment confirmation is still pending on PayMongo.");
+        }
+      });
+
       function resetPaymongoButtons() {
-        const gcashBtns = Array.from(document.querySelectorAll("button")).filter(btn => btn.getAttribute("onclick") && btn.getAttribute("onclick").includes("openGcashPortal"));
-        gcashBtns.forEach(btn => {
-          if (btn.disabled && btn.innerHTML.includes("Connecting to PayMongo")) {
-            btn.disabled = false;
-            btn.style.opacity = "1";
-            const orig = btn.getAttribute("data-original-html");
-            if (orig) {
-              btn.innerHTML = orig;
-            } else {
-              btn.innerHTML = `<span style="font-size: 14px;">🔒</span> Proceed to Secure Checkout`;
-            }
-          }
-        });
+        const pmBtn = document.getElementById("paymongo-checkout-trigger-btn");
+        if (pmBtn && pmBtn.disabled && pmBtn.textContent && pmBtn.textContent.includes("Connecting to PayMongo")) {
+          pmBtn.disabled = false;
+          pmBtn.style.opacity = "1";
+          pmBtn.innerHTML = `<span style="font-size: 14px;">🔒</span> Proceed to Secure Checkout`;
+        }
       }
 
-      window.addEventListener("pageshow", function(event) {
-        resetPaymongoButtons();
+      window.addEventListener("pageshow", resetPaymongoButtons);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") resetPaymongoButtons();
       });
+      window.addEventListener("focus", resetPaymongoButtons);
 
-      document.addEventListener("visibilitychange", function() {
-        if (document.visibilityState === "visible") {
-          resetPaymongoButtons();
+      window.openGcashPortal = async function (clientDraftRef, _unusedAmount) {
+        const customerName = (document.getElementById("checkout-name")?.value || "").trim();
+        const phone = (document.getElementById("checkout-phone")?.value || "").trim();
+        const email = (document.getElementById("checkout-email")?.value || "").trim();
+        const fbProfile = (document.getElementById("checkout-fb")?.value || "").trim();
+        const address = (document.getElementById("checkout-address")?.value || "").trim();
+        const fulfillment = document.getElementById("checkout-delivery")?.value || "Delivery";
+
+        if (!customerName || !phone) {
+          showToast("⚠️ Please fill in your Name and Phone Number before proceeding to PayMongo.");
+          return;
         }
-      });
+        if (typeof validatePhoneInput === "function" && !validatePhoneInput(true)) {
+          showToast("⚠️ Please enter a valid phone number.");
+          return;
+        }
+        if (!Array.isArray(cart) || cart.length === 0) {
+          showToast("⚠️ Your cart is empty.");
+          return;
+        }
+        if (!supabaseClient) {
+          showToast("⚠️ Storefront service is unavailable right now.");
+          return;
+        }
 
-      window.addEventListener("focus", function() {
-        resetPaymongoButtons();
-      });
+        const turnstileToken =
+          typeof turnstile !== "undefined" && turnstileWidgetId !== null
+            ? turnstile.getResponse(turnstileWidgetId)
+            : "";
+        if (!turnstileToken) {
+          showToast("⚠️ Please complete the Cloudflare security check first.");
+          return;
+        }
 
-      window.openGcashPortal = function (refId, amount) {
-        // Save the current checkout state to localStorage so we can restore on redirect back
-        localStorage.setItem("__gcash_pending_cart", JSON.stringify(cart));
-        const formValues = {
-          name: document.getElementById("checkout-name")?.value || "",
-          phone: document.getElementById("checkout-phone")?.value || "",
-          address: document.getElementById("checkout-address")?.value || "",
-          fbProfile: document.getElementById("checkout-fb")?.value || "",
-          rentDays: document.getElementById("checkout-rent-days")?.value || "",
-          rentDaysPromo: document.getElementById("checkout-rent-days-promo")?.value || "",
-          deliveryOption: document.getElementById("checkout-delivery-option")?.value || "",
-          checkoutType: document.getElementById("checkout-title")?.textContent?.includes("Rent") || document.getElementById("checkout-type")?.value === "rent" ? "rent" : "buy",
-          carModel: document.getElementById("checkout-car-model")?.value || "",
-          carPrice: document.getElementById("checkout-car-price")?.value || "",
-          startDate: document.getElementById("checkout-rent-start-date")?.value || "",
-          endDate: document.getElementById("checkout-rent-end-date")?.value || "",
-        };
-        localStorage.setItem("__gcash_pending_form", JSON.stringify(formValues));
+        try {
+          sessionStorage.setItem("__gcash_pending_cart", JSON.stringify(cart));
+          sessionStorage.setItem(
+            "__gcash_pending_form",
+            JSON.stringify({
+              name: customerName,
+              email,
+              phone,
+              address,
+              fbProfile,
+              fulfillment,
+              carPrice: document.getElementById("checkout-car-price")?.value || "",
+            })
+          );
+        } catch (e) {}
+
+        const pmBtn = document.getElementById("paymongo-checkout-trigger-btn");
+        if (pmBtn) {
+          pmBtn.disabled = true;
+          pmBtn.style.opacity = "0.7";
+          pmBtn.innerHTML = `<span class="pm-spinner"></span> Connecting to PayMongo...`;
+        }
 
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        // Get the PayMongo Public Key configured by the user from website_configs (stored in localStorage)
-        const publicKey = localStorage.getItem("lmk_store_paymongo_public_key");
-        const authKey = publicKey;
-
-        if (!authKey) {
-          alert("PayMongo Public Key is not configured in Settings.");
-          return;
-        }
-
-        // Show loading state on the GCash button
-        const gcashBtns = Array.from(document.querySelectorAll("button")).filter(btn => btn.getAttribute("onclick") && btn.getAttribute("onclick").includes("openGcashPortal"));
-        gcashBtns.forEach(btn => {
-          if (!btn.getAttribute("data-original-html")) {
-            btn.setAttribute("data-original-html", btn.innerHTML);
-          }
-          btn.disabled = true;
-          btn.style.opacity = "0.7";
-          btn.innerHTML = `<span class="pm-spinner"></span> Connecting to PayMongo...`;
-        });
-
-        // PayMongo expects the amount in cents (integer)
-        const cents = Math.round(amount * 100);
-
-        // Redirect URLs
         const currentUrl = window.location.origin + window.location.pathname;
-        const successUrl = `${currentUrl}?gcash_success=true&ref=${refId}&amount=${amount}`;
-        const failedUrl = `${currentUrl}?gcash_failed=true&ref=${refId}`;
 
-        if (!supabaseClient) {
-          alert("Supabase client is not initialized. Please check your settings.");
-          gcashBtns.forEach(btn => {
-            btn.disabled = false;
-            btn.style.opacity = "1";
-            const orig = btn.getAttribute("data-original-html");
-            if (orig) {
-              btn.innerHTML = orig;
-            } else {
-              btn.innerHTML = `<span style="font-size: 14px;">🔒</span> Proceed to Secure Checkout`;
-            }
+        try {
+          const { data, error } = await supabaseClient.functions.invoke("create-paymongo-source", {
+            body: {
+              companyId: HARDCODED_COMPANY_ID,
+              customerName,
+              phone,
+              facebook: fbProfile,
+              address,
+              fulfillment,
+              items: cart.map((i) => ({ id: i.id, qty: Number(i.qty || 1) })),
+              turnstileToken,
+              idempotencyKey: clientDraftRef || ("PM-" + crypto.randomUUID().slice(0, 12)),
+              successUrl: `${currentUrl}?gcash_return=true`,
+              cancelUrl: `${currentUrl}?gcash_cancel=true`,
+            },
           });
-          return;
-        }
 
-        let turnstileToken = null;
-        if (typeof turnstile !== "undefined" && typeof turnstileWidgetId !== "undefined" && turnstileWidgetId !== null) {
-          turnstileToken = turnstile.getResponse(turnstileWidgetId);
-        }
+          triggerTurnstileReset();
 
-        const payload = {
-          publicKey: authKey, // PayMongo Public Key
-          companyId: HARDCODED_COMPANY_ID,
-          turnstileToken: turnstileToken,
-          data: {
-            attributes: {
-              send_email_receipt: false,
-              show_description: true,
-              show_line_items: true,
-              description: "Booking Reference: " + refId,
-              line_items: [
-                {
-                  currency: "PHP",
-                  amount: cents,
-                  name: "Order " + refId,
-                  quantity: 1
-                }
-              ],
-              payment_method_types: ["card", "paymaya", "gcash", "grab_pay", "dob"],
-              success_url: successUrl,
-              cancel_url: failedUrl,
-              reference_number: refId
+          if (error) {
+            let errMsg = error.message || "PayMongo request failed.";
+            if (error.context && typeof error.context.json === "function") {
+              try {
+                const inner = await error.context.json();
+                if (inner?.error?.message) errMsg = inner.error.message;
+              } catch (e) {}
             }
+            throw new Error(errMsg);
           }
-        };
 
-        // Create PayMongo Checkout Session
-        // Try securely via Supabase Edge Function first, fallback to direct API call if unavailable
-        let requestPromise;
-        if (supabaseClient) {
-          requestPromise = supabaseClient.functions.invoke("create-paymongo-source", {
-            body: payload
-          }).then(async ({ data, error }) => {
-            if (error) {
-              console.warn("Edge function error object:", error);
-              let errMsg = error.message || "Unknown error";
-              
-              // Extract inner JSON error if available (for FunctionsHttpError)
-              if (error.context && typeof error.context.json === 'function') {
-                 try {
-                    const inner = await error.context.json();
-                    if (inner && inner.error && inner.error.message) {
-                       errMsg = inner.error.message;
-                    }
-                 } catch(e) {}
-              }
-              
-              if (errMsg === "Failed to send a request to the Edge Function" || errMsg === "Failed to fetch") {
-                const currentUrl = HARDCODED_SUPABASE_URL;
-                throw new Error("Could not connect to the PayMongo Edge Function at " + currentUrl + ".\n\nThe browser blocked the request because the Edge Function 'create-paymongo-source' is likely NOT DEPLOYED at this URL.\n\nIf you deployed it to your OWN Supabase project, you MUST update 'HARDCODED_SUPABASE_URL' in website.html to match your project URL.");
-              }
-              
-              throw new Error(errMsg);
-            }
-            
-            if (data && data.error) {
-              throw new Error(data.error.message || "Failed to create PayMongo checkout session");
-            }
-            return data;
-          });
-        } else {
-           // No Supabase client, use direct fetch
-           const encodedKey = btoa(authKey + ":");
-           requestPromise = fetch("https://api.paymongo.com/v1/checkout_sessions", {
-             method: "POST",
-             headers: {
-               "Accept": "application/json",
-               "Content-Type": "application/json",
-               "Authorization": "Basic " + encodedKey
-             },
-             body: JSON.stringify({ data: payload.data })
-           }).then(res => res.json());
-        }
+          if (!data || data.error) {
+            throw new Error(data?.error?.message || "Failed to initialize PayMongo checkout session.");
+          }
 
-        requestPromise
-        .then(data => {
-          if (data && data.errors) {
-            throw new Error(data.errors?.[0]?.detail || "Failed to initiate Checkout Session with PayMongo");
+          const checkoutUrl = String(
+            data.checkout_url ||
+            data.data?.attributes?.checkout_url ||
+            ""
+          );
+          if (!checkoutUrl.startsWith("https://")) {
+            throw new Error("Invalid checkout URL returned from server.");
           }
-          return data;
-        })
-        .then(data => {
-          const checkoutUrl = data.data?.attributes?.checkout_url || data.data?.attributes?.redirect?.checkout_url;
-          if (!checkoutUrl) {
-            throw new Error("Invalid response from PayMongo (no checkout URL).");
+
+          const serverRef = String(data.reference_number || clientDraftRef || "");
+          const sessionId = String(data.session_id || data.data?.id || "");
+          const refInput = document.getElementById("checkout-ref");
+          if (refInput && serverRef) {
+            refInput.dataset.pmRef = serverRef;
           }
+
+          try {
+            sessionStorage.setItem(
+              "__gcash_pending_session",
+              JSON.stringify({ ref: serverRef, sessionId })
+            );
+          } catch (e) {}
 
           if (!isMobile) {
-            // DESKTOP: Open the live PayMongo checkout portal in a popup
-            if (!window.__gcashCheckInterval) {
-              window.__gcashCheckInterval = setInterval(() => {
-                const isPaid = localStorage.getItem('gcash_success_pm_' + refId);
-                if (isPaid === 'true') {
-                  clearInterval(window.__gcashCheckInterval);
-                  window.__gcashCheckInterval = null;
-                  localStorage.removeItem('gcash_success_pm_' + refId);
-                  window.verifyPaymongoPayment(refId);
-                }
-              }, 1000);
+            const popup = window.open(checkoutUrl, "GCash_Payment_Live", "width=440,height=740,left=200,top=80");
+            if (window.__gcashPollInterval) {
+              clearInterval(window.__gcashPollInterval);
             }
-            window.open(checkoutUrl, 'GCash_Payment_Live', 'width=420,height=720,left=200,top=100');
-            
-            // Re-enable button in case they close the popup and want to try again
-            gcashBtns.forEach(btn => {
-              btn.disabled = false;
-              btn.style.opacity = "1";
-              const orig = btn.getAttribute("data-original-html");
-              if (orig) {
-                btn.innerHTML = orig;
-              } else {
-                btn.innerHTML = `<span style="font-size: 14px;">🔒</span> Proceed to Secure Checkout`;
+            let pollTicks = 0;
+            window.__gcashPollInterval = setInterval(async () => {
+              pollTicks++;
+              if (pollTicks > 60) {
+                clearInterval(window.__gcashPollInterval);
+                window.__gcashPollInterval = null;
+                return;
               }
-            });
+              if (window.__paymongoPaidOrders[serverRef]) {
+                clearInterval(window.__gcashPollInterval);
+                window.__gcashPollInterval = null;
+                return;
+              }
+              try {
+                const { data: vData, error: vErr } = await supabaseClient.functions.invoke("create-paymongo-source", {
+                  body: {
+                    action: "verify_session",
+                    companyId: HARDCODED_COMPANY_ID,
+                    ref: serverRef,
+                    sessionId,
+                  },
+                });
+                if (!vErr && vData && vData.paid === true) {
+                  window.markPaymongoOrderConfirmed(serverRef, vData.total_price);
+                  showToast("✅ PayMongo payment confirmed!");
+                  if (popup && !popup.closed) {
+                    try { popup.close(); } catch (e) {}
+                  }
+                }
+              } catch (e) {}
+            }, 3000);
+            resetPaymongoButtons();
           } else {
-            // MOBILE: Redirect the entire window to PayMongo
             window.location.href = checkoutUrl;
           }
-        })
-        .catch(err => {
-          console.error("PayMongo GCash Source Error:", err);
-          alert("PayMongo Integration Error:\n" + err.message + "\n\nPlease double check your PayMongo Keys in your settings.");
-          gcashBtns.forEach(btn => {
-            btn.disabled = false;
-            btn.style.opacity = "1";
-            const orig = btn.getAttribute("data-original-html");
-            if (orig) {
-              btn.innerHTML = orig;
-            } else {
-              btn.innerHTML = `<span style="font-size: 14px;">🔒</span> Proceed to Secure Checkout`;
-            }
-          });
-        });
+        } catch (err) {
+          console.error("PayMongo Checkout Error:", err);
+          triggerTurnstileReset();
+          resetPaymongoButtons();
+          showToast("⚠️ " + (err?.message || "PayMongo initialization failed."));
+        }
       };
 
       window.openQRZoomModal = function (title, imgUrl, description) {
@@ -6493,378 +5946,6 @@
         }, 1200);
       }
 
-      // Form Submissions Checkout Pipelines
-      // Shopee Open API v2 dynamic created listing and automated paid webhooks simulation state
-      let currentActiveShopeeOrder = null;
-
-      function generateShopeeSignature(path, timestamp) {
-        const partnerId =
-          localStorage.getItem(configKeys.shopeePartnerId) || "10582";
-        const partnerKey =
-          localStorage.getItem(configKeys.shopeePartnerKey) ||
-          "fdf84073be482da7f819fc49de1e1db2823a233b8a8b1ee94958debf";
-        const shopId =
-          localStorage.getItem(configKeys.shopeeShopId) || "841926";
-        const accessToken =
-          localStorage.getItem(configKeys.shopeeAccessToken) ||
-          "shpf_a03e12b7a9de2340ae3053bb09ecbdea";
-
-        // Shopee Open API v2 standard signature formula:
-        // signature = hex(hmac-sha256(partner_id + path + timestamp + access_token + shop_id, partner_key))
-        const rawStr = `${partnerId}${path}${timestamp}${accessToken}${shopId}`;
-
-        try {
-          const hash = CryptoJS.HmacSHA256(rawStr, partnerKey);
-          return hash.toString(CryptoJS.enc.Hex);
-        } catch (err) {
-          console.error("CryptoJS error generating signature:", err);
-          // Fallback pseudo signature if CryptoJS is hindered
-          return "shp_sig_" + Math.random().toString(36).substr(2, 16);
-        }
-      }
-
-      let currentActivePaymongoOrder = null;
-      let paymongoSuccessCallback = null;
-
-      window.closePaymongoModal = function () {
-        document.getElementById("paymongo-modal-overlay").style.display =
-          "none";
-        currentActivePaymongoOrder = null;
-        paymongoSuccessCallback = null;
-      };
-
-      window.startPaymongoCheckoutFlow = function (
-        orderId,
-        totalPrice,
-        callback
-      ) {
-        currentActivePaymongoOrder = orderId;
-        paymongoSuccessCallback = callback;
-
-        // Set text values
-        document.getElementById(
-          "paymongo-order-title"
-        ).textContent = `Order Code: ${orderId}`;
-        document.getElementById(
-          "paymongo-order-price"
-        ).textContent = `₱${totalPrice.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        })}`;
-        document.getElementById(
-          "paymongo-authorize-btn"
-        ).textContent = `Authorize & Pay ₱${totalPrice.toLocaleString(
-          undefined,
-          { minimumFractionDigits: 2 }
-        )}`;
-        document.getElementById("paymongo-authorize-btn").disabled = false;
-        document.getElementById("paymongo-authorize-btn").style.opacity = "1";
-
-        // Reset auth name to customer's name
-        const customerName = document
-          .getElementById("checkout-name")
-          .value.trim();
-        document.getElementById("paymongo-auth-name").value = customerName;
-
-        // Reset logs
-        const logsBox = document.getElementById("paymongo-progress-logs");
-        logsBox.innerHTML = `
-          <div style="color: #00BFA6;">[system] Initializing safe tunnel...</div>
-          <div>[system] Merchant credentials verified with PayMongo.</div>
-          <div>[system] Awaiting payment authorization from buyer.</div>
-        `;
-
-        // Open modal
-        document.getElementById("paymongo-modal-overlay").style.display =
-          "flex";
-      };
-
-      window.executePaymongoPaymentFlow = function () {
-        const authName = document
-          .getElementById("paymongo-auth-name")
-          .value.trim();
-        if (!authName) {
-          alert("Please specify the Account Holder Name to authorize payment.");
-          return;
-        }
-
-        const logsBox = document.getElementById("paymongo-progress-logs");
-        const authBtn = document.getElementById("paymongo-authorize-btn");
-
-        authBtn.disabled = true;
-        authBtn.style.opacity = "0.5";
-        authBtn.textContent = "Authorizing transaction...";
-
-        // Append log simulation
-        logsBox.innerHTML += `<div>[paymongo] Contacting secure token servers...</div>`;
-        logsBox.scrollTop = logsBox.scrollHeight;
-
-        setTimeout(() => {
-          logsBox.innerHTML += `<div style="color: #00BFA6;">[paymongo] Handshake successful! Token: tkn_sec_${Math.random()
-            .toString(36)
-            .substr(2, 8)}</div>`;
-          logsBox.scrollTop = logsBox.scrollHeight;
-
-          setTimeout(() => {
-            logsBox.innerHTML += `<div>[webhook] Sending signed payment confirmation webhook to Nika Hub...</div>`;
-            logsBox.scrollTop = logsBox.scrollHeight;
-
-            setTimeout(() => {
-              logsBox.innerHTML += `<div style="color: #00BFA6; font-weight:bold;">[webhook] Webhook accepted (HTTP 200 OK)! Order marked as PAID.</div>`;
-              logsBox.scrollTop = logsBox.scrollHeight;
-
-              setTimeout(() => {
-                // Success callback trigger
-                if (paymongoSuccessCallback) {
-                  paymongoSuccessCallback();
-                }
-                closePaymongoModal();
-              }, 1200);
-            }, 1000);
-          }, 1000);
-        }, 1000);
-      };
-
-      window.closeShopeeModal = function () {
-        document.getElementById("shopee-modal-overlay").style.display = "none";
-      };
-
-      window.startShopeeV2CheckoutFlow = function (
-        orderId,
-        orderPrice,
-        onCompletedCallback
-      ) {
-        // Show modal and start logs
-        const overlay = document.getElementById("shopee-modal-overlay");
-        const titleEl = document.getElementById("shopee-order-title");
-        const priceEl = document.getElementById("shopee-order-price");
-        const logEl = document.getElementById("shopee-logs");
-        const redirectArea = document.getElementById("shopee-real-redirect");
-        const simulatorArea = document.getElementById(
-          "shopee-simulated-payment"
-        );
-
-        if (!overlay) return;
-
-        overlay.style.display = "flex";
-        titleEl.textContent = `Order # ${orderId} Dynamic Payment Link`;
-        priceEl.textContent = `₱${orderPrice.toLocaleString()}`;
-
-        // Reset modal UI states
-        redirectArea.style.display = "none";
-        simulatorArea.style.display = "none";
-
-        // Reset simulate button
-        const simBtn = document.getElementById("shopee-simulate-btn");
-        if (simBtn) {
-          simBtn.disabled = false;
-          simBtn.style.opacity = "1";
-          simBtn.textContent = "🟢 Simulate Paid Webhook Notification";
-        }
-
-        // Save to our transaction memory cache
-        currentActiveShopeeOrder = {
-          orderId: orderId,
-          orderPrice: orderPrice,
-          callback: onCompletedCallback,
-          productCreated: false,
-          productId: null,
-        };
-
-        // Terminal Emulator Logs starts
-        logEl.innerHTML = "";
-
-        function addLogLine(text, delay) {
-          setTimeout(() => {
-            logEl.innerHTML += `${text}<br/>`;
-            logEl.scrollTop = logEl.scrollHeight;
-          }, delay);
-        }
-
-        const timestamp = Math.floor(Date.now() / 1000);
-        const partnerId =
-          localStorage.getItem(configKeys.shopeePartnerId) || "10582";
-        const shopId =
-          localStorage.getItem(configKeys.shopeeShopId) || "841926";
-
-        addLogLine(
-          `<span style="color:#48bb78;">[lmk-system]</span> Connecting to Shopee Open API v2 production...`,
-          100
-        );
-        addLogLine(
-          `<span style="color:#a0aec0;">[shopee-api]</span> Path: /api/v2/product/add_item`,
-          500
-        );
-        addLogLine(
-          `<span style="color:#a0aec0;">[shopee-api]</span> Partner ID parsed: <strong>${partnerId}</strong>`,
-          900
-        );
-        addLogLine(
-          `<span style="color:#a0aec0;">[shopee-api]</span> Access credentials verified for Shop: <strong>${shopId}</strong>`,
-          1200
-        );
-
-        addLogLine(
-          `<span style="color:#ebf8ff;">[shopee-crypt]</span> Computing HMAC-SHA256 request signature...`,
-          1500
-        );
-        setTimeout(() => {
-          const sig = generateShopeeSignature(
-            "/api/v2/product/add_item",
-            timestamp
-          );
-          addLogLine(
-            `<span style="color:#ecc94b;">[shopee-crypt]</span> Signature generated: <small>${sig}</small>`,
-            0
-          );
-        }, 1800);
-
-        addLogLine(
-          `<span style="color:#ebf8ff;">[shopee-api]</span> Requesting transient listing creation (Stock: 1) for: "Payment Link for ${orderId}"`,
-          2200
-        );
-
-        setTimeout(() => {
-          const mockItemId =
-            "ITEM-" + Math.floor(1000000000 + Math.random() * 9000000000);
-          currentActiveShopeeOrder.productCreated = true;
-          currentActiveShopeeOrder.productId = mockItemId;
-
-          addLogLine(
-            `<span style="color:#48bb78;">[shopee-api]</span> Response status code: <strong>200 OK</strong>`,
-            0
-          );
-          addLogLine(
-            `<span style="color:#48bb78;">[shopee-api]</span> Listing indexed! Created item_id: <strong>${mockItemId}</strong>`,
-            300
-          );
-          addLogLine(
-            `<span style="color:#48bb78;">[shopee-api]</span> Active checkout link created successfully!`,
-            600
-          );
-
-          // Reveal the link button and simulation panel
-          setTimeout(() => {
-            const customUrl = `https://shopee.ph/Order-Payment-Link-For-${orderId}-i.${shopId}.${mockItemId}`;
-            document.getElementById("shopee-redirect-link").href = customUrl;
-            redirectArea.style.display = "block";
-            simulatorArea.style.display = "block";
-
-            addLogLine(
-              `<span style="color:#ecc94b;">[lmk-system]</span> Webhook listener active. Awaiting Shopee customer fulfillment...`,
-              100
-            );
-          }, 800);
-        }, 2500);
-      };
-
-      window.simulateShopeePaymentCompletion = function () {
-        if (!currentActiveShopeeOrder) {
-          showToast("⚠️ No active Shopee payment session detected.");
-          return;
-        }
-
-        const logEl = document.getElementById("shopee-logs");
-        const simBtn = document.getElementById("shopee-simulate-btn");
-
-        simBtn.disabled = true;
-        simBtn.style.opacity = "0.6";
-        simBtn.textContent = "Verifying Escrow Webhook...";
-
-        function addLogLine(text, delay) {
-          setTimeout(() => {
-            logEl.innerHTML += `${text}<br/>`;
-            logEl.scrollTop = logEl.scrollHeight;
-          }, delay);
-        }
-
-        addLogLine(
-          `<span style="color:#48bb78;">[shopee-webhook]</span> Incoming notification received: v2.webhook.order_status_paid`,
-          200
-        );
-        addLogLine(
-          `<span style="color:#48bb78;">[shopee-webhook]</span> Escrow order payment verified successfully!`,
-          600
-        );
-        addLogLine(
-          `<span style="color:#a0aec0;">[shopee-webhook]</span> Initializing instant automatic clean-up sequence...`,
-          1000
-        );
-
-        setTimeout(() => {
-          const timestamp = Math.floor(Date.now() / 1000);
-          const sig = generateShopeeSignature(
-            "/api/v2/product/delete_item",
-            timestamp
-          );
-          addLogLine(
-            `<span style="color:#ebf8ff;">[shopee-crypt]</span> Signature computed for deletion: <small>${sig}</small>`,
-            0
-          );
-        }, 1300);
-
-        addLogLine(
-          `<span style="color:#a0aec0;">[shopee-api]</span> Calling v2.product.delete_item with payload: {"item_id": "${currentActiveShopeeOrder.productId}"}`,
-          1700
-        );
-
-        setTimeout(() => {
-          addLogLine(
-            `<span style="color:#48bb78;">[shopee-api]</span> Response status code: <strong>200 OK</strong> (Successful Deletion)`,
-            0
-          );
-          addLogLine(
-            `<span style="color:#e53e3e;">[shopee-system]</span> Item deleted successfully! Zero trace remains on the seller storefront.`,
-            300
-          );
-          addLogLine(
-            `<span style="color:#48bb78;">[lmk-system]</span> Finalizing transaction in LMK Database...`,
-            600
-          );
-
-          setTimeout(() => {
-            // Trigger completion callback!
-            if (currentActiveShopeeOrder && currentActiveShopeeOrder.callback) {
-              currentActiveShopeeOrder.callback();
-            }
-            // Reset state
-            currentActiveShopeeOrder = null;
-            window.closeShopeeModal();
-          }, 1000);
-        }, 2200);
-      };
-
-      async function triggerWebsiteOrderNotification(
-        companyIdOrPayload,
-        customerName,
-        refNum,
-        type
-      ) {
-        if (!supabaseClient) return;
-        try {
-          let recordPayload = {};
-          if (typeof companyIdOrPayload === "object" && companyIdOrPayload !== null) {
-            recordPayload = { ...companyIdOrPayload };
-          } else {
-            recordPayload = {
-              company_id: companyIdOrPayload,
-              customer_name: customerName,
-              reference_num: refNum,
-              order_type: type,
-            };
-          }
-          await supabaseClient.functions.invoke(
-            "send-website-order-notification",
-            {
-              body: {
-                record: recordPayload,
-              },
-            }
-          );
-        } catch (e) {
-          console.error("Failed to invoke notification webhook:", e);
-        }
-      }
-
       async function sendAutomatedEmail(data) {
         if (typeof emailjs === "undefined") {
           console.warn("📧 EmailJS SDK is not loaded. Cannot send automated email.");
@@ -6877,27 +5958,20 @@
           return;
         }
 
-        const rawServiceId = localStorage.getItem("lmk_store_emailjs_service_id") || "service_kiyf3hp";
-        const rawTemplateId = localStorage.getItem("lmk_store_emailjs_template_id") || "template_zy8qh0r";
-        const rawPublicKey = localStorage.getItem("lmk_store_emailjs_public_key") || "moui3celSH0mRimDf";
+        const rawServiceId = (storePublicConfig && storePublicConfig.emailjsServiceId) || "";
+        const rawTemplateId = (storePublicConfig && storePublicConfig.emailjsTemplateId) || "";
+        const rawPublicKey = (storePublicConfig && storePublicConfig.emailjsPublicKey) || "";
 
-        const serviceId = rawServiceId.trim();
-        const templateId = rawTemplateId.trim();
-        const publicKey = rawPublicKey.trim();
+        const serviceId = String(rawServiceId).trim();
+        const templateId = String(rawTemplateId).trim();
+        const publicKey = String(rawPublicKey).trim();
 
-        // Check if EmailJS keys are unconfigured
         const isUnconfigured = !serviceId || serviceId.includes("YOUR_") ||
                               !templateId || templateId.includes("YOUR_") ||
                               !publicKey || publicKey.includes("YOUR_");
 
         if (isUnconfigured) {
-          console.warn(
-            "📧 EmailJS credentials are not configured or are using placeholder values.\n" +
-            "To enable automated email receipt sending, please set these credentials in your local storage or website_configs table:\n" +
-            "  - emailjsServiceId\n" +
-            "  - emailjsTemplateId\n" +
-            "  - emailjsPublicKey"
-          );
+          console.warn("📧 EmailJS credentials are not configured in storePublicConfig. Skipping automated email receipt.");
           return;
         }
 
@@ -7011,72 +6085,35 @@
 
         let detailsHtml = "";
         if (details.type === "rent") {
+          const modelVal = document.getElementById("checkout-car-model")?.value || "";
+          const startVal = document.getElementById("checkout-rent-start-date")?.value || "";
+          const endVal = document.getElementById("checkout-rent-end-date")?.value || "";
+          const driverLabel = document.getElementById("checkout-rent-driver-option")?.value === "with_driver" ? "With Driver" : "Self Drive";
           detailsHtml = `
             <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 24px; font-size: 14px;">
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${
-                details.customerName
-              }</p>
-              ${
-                details.email
-                  ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Email:</strong> ${details.email}</p>`
-                  : ""
-              }
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${
-                details.phone
-              }</p>
-              ${
-                details.fbProfile
-                  ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${details.fbProfile}</p>`
-                  : ""
-              }
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${escapeHtml(details.customerName)}</p>
+              ${details.email ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Email:</strong> ${escapeHtml(details.email)}</p>` : ""}
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${escapeHtml(details.phone)}</p>
+              ${details.fbProfile ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${escapeHtml(details.fbProfile)}</p>` : ""}
               <div style="border-top: 1px solid var(--line); margin: 12px 0;"></div>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Car Model:</strong> ${
-                document.getElementById("checkout-car-model").value
-              }</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Start Date:</strong> ${
-                document.getElementById("checkout-rent-start-date").value
-              }</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>End Date:</strong> ${
-                document.getElementById("checkout-rent-end-date").value
-              }</p>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Driver Option:</strong> ${
-                document.getElementById("checkout-rent-driver-option").value ===
-                "with_driver"
-                  ? "With Driver"
-                  : "Self Drive"
-              }</p>
-              <p style="margin: 0 0 0 0; color: var(--gold); font-weight: bold; font-size: 16px; margin-top: 12px;">Total Estimate: ₱${details.totalPrice.toLocaleString()}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Car Model:</strong> ${escapeHtml(modelVal)}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Start Date:</strong> ${escapeHtml(startVal)}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>End Date:</strong> ${escapeHtml(endVal)}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Driver Option:</strong> ${escapeHtml(driverLabel)}</p>
+              <p style="margin: 0 0 0 0; color: var(--gold); font-weight: bold; font-size: 16px; margin-top: 12px;">Total Estimate: ₱${Number(details.totalPrice || 0).toLocaleString()}</p>
             </div>
           `;
         } else {
           detailsHtml = `
             <div style="text-align: left; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 24px; font-size: 14px;">
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${
-                details.customerName
-              }</p>
-              ${
-                details.email
-                  ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Email:</strong> ${details.email}</p>`
-                  : ""
-              }
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${
-                details.phone
-              }</p>
-              ${
-                details.fbProfile
-                  ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${details.fbProfile}</p>`
-                  : ""
-              }
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Name:</strong> ${escapeHtml(details.customerName)}</p>
+              ${details.email ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Email:</strong> ${escapeHtml(details.email)}</p>` : ""}
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Phone:</strong> ${escapeHtml(details.phone)}</p>
+              ${details.fbProfile ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>FB Profile:</strong> ${escapeHtml(details.fbProfile)}</p>` : ""}
               <div style="border-top: 1px solid var(--line); margin: 12px 0;"></div>
-              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Payment:</strong> ${
-                details.payment
-              }</p>
-              ${
-                details.payment === "QR Code" && details.refNum
-                  ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Reference Code:</strong> ${details.refNum}</p>`
-                  : ""
-              }
-              <p style="margin: 0 0 0 0; color: var(--gold); font-weight: bold; font-size: 16px; margin-top: 12px;">Total: ₱${details.totalPrice.toLocaleString()}</p>
+              <p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Payment:</strong> ${escapeHtml(details.payment)}</p>
+              ${details.payment === "QR Code" && details.refNum ? `<p style="margin: 0 0 8px 0; color: var(--ink);"><strong>Reference Code:</strong> ${escapeHtml(details.refNum)}</p>` : ""}
+              <p style="margin: 0 0 0 0; color: var(--gold); font-weight: bold; font-size: 16px; margin-top: 12px;">Total: ₱${Number(details.totalPrice || 0).toLocaleString()}</p>
             </div>
           `;
         }
@@ -7092,14 +6129,15 @@
             <p style="font-size: 14px; color:var(--muted); margin-bottom: 16px;">Please review the details you inputted before proceeding.</p>
             ${detailsHtml}
             <div style="display: flex; gap: 12px;">
-              <button class="btn-primary" style="flex:1; background: transparent; border: 1px solid var(--line); color: var(--ink);" onclick="document.getElementById('confirmation-overlay').remove()">Edit</button>
-              <button class="btn-primary" style="flex:1;" id="confirm-proceed-btn">Proceed</button>
+              <button type="button" class="btn-primary js-confirm-edit-btn" style="flex:1; background: transparent; border: 1px solid var(--line); color: var(--ink);">Edit</button>
+              <button type="button" class="btn-primary" style="flex:1;" id="confirm-proceed-btn">Proceed</button>
             </div>
           </div>
         `;
 
         document.body.appendChild(overlay);
-
+        const editBtn = overlay.querySelector(".js-confirm-edit-btn");
+        if (editBtn) editBtn.addEventListener("click", () => overlay.remove());
         document.getElementById("confirm-proceed-btn").onclick = function () {
           overlay.remove();
           onConfirm();
@@ -7112,7 +6150,6 @@
         }
         const type = document.getElementById("checkout-type").value; // "cart" or "rent"
 
-        // Validate Rent Reservation minimum duration constraints
         if (type === "rent") {
           const sDateVal = document.getElementById("checkout-rent-start-date").value;
           const eDateVal = document.getElementById("checkout-rent-end-date").value;
@@ -7122,10 +6159,7 @@
             const start = new Date(sDateVal);
             const end = new Date(eDateVal);
             if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
-              const diffMs = end.getTime() - start.getTime();
-              // Calculate hours, keeping floating point precision for exact check
-              const diffHours = diffMs / (1000 * 60 * 60);
-
+              const diffHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
               if (duration === "12hr" && diffHours < 12) {
                 showToast("⚠️ Reservation for 12-hour rate must be at least 12 hours.");
                 return;
@@ -7144,10 +6178,8 @@
           }
         }
 
-        // Validate Phone Number
         if (typeof validatePhoneInput === "function") {
-          const isPhoneValid = validatePhoneInput(true);
-          if (!isPhoneValid) {
+          if (!validatePhoneInput(true)) {
             showToast("⚠️ please put valid phone number");
             const phoneInput = document.getElementById("checkout-phone");
             if (phoneInput) {
@@ -7158,13 +6190,11 @@
           }
         }
 
-        const customerName = document
-          .getElementById("checkout-name")
-          .value.trim();
+        const customerName = document.getElementById("checkout-name").value.trim();
         const email = document.getElementById("checkout-email")
           ? document.getElementById("checkout-email").value.trim()
           : "";
-        
+
         if (type === "rent" && !email) {
           showToast("⚠️ Email Address is required.");
           const emailInput = document.getElementById("checkout-email");
@@ -7177,22 +6207,18 @@
 
         const phone = document.getElementById("checkout-phone").value.trim();
         const fbProfile = document.getElementById("checkout-fb").value.trim();
-        const address = document
-          .getElementById("checkout-address")
-          .value.trim();
+        const address = document.getElementById("checkout-address").value.trim();
         const fulfillment = document.getElementById("checkout-delivery").value;
         const payment = document.getElementById("checkout-payment").value;
         const refNum = document.getElementById("checkout-ref").value.trim();
-        let totalPrice = parseFloat(
-          document.getElementById("checkout-car-price").value || 0
-        );
+        let totalPrice = parseFloat(document.getElementById("checkout-car-price").value || 0);
 
-        // Pre-capture snapshots of cart items and rental form values BEFORE any DOM resets or cart clearing
         const cartSnapshot = cart.map((i) => ({ ...i }));
         const carModelVal = document.getElementById("checkout-car-model") ? document.getElementById("checkout-car-model").value : "Car Rental";
         const sDateVal = document.getElementById("checkout-rent-start-date") ? document.getElementById("checkout-rent-start-date").value : "";
         const eDateVal = document.getElementById("checkout-rent-end-date") ? document.getElementById("checkout-rent-end-date").value : "";
         const driverOptionVal = document.getElementById("checkout-rent-driver-option") ? document.getElementById("checkout-rent-driver-option").value : "self";
+        const durationModeVal = document.getElementById("checkout-car-duration")?.value === "12hr" ? "12hr" : "24hr";
         const plateNumberVal = (document.getElementById("checkout-rent-plate-number") && document.getElementById("checkout-rent-plate-number").value) || "TBD";
         const distanceLimitVal = (document.getElementById("checkout-rent-distance-limit") && document.getElementById("checkout-rent-distance-limit").value) || "300";
         const operatorNameVal = (document.getElementById("checkout-rent-operator-name") && document.getElementById("checkout-rent-operator-name").value) || "Nica Lmk Corp";
@@ -7253,28 +6279,43 @@
           }
         }
 
-        // Anti-spam protection: 30-second cooldown between final submissions
-        const lastCheckout = localStorage.getItem("__last_checkout_time");
-        const now = Date.now();
-        if (lastCheckout) {
-          const elapsed = (now - parseInt(lastCheckout)) / 1000;
-          if (elapsed < 30) {
-            showToast(
-              `Please wait ${Math.ceil(
-                30 - elapsed
-              )} seconds before placing another order.`
-            );
+        // If PayMongo checkout was already confirmed via server verify_session/webhook, finalize display without duplicate submission
+        if (type === "cart" && payment === "PayMongo") {
+          if (window.__paymongoPaidOrders && window.__paymongoPaidOrders[refNum]) {
+            const confirmedTotal = Number(window.__paymongoPaidTotals?.[refNum] || totalPrice);
+            sendAutomatedEmail({
+              type: "cart",
+              customerName,
+              email,
+              phone,
+              fbProfile,
+              address,
+              fulfillment,
+              payment: "PayMongo",
+              refNum,
+              totalPrice: confirmedTotal,
+              orderId: refNum,
+              cartSnapshot,
+              rentalDetails,
+            });
+            cart = [];
+            updateCartUI();
+            closeCheckoutModal();
+            showCompletionPage(customerName, refNum, confirmedTotal, true);
             return;
           }
+          showToast("⚠️ Please click 'Proceed to Secure Checkout' and complete PayMongo payment first.");
+          return;
         }
 
-        // Anti-spam Turnstile verification check
-        if (typeof turnstile !== "undefined") {
-          const token = turnstile.getResponse(turnstileWidgetId);
-          if (!token) {
-            showToast("⚠️ Please complete the security check.");
-            return;
-          }
+        // Enforce Turnstile verification token
+        const turnstileToken =
+          typeof turnstile !== "undefined" && turnstileWidgetId !== null
+            ? turnstile.getResponse(turnstileWidgetId)
+            : "";
+        if (!turnstileToken) {
+          showToast("⚠️ Please complete the security check.");
+          return;
         }
 
         if (!window.__checkoutConfirmed) {
@@ -7301,538 +6342,154 @@
           return;
         }
         window.__checkoutConfirmed = false;
-        localStorage.setItem("__last_checkout_time", Date.now().toString());
 
-        const activeCompanyId = HARDCODED_COMPANY_ID;
-        const randId = "web-txn-" + Math.random().toString(36).substr(2, 9);
-
-        // Intercept QR Code / PayMongo payment flow to execute direct database logging, email invoice sending, and direct Shopee checkout redirect
-        if (type !== "rent" && (payment === "QR Code" || payment === "PayMongo")) {
-          const orderId = payment === "PayMongo" ? refNum : (
-            "QR-SHP-" + Math.random().toString(36).substr(2, 9).toUpperCase()
-          );
-
-          const submitBtnInside = document.getElementById(
-            "checkout-submit-btn"
-          );
-          if (submitBtnInside) {
-            submitBtnInside.textContent = "Processing Transaction...";
-            submitBtnInside.disabled = true;
-          }
-
-          let writeSuccessful = false;
-          if (type === "cart") {
-            const itemsBlobName = cartSnapshot.map((i) => i.name).join(", ");
-            const itemsBlobQty = cartSnapshot.map((i) => i.qty).join(", ");
-            const itemsBlobAmt = cartSnapshot
-              .map((i) => {
-                const priceVal =
-                  i.resellerAmount !== undefined && i.resellerAmount !== null
-                    ? i.resellerAmount
-                    : i.price;
-                return priceVal;
-              })
-              .join(", ");
-
-            const orderRemarks = `🛍️ WEB ORDER VIA ${payment}.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: ${payment} (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)\nCart details: ${cartSnapshot
-              .map((i) => `${i.name} (x${i.qty})`)
-              .join(", ")}`;
-
-            if (supabaseClient) {
-              try {
-                const insertPayload = {
-                  company_id: activeCompanyId,
-                  customer_name: customerName,
-                  phone: phone,
-                  facebook: fbProfile,
-                  address: address,
-                  fulfillment: fulfillment,
-                  payment_method: payment,
-                  reference_number: refNum,
-                  total_price: totalPrice,
-                  order_type: "cart",
-                  status: payment === "PayMongo" ? "payment_confirmed" : "pending",
-                  items: cartSnapshot.map((i) => ({
-                    id: i.id,
-                    name: i.name,
-                    price:
-                      i.resellerAmount !== undefined &&
-                      i.resellerAmount !== null
-                        ? i.resellerAmount
-                        : i.price,
-                    qty: i.qty,
-                    image: i.image,
-                    tab: i.tab || "",
-                  })),
-                  created_at: new Date().toISOString(),
-                };
-
-                const { data: res, error } = await supabaseClient.rpc(
-                  "submit_public_store_order",
-                  { p_order: insertPayload }
-                );
-
-                if (error || (res && res.success === false)) {
-                  console.error("Failed to submit order via RPC.", error || res);
-                  throw (error || new Error(res?.error || "Order submission failed"));
-                }
-                writeSuccessful = true;
-                triggerWebsiteOrderNotification({
-                  company_id: activeCompanyId,
-                  customer_name: customerName,
-                  phone: phone,
-                  facebook: fbProfile,
-                  address: address,
-                  fulfillment: fulfillment,
-                  payment_method: payment,
-                  reference_num: refNum || orderId,
-                  total_price: totalPrice,
-                  order_type: "cart",
-                  items: cartSnapshot.map((i) => ({
-                    id: i.id,
-                    name: i.name,
-                    price:
-                      i.resellerAmount !== undefined &&
-                      i.resellerAmount !== null
-                        ? i.resellerAmount
-                        : i.price,
-                    qty: i.qty,
-                    image: i.image,
-                    tab: i.tab || "",
-                  })),
-                });
-              } catch (err) {
-                console.error("Order submit failed:", err);
-              }
-            }
-          } else {
-            const carModel = carModelVal;
-            const duration = document.getElementById("checkout-car-duration")?.value || "24 hours";
-            const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel} during ${duration}.\nFulfillment: ${fulfillment}\nDelivery/Address: ${address}\nFB Contact: ${fbProfile}\nPayment Gateway: ${payment} (Reference: ${refNum})\nShopee Shipping Fee Integration (₱5.00)`;
-
-            if (supabaseClient) {
-              try {
-                const insertPayload = {
-                  company_id: activeCompanyId,
-                  customer_name: customerName,
-                  phone: phone,
-                  facebook: fbProfile,
-                  address: address,
-                  fulfillment: fulfillment,
-                  payment_method: payment,
-                  reference_number: refNum,
-                  total_price: totalPrice,
-                  order_type: "rent",
-                  car_model: carModel,
-                  duration: duration,
-                  status: payment === "PayMongo" ? "payment_confirmed" : "pending",
-                  items: [
-                    {
-                      name: carModel,
-                      qty: 1,
-                      price: totalPrice,
-                      duration: duration,
-                      driver_option: driverOptionVal,
-                      driver_fee: driverFeeVal,
-                      start_date: sDateVal,
-                      end_date: eDateVal,
-                    },
-                  ],
-                  created_at: new Date().toISOString(),
-                };
-
-                const { data: res, error } = await supabaseClient.rpc(
-                  "submit_public_store_order",
-                  { p_order: insertPayload }
-                );
-
-                if (error || (res && res.success === false)) {
-                  console.error("Failed to submit rental order via RPC.", error || res);
-                  throw (error || new Error(res?.error || "Rental order submission failed"));
-                }
-                writeSuccessful = true;
-                triggerWebsiteOrderNotification({
-                  company_id: activeCompanyId,
-                  customer_name: customerName,
-                  phone: phone,
-                  facebook: fbProfile,
-                  address: address,
-                  fulfillment: fulfillment,
-                  payment_method: payment,
-                  reference_num: refNum || orderId,
-                  total_price: totalPrice,
-                  order_type: "rent",
-                  car_model: carModel,
-                  duration: duration,
-                  driver_option: driverOptionVal,
-                  driver_fee: driverFeeVal,
-                  items: [
-                    {
-                      name: carModel,
-                      qty: 1,
-                      price: totalPrice,
-                      duration: duration,
-                      driver_option: driverOptionVal,
-                      driver_fee: driverFeeVal,
-                      start_date: sDateVal,
-                      end_date: eDateVal,
-                    },
-                  ],
-                });
-              } catch (err) {
-                console.error("Reservation submit failed:", err);
-              }
-            }
-          }
-
-          // Send automated email to customer BEFORE resetting cart locally
-          sendAutomatedEmail({
-            type: type,
-            customerName: customerName,
-            email: email,
-            phone: phone,
-            fbProfile: fbProfile,
-            address: address,
-            fulfillment: fulfillment,
-            payment: payment,
-            refNum: refNum,
-            totalPrice: totalPrice,
-            orderId: orderId,
-            cartSnapshot: cartSnapshot,
-            rentalDetails: rentalDetails,
-          });
-
-          // Clean cart locally
-          if (type === "cart") {
-            cart = [];
-            updateCartUI();
-          }
-
-          if (submitBtnInside) {
-            submitBtnInside.textContent = "Complete Transaction";
-            submitBtnInside.disabled = false;
-          }
-
-          // Show completed screen
-          closeCheckoutModal();
-          showCompletionPage(
-            customerName,
-            orderId,
-            totalPrice,
-            writeSuccessful
-          );
+        if (!supabaseClient) {
+          showToast("⚠️ Storefront service is unavailable right now.");
           return;
         }
 
-        let submitCompleted = false;
-
-        // Loading State
         const submitBtn = document.getElementById("checkout-submit-btn");
-        submitBtn.textContent = "Processing Transaction...";
-        submitBtn.disabled = true;
-
-        // CASE A: Customer ordered standard Shopping Cart items
-        if (type === "cart") {
-          const itemsBlobName = cartSnapshot.map((i) => i.name).join(", ");
-          const itemsBlobQty = cartSnapshot.map((i) => i.qty).join(", ");
-          const itemsBlobAmt = cartSnapshot.map((i) => i.price).join(", ");
-
-          const orderRemarks = `🛍️ WEB ORDER VIA STOREFRONT.\nFulfillment: ${fulfillment}\nDeliver Address: ${address}\nFB Info: ${fbProfile}\nPayment Gateway: ${payment}\nMerchant Txn Ref ID: ${refNum}\nCart details: ${cartSnapshot
-            .map((i) => `${i.name} (x${i.qty})`)
-            .join(", ")}`;
-
-          if (supabaseClient) {
-            try {
-              let insertPayload = {
-                company_id: activeCompanyId,
-                customer_name: customerName,
-                phone: phone,
-                facebook: fbProfile,
-                address: address,
-                fulfillment: fulfillment,
-                payment_method: payment,
-                reference_number: refNum,
-                total_price: totalPrice,
-                order_type: "cart",
-                status: "pending",
-                items: cartSnapshot.map((i) => ({
-                  id: i.id,
-                  name: i.name,
-                  price: i.price,
-                  qty: i.qty,
-                  image: i.image,
-                })),
-                created_at: new Date().toISOString(),
-              };
-
-              let { data: res, error } = await supabaseClient.rpc(
-                "submit_public_store_order",
-                { p_order: insertPayload }
-              );
-
-              if (error || (res && res.success === false)) {
-                console.error("Failed to submit order via RPC.", error || res);
-                throw (error || new Error(res?.error || "Order submission failed"));
-              }
-              submitCompleted = true;
-              triggerWebsiteOrderNotification({
-                company_id: activeCompanyId,
-                customer_name: customerName,
-                phone: phone,
-                facebook: fbProfile,
-                address: address,
-                fulfillment: fulfillment,
-                payment_method: payment,
-                reference_num: refNum,
-                total_price: totalPrice,
-                order_type: "cart",
-                items: cartSnapshot.map((i) => ({
-                  id: i.id,
-                  name: i.name,
-                  price: i.price,
-                  qty: i.qty,
-                  image: i.image,
-                })),
-              });
-            } catch (err) {
-              console.error("Order submit failed:", err);
-              submitCompleted = false;
-            }
-          }
+        if (submitBtn) {
+          submitBtn.textContent = "Processing Transaction...";
+          submitBtn.disabled = true;
         }
-        // CASE B: Customer booked a Rental Car
-        else {
-          const carModel = carModelVal;
-          const sDate = sDateVal;
-          const eDate = eDateVal;
-          const driverOption = driverOptionVal;
-          const plateNumber = plateNumberVal;
-          const distanceLimit = distanceLimitVal;
-          const operatorName = operatorNameVal;
-          const operatorAddress = operatorAddressVal;
 
-          const finalRentTotal = totalPrice;
-          const durationText =
-            document.getElementById("rent-calc-days")?.textContent || "24 Hours";
-          const rentRemarks = `🚗 WEB RESERVATION FOR: ${carModel}\nDates: ${sDate} to ${eDate}\nFulfillment: Rental Reservation\nAddress: ${address}\nFB Contact: ${fbProfile}\nPhone: ${phone}\nDriver Option: ${
-            driverOption === "with_driver" ? "With Driver" : "Self Drive"
-          }\nPreferred Plate: ${plateNumber}\nOperator: ${operatorName}`;
+        const idempotencyKey = "web-" + crypto.randomUUID().slice(0, 12);
+        const orderIdDisplay =
+          type === "cart" && payment === "QR Code"
+            ? "QR-SHP-" + Math.random().toString(36).substr(2, 9).toUpperCase()
+            : idempotencyKey;
 
-          if (supabaseClient) {
-            try {
-              let insertPayload = {
-                company_id: activeCompanyId,
-                customer_name: customerName,
-                phone: phone,
-                facebook: fbProfile,
-                address: address,
-                fulfillment: "Rental Reservation",
-                payment_method: "Deferred / Staff Confirmation",
-                reference_number: "PENDING_CONFIRMATION",
-                total_price: finalRentTotal,
-                order_type: "rent",
-                car_model: carModel,
-                duration: durationText,
-                status: "pending",
-                items: [
-                  {
-                    name: carModel,
-                    qty: 1,
-                    price: finalRentTotal,
-                    start_date: sDate,
-                    end_date: eDate,
-                    driver_option: driverOption,
-                    driver_fee: driverFeeVal,
-                    distance_limit: distanceLimit,
-                    plate_number: plateNumber,
-                    operator_name: operatorName,
-                    operator_address: operatorAddress,
+        let submitCompleted = false;
+        let finalTotalPrice = totalPrice;
+        let finalOrderId = orderIdDisplay;
+
+        try {
+          const requestBody =
+            type === "cart"
+              ? {
+                  companyId: HARDCODED_COMPANY_ID,
+                  orderType: "cart",
+                  customerName,
+                  phone,
+                  facebook: fbProfile,
+                  address,
+                  fulfillment,
+                  paymentMethod: payment,
+                  referenceNumber: refNum,
+                  items: cartSnapshot.map((i) => ({ id: i.id, qty: Number(i.qty || 1) })),
+                  turnstileToken,
+                  idempotencyKey,
+                }
+              : {
+                  companyId: HARDCODED_COMPANY_ID,
+                  orderType: "rent",
+                  customerName,
+                  phone,
+                  facebook: fbProfile,
+                  address,
+                  fulfillment: "Rental Reservation",
+                  paymentMethod: "Deferred / Staff Confirmation",
+                  referenceNumber: "PENDING_CONFIRMATION",
+                  items: [],
+                  rental: {
+                    carModel: carModelVal,
+                    durationMode: durationModeVal,
+                    startDate: sDateVal,
+                    endDate: eDateVal,
+                    driverOption: driverOptionVal,
+                    plateNumber: plateNumberVal,
+                    distanceLimit: distanceLimitVal,
+                    operatorName: operatorNameVal,
+                    operatorAddress: operatorAddressVal,
                   },
-                ],
-                created_at: new Date().toISOString(),
-              };
+                  turnstileToken,
+                  idempotencyKey,
+                };
 
-              let { data: res, error } = await supabaseClient.rpc(
-                "submit_public_store_order",
-                { p_order: insertPayload }
-              );
-                
-              if (error || (res && res.success === false)) {
-                console.error("Failed to submit rental reservation via RPC.", error || res);
-                throw (error || new Error(res?.error || "Rental reservation failed"));
-              }
-              submitCompleted = true;
-              triggerWebsiteOrderNotification({
-                company_id: activeCompanyId,
-                customer_name: customerName,
-                phone: phone,
-                facebook: fbProfile,
-                address: address,
-                fulfillment: "Rental Reservation",
-                payment_method: "Deferred / Staff Confirmation",
-                reference_num: "PENDING_CONFIRMATION",
-                total_price: finalRentTotal,
-                order_type: "rent",
-                car_model: carModel,
-                duration: durationText,
-                driver_option: driverOption,
-                driver_fee: driverFeeVal,
-                items: [
-                  {
-                    name: carModel,
-                    qty: 1,
-                    price: finalRentTotal,
-                    start_date: sDate,
-                    end_date: eDate,
-                    driver_option: driverOption,
-                    driver_fee: driverFeeVal,
-                    distance_limit: distanceLimit,
-                    plate_number: plateNumber,
-                    operator_name: operatorName,
-                    operator_address: operatorAddress,
-                  },
-                ],
-              });
-            } catch (err) {
-              console.error("Reservation submit failed:", err);
-              submitCompleted = false;
+          const { data: res, error } = await supabaseClient.functions.invoke(
+            "submit-public-order",
+            { body: requestBody }
+          );
+
+          if (error) {
+            let errMsg = error.message || "Order submission failed.";
+            if (error.context && typeof error.context.json === "function") {
+              try {
+                const inner = await error.context.json();
+                if (inner?.error) errMsg = inner.error;
+              } catch (ex) {}
             }
+            throw new Error(errMsg);
+          }
+
+          if (!res || res.success === false) {
+            throw new Error(res?.error || "Order submission failed.");
+          }
+
+          submitCompleted = true;
+          if (res.total_price !== undefined && res.total_price !== null) {
+            finalTotalPrice = Number(res.total_price);
+          }
+          if (type !== "cart" && res.order_id) {
+            finalOrderId = String(res.order_id);
+          }
+        } catch (err) {
+          console.error("Order submit failed:", err);
+          submitCompleted = false;
+          showToast("⚠️ " + (err?.message || "Failed to submit order."));
+        } finally {
+          triggerTurnstileReset();
+          if (submitBtn) {
+            submitBtn.textContent =
+              type === "rent" ? "Continue Reservation" : "Complete Transaction";
+            submitBtn.disabled = false;
           }
         }
 
-        const actualPrice = totalPrice;
+        if (!submitCompleted) {
+          return;
+        }
 
-        submitBtn.textContent =
-          type === "rent" ? "Continue Reservation" : "Complete Transaction";
-        submitBtn.disabled = false;
+        sendAutomatedEmail({
+          type,
+          customerName,
+          email,
+          phone,
+          fbProfile,
+          address,
+          fulfillment: type === "rent" ? "Rental Reservation" : fulfillment,
+          payment: type === "rent" ? "Deferred / Staff Confirmation" : payment,
+          refNum: type === "rent" ? "PENDING_CONFIRMATION" : refNum,
+          totalPrice: finalTotalPrice,
+          orderId: finalOrderId,
+          cartSnapshot,
+          rentalDetails,
+        });
 
-        // Clean cart locally if cart order
         if (type === "cart") {
           cart = [];
           updateCartUI();
         }
 
-        // Reset modals and state
         closeCheckoutModal();
-
-        if (submitCompleted) {
-          // Send automated email
-          sendAutomatedEmail({
-            type: type,
-            customerName: customerName,
-            email: email,
-            phone: phone,
-            fbProfile: fbProfile,
-            address: address,
-            fulfillment: type === "rent" ? "Rental Reservation" : fulfillment,
-            payment: type === "rent" ? "Deferred / Staff Confirmation" : payment,
-            refNum: type === "rent" ? "PENDING_CONFIRMATION" : refNum,
-            totalPrice: actualPrice,
-            orderId: randId,
-            cartSnapshot: cartSnapshot,
-            rentalDetails: rentalDetails,
-          });
-          showCompletionPage(customerName, randId, actualPrice, true);
-        } else {
-          // Graceful offline/restricted checkout fallback: Prebuilds Facebook Messenger Link
-          console.log(
-            "Database upload unavailable, building robust Facebook Messenger hand-shake checkout."
-          );
-
-          let messageInvoice = `✨ LMK CORP ATELIER SYSTEM INVOICE ✨\n\n`;
-          messageInvoice += `👤 Customer: ${customerName}\n`;
-          messageInvoice += `📞 Phone: ${phone}\n`;
-          messageInvoice += `🌐 FB link: ${fbProfile}\n`;
-          messageInvoice += `📦 fulfillment: ${fulfillment}\n`;
-          messageInvoice += `📍 Address: ${address}\n\n`;
-          messageInvoice += `💵 Total Amount: ₱${actualPrice.toLocaleString()}\n`;
-          messageInvoice += `💳 Payment method: ${
-            type === "rent" ? "Deferred Reservation" : payment
-          }\n`;
-          messageInvoice += `🆔 Reference payment: ${
-            type === "rent" ? "PENDING_CONFIRMATION" : refNum
-          }\n\n`;
-
-          if (type === "cart") {
-            messageInvoice += `🛍️ Items Bought:\n`;
-            cartSnapshot.forEach((i) => {
-              messageInvoice += `▪️ ${i.name} (x${i.qty}) - ₱${(
-                i.price * i.qty
-              ).toLocaleString()}\n`;
-            });
-          } else {
-            const carModel = carModelVal;
-            const sDate = sDateVal;
-            const eDate = eDateVal;
-            const driverOption = driverOptionVal;
-            messageInvoice += `🚗 Car Reservation:\n▪️ Model: ${carModel}\n▪️ Start Date: ${sDate}\n▪️ End Date: ${eDate}\n▪️ Driver: ${
-              driverOption === "with_driver" ? "With Driver" : "Self Drive"
-            }\n`;
-          }
-
-          // Encode URL message
-          const formattedUrlMessage = encodeURIComponent(messageInvoice);
-          // Fallback Messenger deep link
-          const messengerId = "nicalmkcorp"; // principal company messenger page
-          const messengerLink = `https://m.me/${messengerId}?text=${formattedUrlMessage}`;
-
-          // Send automated email in fallback mode
-          sendAutomatedEmail({
-            type: type,
-            customerName: customerName,
-            email: email,
-            phone: phone,
-            fbProfile: fbProfile,
-            address: address,
-            fulfillment: type === "rent" ? "Rental Reservation" : fulfillment,
-            payment: type === "rent" ? "Deferred / Staff Confirmation" : payment,
-            refNum: type === "rent" ? "PENDING_CONFIRMATION" : refNum,
-            totalPrice: actualPrice,
-            orderId: randId,
-            cartSnapshot: cartSnapshot,
-            rentalDetails: rentalDetails,
-          });
-
-          showCompletionPage(
-            customerName,
-            randId,
-            actualPrice,
-            false,
-            messengerLink,
-            messageInvoice
-          );
-        }
-
-        // Reset Cart local
-        if (type === "cart") {
-          cart = [];
-          updateCartUI();
-        }
+        showCompletionPage(customerName, finalOrderId, finalTotalPrice, true);
       }
 
       // Helper to convert standard Shopee product URLs to direct product URLs
       function getShopeeCheckoutUrl(url) {
         if (!url) return url;
-        // If it is already a direct product link, return it
         if (url.includes("/product/")) {
-          return url.split("?")[0]; // remove extra queries to be safe
+          return url.split("?")[0];
         }
-
-        // Match standard product URLs, e.g.:
-        // - https://shopee.ph/product-i.1121045233.9511502603
-        // - https://shopee.ph/product/1121045233/9511502603
-        // - https://shopee.ph/Some-Product-Name-i.1121045233.9511502603
         const matchI = url.match(/-i\.(\d+)\.(\d+)/i) || url.match(/\/product\/(\d+)\/(\d+)/i);
         if (matchI) {
-          const shopId = matchI[1];
-          const itemId = matchI[2];
-          return `https://shopee.ph/product/${shopId}/${itemId}`;
+          return `https://shopee.ph/product/${matchI[1]}/${matchI[2]}`;
         }
-
         return url;
       }
 
-      // Display checkout completed screen
+      // Display checkout completed screen (XSS-safe)
       function showCompletionPage(
         customerName,
         orderId,
@@ -7853,12 +6510,12 @@
 
         if (isShopeeShippingRequired) {
           const rawShopeeShippingUrl =
-            localStorage.getItem("lmk_store_shopee_shipping_url") ||
+            (storePublicConfig && storePublicConfig.shopeeShippingUrl) ||
             "https://s.shopee.ph/6L2UyUXbZQ";
-          const shopeeShippingUrl = getShopeeCheckoutUrl(rawShopeeShippingUrl);
+          const shopeeShippingUrl = sanitizeUrl(getShopeeCheckoutUrl(rawShopeeShippingUrl), false) || "https://s.shopee.ph/6L2UyUXbZQ";
           const subText = orderId.startsWith("PM-")
-            ? `Your payment of <strong>₱${totalVal.toLocaleString()}</strong> has been securely confirmed via PayMongo webhook.`
-            : `Your order of <strong>₱${totalVal.toLocaleString()}</strong> has been successfully registered under transaction code <strong>${orderId}</strong>.`;
+            ? `Your payment of <strong>₱${Number(totalVal || 0).toLocaleString()}</strong> has been securely confirmed via PayMongo.`
+            : `Your order of <strong>₱${Number(totalVal || 0).toLocaleString()}</strong> has been successfully registered under transaction code <strong>${escapeHtml(orderId)}</strong>.`;
           boxContent = `
       <div class="modal-box" style="text-align:center; padding:36px 24px; position:relative; max-width:480px; border-top: 5px solid #ff5722;">
         <div style="font-size: 54px; margin-bottom:16px;">✨</div>
@@ -7875,10 +6532,10 @@
         </div>
 
         <div style="display:flex; flex-direction:column; gap:12px">
-          <a href="${shopeeShippingUrl}" target="_blank" rel="noopener" class="btn-primary" style="display:block; text-align:center; padding:16px; background:#ff5722; border-color:#ff5722; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; border-radius:8px; color:white; text-decoration:none;" onclick="document.getElementById('success-overlay').remove(); window.openNativeApp('shopee', '${shopeeShippingUrl}', event)">
+          <a href="${escapeHtml(shopeeShippingUrl)}" target="_blank" rel="noopener noreferrer" class="btn-primary js-shopee-redirect-btn" style="display:block; text-align:center; padding:16px; background:#ff5722; border-color:#ff5722; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; border-radius:8px; color:white; text-decoration:none;">
             🛒 Checkout Shipping on Shopee (₱5.00)
           </a>
-          <button class="btn-ghost" onclick="document.getElementById('success-overlay').remove()">Back to Storefront</button>
+          <button type="button" class="btn-ghost js-close-success-btn">Back to Storefront</button>
         </div>
       </div>
           `;
@@ -7887,15 +6544,15 @@
       <div class="modal-box" style="text-align:center; padding:36px 24px; position:relative">
         <div style="font-size: 54px; margin-bottom:16px;">✨</div>
         <h3 style="font-family:'Cormorant Garamond', serif; font-size: 32px; color:var(--gold-2); margin-bottom: 8px;">Reservation Received!</h3>
-        <p style="font-size: 14px; color:var(--muted); margin-bottom: 24px;">Thank you for reserving, <strong>${customerName}</strong>.</p>
+        <p style="font-size: 14px; color:var(--muted); margin-bottom: 24px;">Thank you for reserving, <strong>${escapeHtml(customerName)}</strong>.</p>
           `;
 
           if (dbSuccess) {
             boxContent += `
         <div class="payment-instructions" style="text-align:left; background:rgba(201,169,106,.05); border:1px solid var(--gold); margin-bottom: 24px">
           <strong>Reservation Details Synced:</strong><br/>
-          <span>Txn Track ID: <span style="font-family: monospace; color:white">${orderId}</span></span><br/>
-          <span>Amount To Be Paid: <strong>₱${totalVal.toLocaleString()}</strong></span><br/><br/>
+          <span>Txn Track ID: <span style="font-family: monospace; color:white">${escapeHtml(orderId)}</span></span><br/>
+          <span>Amount To Be Paid: <strong>₱${Number(totalVal || 0).toLocaleString()}</strong></span><br/><br/>
           <small>Our central staff dashboard has received your parameters. We will contact you immediately via phone or Messenger to schedule checkout handover.</small>
         </div>
             `;
@@ -7906,19 +6563,20 @@
           <p style="font-size:12px; margin-top:4px; line-height: 1.4">Database synced locally! To complete verification instantly, click "Submit Invoice via Facebook Messenger" below to transmit your payment details to the owner.</p>
         </div>
         <div style="text-align:left; margin-bottom: 24px;">
-          <textarea style="width:100%; background:rgba(255,255,255,.05); color:var(--ink); font-family: monospace; font-size:12px; border:1px solid var(--line); padding:10px" rows="5" readonly>${msgText}</textarea>
+          <textarea style="width:100%; background:rgba(255,255,255,.05); color:var(--ink); font-family: monospace; font-size:12px; border:1px solid var(--line); padding:10px" rows="5" readonly>${escapeHtml(msgText)}</textarea>
         </div>
             `;
           }
 
+          const safeFbLink = sanitizeUrl(fbLink, false);
           boxContent += `
         <div style="display:flex; flex-direction:column; gap:12px">
           ${
-            !dbSuccess
-              ? `<a href="${fbLink}" target="_blank" rel="noopener" class="btn-primary" style="display:block; text-align:center; padding:16px" onclick="document.getElementById('success-overlay').remove(); window.openNativeApp('messenger', '${fbLink}', event)">Submit Invoice via Messenger</a>`
+            !dbSuccess && safeFbLink
+              ? `<a href="${escapeHtml(safeFbLink)}" target="_blank" rel="noopener noreferrer" class="btn-primary js-messenger-redirect-btn" style="display:block; text-align:center; padding:16px">Submit Invoice via Messenger</a>`
               : ""
           }
-          <button class="btn-ghost" onclick="document.getElementById('success-overlay').remove()">Back to Storefront</button>
+          <button type="button" class="btn-ghost js-close-success-btn">Back to Storefront</button>
         </div>
       </div>
           `;
@@ -7926,11 +6584,31 @@
 
         successOverlay.innerHTML = boxContent;
         document.body.appendChild(successOverlay);
+
+        const closeBtn = successOverlay.querySelector(".js-close-success-btn");
+        if (closeBtn) closeBtn.addEventListener("click", () => successOverlay.remove());
+
+        const shopeeBtn = successOverlay.querySelector(".js-shopee-redirect-btn");
+        if (shopeeBtn) {
+          shopeeBtn.addEventListener("click", (ev) => {
+            const targetHref = shopeeBtn.getAttribute("href") || "";
+            successOverlay.remove();
+            window.openNativeApp("shopee", targetHref, ev);
+          });
+        }
+
+        const msgBtn = successOverlay.querySelector(".js-messenger-redirect-btn");
+        if (msgBtn) {
+          msgBtn.addEventListener("click", (ev) => {
+            const targetHref = msgBtn.getAttribute("href") || "";
+            successOverlay.remove();
+            window.openNativeApp("messenger", targetHref, ev);
+          });
+        }
       }
 
       // --- Mobile UX Enhancements ---
 
-      // 1. Mobile Quick Jump Dropdown Navigation
       const mobileJumpSelect = document.getElementById("mobile-quick-jump-select");
       if (mobileJumpSelect) {
         mobileJumpSelect.addEventListener("change", function(e) {
@@ -7945,7 +6623,6 @@
         });
       }
 
-      // 2. Intercept Browser Back Gesture to Close Modals instead of navigating away
       let pushedModalStates = 0;
       let ignoreNextPopstate = false;
 
@@ -7953,17 +6630,10 @@
         const overlays = Array.from(document.querySelectorAll('.modal-overlay, .drawer-overlay, #duration-notice-overlay'));
         return overlays.filter(m => {
           if (m.classList.contains('active') || m.classList.contains('open')) return true;
-          
           const id = m.id;
-          if (id === 'paymongo-modal-overlay' || id === 'shopee-modal-overlay') {
-            const computedStyle = window.getComputedStyle(m);
-            if (computedStyle.display !== 'none') return true;
-          }
-          
           if (id === 'duration-notice-overlay' || id === 'payment-verification-overlay' || id === 'loan-details-overlay') {
             return true;
           }
-          
           return false;
         });
       }
@@ -7992,18 +6662,6 @@
             closeQRZoomModal();
           } else {
             topModal.classList.remove('active');
-          }
-        } else if (id === 'paymongo-modal-overlay') {
-          if (typeof closePaymongoModal === 'function') {
-            closePaymongoModal();
-          } else {
-            topModal.style.display = 'none';
-          }
-        } else if (id === 'shopee-modal-overlay') {
-          if (typeof closeShopeeModal === 'function') {
-            closeShopeeModal();
-          } else {
-            topModal.style.display = 'none';
           }
         } else if (id === 'cart-drawer-overlay') {
           if (typeof toggleCartDrawer === 'function') {
